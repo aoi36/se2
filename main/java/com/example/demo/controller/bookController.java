@@ -1,8 +1,12 @@
 package com.example.demo.controller;
 
+import com.example.demo.Service.AdminService;
+import com.example.demo.Service.BookService;
+import com.example.demo.model.Administrator;
 import com.example.demo.model.Book;
 import com.example.demo.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,29 +22,47 @@ import java.util.List;
 public class bookController {
     @Autowired
     BookRepository bookRepo;
+    @Autowired
+    BookService bookService;
 
     @GetMapping(value = "list")
-    public String getAllBook (@RequestParam(value ="attribute",required = false) List<String> sortAttributeColumn,
-                              @RequestParam(value ="order",required = false) List<String> sortOrder,
-                              Model model){
+    public String getAllBooks(
+            @RequestParam(value = "attribute", required = false) List<String> sortAttributeColumn,
+            @RequestParam(value = "order", required = false) List<String> sortOrder,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model) {
+
+        // Ensure sort lists are not null
         if (sortAttributeColumn == null) {
             sortAttributeColumn = new ArrayList<>();
         }
         if (sortOrder == null) {
             sortOrder = new ArrayList<>();
         }
+
+        // Build a list of Sort.Order objects based on the request parameters
         List<Sort.Order> ordersList = new ArrayList<>();
-        if (!sortAttributeColumn.isEmpty()){
+        if (!sortAttributeColumn.isEmpty()) {
             for (int i = 0; i < sortAttributeColumn.size(); i++) {
                 String attribute = sortAttributeColumn.get(i);
                 String order = sortOrder.size() > i ? sortOrder.get(i) : "asc";
-                Sort.Direction direction = order.equalsIgnoreCase("asc")  ? Sort.Direction.ASC : Sort.Direction.DESC;
+                Sort.Direction direction = order.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
                 ordersList.add(new Sort.Order(direction, attribute));
             }
         }
-            Sort sort = !ordersList.isEmpty() ? Sort.by(ordersList) : Sort.unsorted();
-        List<Book> books = bookRepo.findAll(sort);
-        model.addAttribute("books", books);
+        // Create the Sort object (unsorted if no orders)
+        Sort sort = !ordersList.isEmpty() ? Sort.by(ordersList) : Sort.unsorted();
+
+        // Retrieve the paginated and sorted list of books
+        Page<Book> bookPage = bookService.getBooks(page, size, sort);
+
+        // Add attributes to the model for use in the view
+        model.addAttribute("bookPage", bookPage);
+        model.addAttribute("pageSize", size);
+        // If you need the complete list sorted separately, you can add it as well:
+        // model.addAttribute("books", bookRepo.findAll(sort));
+        model.addAttribute("currentPage", bookPage.getNumber());
         return "bookList";
     }
 
@@ -75,9 +97,11 @@ public class bookController {
         return "updateBook";
     }
 
-    @PostMapping(value = "delete/{id}")
-    public String deleteBookById(@PathVariable(value = "id") Long id){
-        bookRepo.deleteById(id);
+    @PostMapping(value = "delete")
+    public String deleteBooks(@RequestParam(value = "selectedIds") List<Long> selectedIds){
+        if (selectedIds != null && !selectedIds.isEmpty()) {
+            bookRepo.deleteAllByIdInBatch(selectedIds);
+        }
         return "redirect:/book/list";
     }
 

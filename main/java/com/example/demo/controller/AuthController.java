@@ -1,23 +1,19 @@
 package com.example.demo.controller;
 
-import com.example.demo.Service.UserService;
-import com.example.demo.User.MyUserDetail;
+import com.example.demo.Service.AdminService;
 import com.example.demo.exception.UserNotFoundException;
-import com.example.demo.repository.UserRepository;
-import com.example.demo.User.User;
+import com.example.demo.model.Administrator;
+import com.example.demo.repository.AdminRepository;
 import com.example.demo.User.UserTemplate;
 import com.example.demo.util.Utility;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,22 +22,21 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.RequestBody;
 import net.bytebuddy.utility.RandomString;
 import java.io.UnsupportedEncodingException;
 
 @Controller
 public class AuthController {
-    @Autowired
-    UserRepository userRepository;
+
     @Autowired
     PasswordEncoder encoder;
     @Autowired
-    UserService userService;
+    AdminService adminService;
     @Autowired
-    AuthenticationManager authenticationManager;
+    AdminRepository adminRepo;
     @Autowired
     private JavaMailSender mailSender;
 
@@ -50,10 +45,10 @@ public class AuthController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
-            return "redirect:/member"; // Redirect to home if already logged in
+            return "redirect:/member";
         }
 
-        return "sign-in"; // Show login page only if not authenticated
+        return "sign-in";
     }
 
 
@@ -68,38 +63,44 @@ public class AuthController {
 
     @GetMapping("/register")
     public String register(Model model) {
-        model.addAttribute("user", new UserTemplate());
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
+            return "redirect:/member";
+        }
+        model.addAttribute("administrator", new UserTemplate());
         return "register";
     }
     @PostMapping("/register")
-    public String registerHandle(@Valid UserTemplate ut,
+    public String registerHandle(@Valid @ModelAttribute("administrator") UserTemplate ut,
                                  BindingResult result,
                                  Model model) {
-
-        // Debug print
-        System.out.println("Has errors: " + result.hasErrors());
-        if (userRepository.findByUsername(ut.getUsername()).isPresent()) {
-            result.rejectValue("username", "error.username", "Username already exists");
-            model.addAttribute("user", ut);
-            return "register";
-        }
         if (result.hasErrors()) {
-            // Print each error
             result.getAllErrors().forEach(error -> {
                 System.out.println("Field: " + ((FieldError) error).getField());
                 System.out.println("Message: " + error.getDefaultMessage());
             });
-
-            // Add both the user object and the binding result to the model
-            model.addAttribute("user", ut);
-            model.addAttribute("org.springframework.validation.BindingResult.user", result);
+            model.addAttribute("administrator", ut);
             return "register";
-        } else {
+        }
+
+        // Then check for business logic errors like duplicate username
+        if (adminRepo.findByUsername(ut.getUsername()).isPresent()) {
+            result.rejectValue("username", "error.username", "Username already exists");
+            // Optionally print this error immediately
+            result.getAllErrors().forEach(error -> {
+                System.out.println("Field: " + ((FieldError) error).getField());
+                System.out.println("Message: " + error.getDefaultMessage());
+            });
+            model.addAttribute("administrator", ut);
+            return "register";
+        }
+         else {
             String name = ut.getUsername();
             String password = ut.getPassword();
-            String address = ut.getAddress();
-            userRepository.save(new User(name, encoder.encode(password), address));
-            model.addAttribute("user", new UserTemplate());
+
+            adminRepo.save(new Administrator(name, encoder.encode(password)));
+            model.addAttribute("administrator", new UserTemplate());
             model.addAttribute("success", true);
             return "register";
         }
@@ -115,7 +116,7 @@ public class AuthController {
         String token = RandomString.make(30);
 
         try {
-            userService.updateResetPasswordToken(token, email);
+            adminService.updateResetPasswordToken(token, email);
             String resetPasswordLink = Utility.getSiteURL(request) + "/reset-password?token=" + token;
             sendEmail(email, resetPasswordLink);
             model.addAttribute("message", "We have sent a reset password link to your email. Please check.");
@@ -135,7 +136,7 @@ public class AuthController {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
 
-        helper.setFrom("contact@shopme.com", "Shopme Support");
+        helper.setFrom("contact@gmail.com", "XEM HOLOLIVE IT THOI");
         helper.setTo(recipientEmail);
 
         String subject = "Here's the link to reset your password";
@@ -156,10 +157,10 @@ public class AuthController {
     }
     @GetMapping("/reset-password")
     public String showResetPasswordForm(@Param(value = "token") String token, Model model) {
-        User user= userService.getByResetPasswordToken(token);
+        Administrator admin= adminService.getByResetPasswordToken(token);
         model.addAttribute("token", token);
 
-        if (user == null) {
+        if (admin == null) {
             model.addAttribute("message", "Invalid Token");
             return "resetPasswordForm";
         }
@@ -171,14 +172,14 @@ public class AuthController {
         String token = request.getParameter("token");
         String password = request.getParameter("password");
 
-        User user = userService.getByResetPasswordToken(token);
+        Administrator administrator = adminService.getByResetPasswordToken(token);
         model.addAttribute("title", "Reset your password");
 
-        if (user == null) {
+        if (administrator == null) {
             model.addAttribute("message", "Invalid Token");
             return "forgotPasswordForm";
         } else {
-            userService.updatePassword(user, password);
+            adminService.updatePassword(administrator, password);
 
             model.addAttribute("message", "You have successfully changed your password.");
         }

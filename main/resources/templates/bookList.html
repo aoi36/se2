@@ -122,36 +122,42 @@
       console.log("Initialized sortCriteria:", sortCriteria);
     }
 
-        // Toggle the sort order for a given column, or add it if not already present.
-     function toggleSort(field) {
-      let found = false;
-      for (let i = 0; i < sortCriteria.length; i++) {
-        if (sortCriteria[i].field === field) {
-          sortCriteria[i].order = sortCriteria[i].order === 'asc' ? 'desc' : 'asc';
-          found = true;
-          break;
-        }
-      }
-      if (!found) {
-        sortCriteria.push({ field: field, order: 'asc' });
-      }
+function toggleSort(field) {
+  let foundIndex = sortCriteria.findIndex(item => item.field === field);
+  if (foundIndex >= 0) {
+    // If the attribute is already sorted in descending order, remove it.
+    if (sortCriteria[foundIndex].order === 'desc') {
+      sortCriteria.splice(foundIndex, 1);
+    } else {
+      // Otherwise, if it's in ascending order, toggle it to descending.
+      sortCriteria[foundIndex].order = 'desc';
+    }
+  } else {
+    // If not found, add it with ascending order.
+    sortCriteria.push({ field: field, order: 'asc' });
+  }
       redirectWithSort();
     }
 
-        // Build a query string from the sortCriteria array and redirect the browser.
+
      function redirectWithSort() {
-      let params = new URLSearchParams();
-      sortCriteria.forEach(item => {
-        params.append('attribute', item.field);
-        params.append('order', item.order);
-      });
-      const url = '/book/list?' + params.toString();
-      console.log("Redirecting to:", url);
-      window.location.href = url;
-    }
+  let params = new URLSearchParams(window.location.search);
 
 
-          // Modal confirmation for delete action.
+  params.delete("attribute");
+  params.delete("order");
+
+  sortCriteria.forEach(item => {
+    params.append('attribute', item.field);
+    params.append('order', item.order);
+  });
+
+  const url = '/book/list?' + params.toString();
+  console.log("Redirecting to:", url);
+  window.location.href = url;
+}
+
+
     function showModal(form) {
       const modal = document.getElementById('confirmModal');
       modal.style.display = 'block';
@@ -178,6 +184,26 @@
         closeModal();
       }
     };
+  function changePageSize() {
+    // Get the new size from the dropdown
+      console.log("changePageSize() triggered");
+    const newSize = document.getElementById('pageSize').value;
+
+    // Create a URLSearchParams object from the current URL's query string
+    let params = new URLSearchParams(window.location.search);
+
+    // Update the 'size' parameter with the new value
+    params.set("size", newSize);
+
+    // Optionally, reset the page number when the page size changes (commonly to 0)
+    params.set("page", 0);
+
+    // Construct the new URL with all existing parameters (sorting, etc.) intact
+    const newUrl = '/book/list?' + params.toString();
+
+    // Redirect the browser to the new URL
+    window.location.href = newUrl;
+  }
 
     window.onload = function() {
       initializeSortCriteria();
@@ -204,10 +230,12 @@
 
     <a href="/book/add" class="add-book-btn">Add New Book</a>
 
-    <!-- Book Table -->
+<form th:action="@{/book/delete}" method="post" class="deleteForm" style="display: inline;">
+
     <table class="book-table">
         <thead>
             <tr>
+                <th> Select</th>
                 <th onclick="toggleSort('id')">ID</th>
                 <th onclick="toggleSort('name')">Title</th>
                 <th onclick="toggleSort('author')">Author</th>
@@ -216,11 +244,13 @@
                 <th onclick="toggleSort('publicationYear')">Publication Year</th>
                 <th onclick="toggleSort('quantity')">Quantity</th>
                 <th>Update</th>
-                <th>Delete</th>
             </tr>
         </thead>
         <tbody>
-        <tr th:each="book : ${books}">
+        <tr th:each="book : ${bookPage.content}">
+            <td>
+                <input type="checkbox" name="selectedIds" th:value="${book.id}" />
+            </td>
             <td th:text="${book.id}"></td>
             <td>
                 <a th:href="@{/book/detail/{id}(id=${book.id})}" th:text="${book.name}"></a>
@@ -243,15 +273,29 @@
             <td>
                 <a th:href = "@{/book/update/{id}(id=${book.id})}">UPDATE</a>
             </td>
-            <td>
-                <form th:action="@{/book/delete/{id}(id=${book.id})}" method="post" class="deleteForm" style="display: inline;">
-                    <button type="submit" class="action-btn delete-btn">DELETE</button>
-                </form>
-            </td>
             </tr>
         </tbody>
     </table>
+    <button type="submit" class="action-btn delete-btn">DELETE</button>
+</form>
+<form id="pageSizeForm" th:action="@{/book/list}" method="get">
+    <input type="hidden" name="page" th:value="${currentPage}"/>
+    <label for="pageSize">Items per page:</label>
+    <select id="pageSize" name="size" th:onchange="changePageSize()">
+        <option th:value="5" th:selected="${pageSize == 5}">5</option>
+        <option th:value="10" th:selected="${pageSize == 10}">10</option>
+        <option th:value="20" th:selected="${pageSize == 20}">20</option>
+    </select>
 
+</form>
+<div>
+    <span th:text="'Page ' + ${bookPage.number + 1} + ' of ' + ${bookPage.totalPages}">Page 1 of 3</span>
+</div>
+
+<div>
+    <a th:if="${bookPage.hasPrevious()}" th:href="@{/book/list(page=${bookPage.number - 1}, size=${bookPage.size})}">Previous</a>
+    <a th:if="${bookPage.hasNext()}" th:href="@{/book/list(page=${bookPage.number + 1}, size=${bookPage.size})}">Next</a>
+</div>
 <div id="confirmModal" class="modal">
     <div class="modal-content">
         <span id="closeModal" class="close" onclick="closeModal()">&times;</span>

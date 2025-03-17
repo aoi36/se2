@@ -14,7 +14,7 @@ public class UserTemplate {
             message = "Password must be 6-60 characters and contain at least 1 digit and 1 uppercase letter")
     private String password;
 
-    private String address;
+//    private String address;
 
     // Getters and Setters...
     public String getUsername() {
@@ -29,10 +29,10 @@ public class UserTemplate {
     public void setPassword(String password) {
         this.password = password;
     }
-    public String getAddress() {
-        return address;
-    }
-    public void setAddress(String address) {
-        this.address = address;
-    }
+//    public String getAddress() {
+//        return address;
+//    }
+//    public void setAddress(String address) {
+//        this.address = address;
+//    }
 }

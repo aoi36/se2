@@ -1,5 +1,6 @@
 package com.example.demo.User;
 
+import com.example.demo.model.Administrator;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,18 +9,29 @@ import java.util.Collection;
 import java.util.Collections;
 
 public class MyUserDetail implements UserDetails {
-    private User user;
-    public MyUserDetail(User user) { this.user = user; }
-    @Override
-    public String getUsername() { return user.getUsername(); }
-    public Long getId() { return user.getId(); }
-    @Override
-    public String getPassword() { return user.getPassword(); }
+
+    private Administrator admin;
+
+    public MyUserDetail(Administrator admin) {
+        this.admin = admin;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-// create & return a List<GrantedAuthority> from roles
-        return Collections.singleton(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
+        // Return roles/authorities based on admin properties
+        return Collections.singleton(new SimpleGrantedAuthority("ROLE_ADMINISTRATOR"));
     }
+
+    @Override
+    public String getPassword() {
+        return admin.getPassword();
+    }
+
+    @Override
+    public String getUsername() {
+        return admin.getUsername();
+    }
+
     @Override
     public boolean isAccountNonExpired() { return true; }
     @Override
@@ -29,3 +41,4 @@ public class MyUserDetail implements UserDetails {
     @Override
     public boolean isEnabled() { return true; }
 }
+
