@@ -1,10 +1,13 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 import java.util.List;
-
+@Getter
+@Setter
 @Entity
 @Table(name = "orders")
 public class Order {
@@ -21,4 +24,5 @@ public class Order {
     private Administrator administrator;
     @OneToMany(mappedBy = "order")
     private List<OrderDetail> orderDetails;
+    @
 }
