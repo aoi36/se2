@@ -105,18 +105,18 @@
     </style>
     <script>
         // Global array to hold the current sort criteria.
-        // Each element will be an object: { field: 'name', order: 'asc' }
+        // Each element will be an object: { field: 'name', orderInformation: 'asc' }
         let sortCriteria = [];
 
       function initializeSortCriteria() {
       let params = new URLSearchParams(window.location.search);
       const attributes = params.getAll('attribute');
-      const orders = params.getAll('order');
+      const orders = params.getAll('orderInformation');
       sortCriteria = []; // Reset the global array
       for (let i = 0; i < attributes.length; i++) {
         sortCriteria.push({
           field: attributes[i],
-          order: orders[i] ? orders[i] : 'asc'
+          orderInformation: orders[i] ? orders[i] : 'asc'
         });
       }
       console.log("Initialized sortCriteria:", sortCriteria);
@@ -125,16 +125,16 @@
 function toggleSort(field) {
   let foundIndex = sortCriteria.findIndex(item => item.field === field);
   if (foundIndex >= 0) {
-    // If the attribute is already sorted in descending order, remove it.
-    if (sortCriteria[foundIndex].order === 'desc') {
+    // If the attribute is already sorted in descending orderInformation, remove it.
+    if (sortCriteria[foundIndex].orderInformation === 'desc') {
       sortCriteria.splice(foundIndex, 1);
     } else {
-      // Otherwise, if it's in ascending order, toggle it to descending.
-      sortCriteria[foundIndex].order = 'desc';
+      // Otherwise, if it's in ascending orderInformation, toggle it to descending.
+      sortCriteria[foundIndex].orderInformation = 'desc';
     }
   } else {
-    // If not found, add it with ascending order.
-    sortCriteria.push({ field: field, order: 'asc' });
+    // If not found, add it with ascending orderInformation.
+    sortCriteria.push({ field: field, orderInformation: 'asc' });
   }
       redirectWithSort();
     }
@@ -145,11 +145,11 @@ function toggleSort(field) {
 
 
   params.delete("attribute");
-  params.delete("order");
+  params.delete("orderInformation");
 
   sortCriteria.forEach(item => {
     params.append('attribute', item.field);
-    params.append('order', item.order);
+    params.append('orderInformation', item.orderInformation);
   });
 
   const url = '/book/list?' + params.toString();
@@ -268,7 +268,7 @@ function toggleSort(field) {
                 <img th:text="${book.publicationYear}" />
             </td>
             <td>
-                <img th:text="${book.quantity}" />
+                <img th:text="${book.stockQuantity}" />
             </td>
             <td>
                 <a th:href = "@{/book/update/{id}(id=${book.id})}">UPDATE</a>

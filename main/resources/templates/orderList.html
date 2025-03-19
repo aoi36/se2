@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Orders</title>
+  <style>
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+    th, td {
+        padding: 8px;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+    th {
+        background-color: #eee;
+    }
+    .pagination {
+        list-style: none;
+        padding: 0;
+        display: flex;
+    }
+    .pagination li {
+        margin-right: 5px;
+    }
+    .pagination li a {
+        text-decoration: none;
+        padding: 4px 8px;
+        border: 1px solid #ccc;
+        color: #333;
+    }
+  </style>
+</head>
+<body>
+<h1>Orders</h1>
+
+<!-- Orders Table -->
+<table>
+  <thead>
+  <tr>
+    <th>Order ID</th>
+    <th>Administrator ID</th>
+    <th>Order Date</th>
+    <th>Status</th>
+    <th>Total Price</th>
+  </tr>
+  </thead>
+  <tbody>
+  <!-- Iterate over the orders in the Page object -->
+  <tr th:each="orderInformation : ${orderPage.content}">
+    <td th:text="${orderInformation.id}"></td>
+    <!-- Access the administrator's id via the relationship -->
+    <td th:text="${orderInformation.administrator.id}"></td>
+    <td th:text="${#temporals.format(orderInformation.orderDate, 'yyyy-MM-dd HH:mm')}"></td>
+    <td th:text="${orderInformation.status}"></td>
+    <td th:text="${orderInformation.totalPrice}"></td>
+  </tr>
+  </tbody>
+</table>
+
+<div>
+  <span>
+    Page <span th:text="${orderPage.number + 1}"></span>
+    of <span th:text="${orderPage.totalPages}"></span>
+  </span>
+</div>
+
+<div>
+  <ul class="pagination">
+    <li th:if="${orderPage.hasPrevious()}">
+      <a th:href="@{/orders(page=${orderPage.number - 1}, size=${orderPage.size})}">Previous</a>
+    </li>
+    <li th:if="${orderPage.hasNext()}">
+      <a th:href="@{/orders(page=${orderPage.number + 1}, size=${orderPage.size})}">Next</a>
+    </li>
+  </ul>
+</div>
+</body>
+</html>

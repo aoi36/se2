@@ -3,18 +3,18 @@ package com.example.demo.model;
 import jakarta.persistence.*;
 
 @Entity
-public class OrderDetail {
+public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Integer quantity;
-    private Double price;
+    private Integer orderItemQuantity;
+    private Double orderItemPrice;
+    private String bookName;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "order_id")
-    private Order order;
+    @ManyToOne
+    private OrderInformation orderInformation;
 
-    @ManyToOne(optional = false)
+    @ManyToOne
     @JoinColumn(name = "book_id")
     private Book book;
 }

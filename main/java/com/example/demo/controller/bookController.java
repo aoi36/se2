@@ -33,7 +33,7 @@ public class bookController {
             @RequestParam(defaultValue = "10") int size,
             Model model) {
 
-        // Ensure sort lists are not null
+
         if (sortAttributeColumn == null) {
             sortAttributeColumn = new ArrayList<>();
         }
@@ -41,7 +41,7 @@ public class bookController {
             sortOrder = new ArrayList<>();
         }
 
-        // Build a list of Sort.Order objects based on the request parameters
+
         List<Sort.Order> ordersList = new ArrayList<>();
         if (!sortAttributeColumn.isEmpty()) {
             for (int i = 0; i < sortAttributeColumn.size(); i++) {
@@ -51,17 +51,11 @@ public class bookController {
                 ordersList.add(new Sort.Order(direction, attribute));
             }
         }
-        // Create the Sort object (unsorted if no orders)
+
         Sort sort = !ordersList.isEmpty() ? Sort.by(ordersList) : Sort.unsorted();
-
-        // Retrieve the paginated and sorted list of books
         Page<Book> bookPage = bookService.getBooks(page, size, sort);
-
-        // Add attributes to the model for use in the view
         model.addAttribute("bookPage", bookPage);
         model.addAttribute("pageSize", size);
-        // If you need the complete list sorted separately, you can add it as well:
-        // model.addAttribute("books", bookRepo.findAll(sort));
         model.addAttribute("currentPage", bookPage.getNumber());
         return "bookList";
     }
