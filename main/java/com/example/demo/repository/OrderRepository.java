@@ -8,6 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<OrderInformation, Long> {
-    Optional<OrderInformation> findById(Long id);
     Page<OrderInformation> findAll(Pageable pageable);
 }

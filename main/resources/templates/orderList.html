@@ -47,10 +47,8 @@
   </tr>
   </thead>
   <tbody>
-  <!-- Iterate over the orders in the Page object -->
   <tr th:each="orderInformation : ${orderPage.content}">
     <td th:text="${orderInformation.id}"></td>
-    <!-- Access the administrator's id via the relationship -->
     <td th:text="${orderInformation.administrator.id}"></td>
     <td th:text="${#temporals.format(orderInformation.orderDate, 'yyyy-MM-dd HH:mm')}"></td>
     <td th:text="${orderInformation.status}"></td>
@@ -59,22 +57,34 @@
   </tbody>
 </table>
 
-<div>
-  <span>
-    Page <span th:text="${orderPage.number + 1}"></span>
-    of <span th:text="${orderPage.totalPages}"></span>
-  </span>
-</div>
-
+<!-- Pagination Navigation -->
 <div>
   <ul class="pagination">
     <li th:if="${orderPage.hasPrevious()}">
-      <a th:href="@{/orders(page=${orderPage.number - 1}, size=${orderPage.size})}">Previous</a>
+      <a th:href="@{/order/list(page=${orderPage.number - 1}, size=${orderPage.size})}">Previous</a>
     </li>
     <li th:if="${orderPage.hasNext()}">
-      <a th:href="@{/orders(page=${orderPage.number + 1}, size=${orderPage.size})}">Next</a>
+      <a th:href="@{/order/list(page=${orderPage.number + 1}, size=${orderPage.size})}">Next</a>
     </li>
   </ul>
 </div>
+
+
+<form id="pageSizeForm" th:action="@{/orders/list}" method="get">
+
+  <input type="hidden" name="page" th:value="${orderPage.number}" />
+  <label for="pageSize">Items per page:</label>
+  <select id="pageSize" name="size" onchange="changePageSize()">
+    <option th:value="5" th:selected="${orderPage.size == 5}">5</option>
+    <option th:value="10" th:selected="${orderPage.size == 10}">10</option>
+    <option th:value="20" th:selected="${orderPage.size == 20}">20</option>
+  </select>
+</form>
+
+<script>
+  function changePageSize() {
+    document.getElementById('pageSizeForm').submit();
+  }
+</script>
 </body>
 </html>

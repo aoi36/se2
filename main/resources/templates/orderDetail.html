@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Details</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1, h2 { color: #333; }
+        .order-info { margin-bottom: 20px; }
+        .order-info p { line-height: 1.6; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { padding: 8px; border: 1px solid #ccc; text-align: left; }
+        th { background-color: #eee; }
+    </style>
+</head>
+<body>
+<h1>Order Details</h1>
+<div class="order-info">
+    <p><strong>Order ID:</strong> <span th:text="${order.id}"></span></p>
+    <p>
+        <strong>Order Date:</strong>
+        <span th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH')}"></span>
+    </p>
+    <p><strong>Status:</strong> <span th:text="${order.status}"></span></p>
+    <p><strong>Total Price:</strong> <span th:text="${order.totalPrice}"></span></p>
+    <p>
+        <strong>Administrator:</strong>
+        <span th:text="${order.administrator.administratorName}"></span>
+    </p>
+</div>
+
+<h2>Order Items</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Item ID</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Book Name</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="item : ${order.orderItemList}">
+        <td th:text="${item.id}"></td>
+        <td th:text="${item.orderItemQuantity}"></td>
+        <td th:text="${item.orderItemPrice}"></td>
+        <td th:text="${item.bookName}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

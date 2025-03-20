@@ -24,7 +24,7 @@ public class OrderController {
 
     @GetMapping(value = "/list")
     public String getOrderList(@RequestParam(defaultValue = "0") int page,
-                               @RequestParam(defaultValue = "10") int size,
+                               @RequestParam(defaultValue = "5") int size,
                                Model model){
         Page<OrderInformation> orderPage = orderService.getPaginatedOrders(PageRequest.of(page, size));
         model.addAttribute("orderPage", orderPage);
@@ -33,7 +33,7 @@ public class OrderController {
 
     @GetMapping(value = "/detail/{id}")
     public String getOrderDetail(@PathVariable("id") Long id, Model model){
-        Optional<OrderInformation> order = orderRepo.findById(id);
+        OrderInformation order = orderRepo.findById(id).orElse(null);
         model.addAttribute("order", order);
         return "orderDetail";
     }
@@ -43,5 +43,4 @@ public class OrderController {
         Long id = orderInformation.getId();
         return "redirect:/order/detail/{id}";
     }
-
 }

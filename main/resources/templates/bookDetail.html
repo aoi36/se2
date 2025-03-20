@@ -188,8 +188,8 @@
                     <div class="meta-item">
                         <div class="meta-label">Stock Status</div>
                         <div class="stock-status" 
-                             th:classappend="${book.quantity > 10 ? 'in-stock' : (book.quantity > 0 ? 'low-stock' : 'out-of-stock')}"
-                             th:text="${book.quantity > 10 ? 'In Stock' : (book.quantity > 0 ? 'Low Stock' : 'Out of Stock')}">
+                             th:classappend="${book.stockQuantity > 10 ? 'in-stock' : (book.stockQuantity > 0 ? 'low-stock' : 'out-of-stock')}"
+                             th:text="${book.stockQuantity > 10 ? 'In Stock' : (book.stockQuantity > 0 ? 'Low Stock' : 'Out of Stock')}">
                             In Stock
                         </div>
                     </div>
@@ -206,7 +206,7 @@
 
                 <div class="action-buttons">
                     <button class="btn btn-primary" 
-                            th:disabled="${book.quantity <= 0}"
+                            th:disabled="${book.stockQuantity <= 0}"
                             onclick="addToCart()">
                         Add to Cart
                     </button>

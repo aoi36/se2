@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,8 +36,13 @@ public class ProviderController {
     }
     @GetMapping(value = "detail/{id}")
     public String getProviderDetail(@PathVariable("id") Long id, Model model){
-        Optional<Provider> provider = providerRepo.findById(id);
-        List<Book> books = provider.get().getBooks();
+        Provider provider = providerRepo.findById(id).orElse(null);
+        if (provider == null) {
+            model.addAttribute("provider", null);
+             model.addAttribute("books", Collections.emptyList());
+             return "providerDetail";
+        }
+        List<Book> books = provider.getBooks();
         model.addAttribute("provider", provider);
         model.addAttribute("books", books);
         return "providerDetail";

@@ -18,10 +18,9 @@ public class OrderInformation {
     @Column(name = "order_id")
     private Long id;
 
-    @Column(name = "order_date")
+
     private LocalDateTime orderDate;
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
     private OrderStatus status;
     @Column(name = "total_price", precision = 10, scale = 2)
     private BigDecimal totalPrice;
