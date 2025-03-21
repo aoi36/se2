@@ -21,7 +21,14 @@
   <label>Publication Year </label>
   <input type="text" th:field="*{publicationYear}" required>
   <label>Quantity </label>
-  <input type="text" th:field="*{quantity}" required>
+  <input type="text" th:field="*{stockQuantity}" required>
+  <select th:field="*{provider}" required>
+    <option value="" disabled selected>Select Provider</option>
+    <option th:each="prov : ${providers}"
+            th:value="${prov}"
+            th:text="${prov.providerName}"></option>
+
+  </select>
   <button type="submit">Save</button>
 </form>
 </body>

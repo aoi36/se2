@@ -42,7 +42,7 @@
       <img th:text="${book.publicationYear}" />
     </td>
     <td>
-      <img th:text="${book.quantity}" />
+      <img th:text="${book.stockQuantity}" />
     </td>
     <td>
       <a th:href = "@{/book/update/{id}(id=${book.id})}">UPDATE</a>

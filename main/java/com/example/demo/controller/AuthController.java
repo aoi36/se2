@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import jakarta.validation.Valid;
 import net.bytebuddy.utility.RandomString;
 import java.io.UnsupportedEncodingException;
+import java.security.Principal;
 
 @Controller
 public class AuthController {
@@ -53,10 +54,12 @@ public class AuthController {
 
 
     @GetMapping("/member")
-    public String loginSuccess(Model model, Authentication authentication) {
+    public String loginSuccess(Model model, Authentication authentication, Principal principal) {
         if (authentication != null && authentication.isAuthenticated()) {
             String username = authentication.getName();
             model.addAttribute("username", username);
+
+
         }
         return "member";
     }

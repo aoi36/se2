@@ -16,6 +16,7 @@ public class Administrator {
     private String password;
     private String email;
     private String resetPasswordToken;
+    private String avatar;
     @OneToMany(mappedBy = "administrator")
     List<OrderInformation> orderInformation;
 

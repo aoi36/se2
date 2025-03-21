@@ -11,42 +11,75 @@
         table { border-collapse: collapse; width: 100%; }
         th, td { padding: 8px; border: 1px solid #ccc; text-align: left; }
         th { background-color: #eee; }
+        .update-form { margin-top: 20px; }
+        .error-message { color: red; font-weight: bold; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 <h1>Order Details</h1>
-<div class="order-info">
-    <p><strong>Order ID:</strong> <span th:text="${order.id}"></span></p>
-    <p>
-        <strong>Order Date:</strong>
-        <span th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH')}"></span>
-    </p>
-    <p><strong>Status:</strong> <span th:text="${order.status}"></span></p>
-    <p><strong>Total Price:</strong> <span th:text="${order.totalPrice}"></span></p>
-    <p>
-        <strong>Administrator:</strong>
-        <span th:text="${order.administrator.administratorName}"></span>
-    </p>
-</div>
 
-<h2>Order Items</h2>
-<table>
-    <thead>
-    <tr>
-        <th>Item ID</th>
-        <th>Quantity</th>
-        <th>Price</th>
-        <th>Book Name</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="item : ${order.orderItemList}">
-        <td th:text="${item.id}"></td>
-        <td th:text="${item.orderItemQuantity}"></td>
-        <td th:text="${item.orderItemPrice}"></td>
-        <td th:text="${item.bookName}"></td>
-    </tr>
-    </tbody>
-</table>
+<div th:if="${order == null}">
+    <p class="error-message">No order found.</p>
+</div>
+<div th:if="${order != null}">
+    <div class="order-info">
+        <p><strong>Order ID:</strong> <span th:text="${order.id}"></span></p>
+        <p>
+            <strong>Order Date:</strong>
+            <span th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}"></span>
+        </p>
+        <p><strong>Total Price:</strong> <span th:text="${order.totalPrice}"></span></p>
+        <p>
+            <strong>Administrator:</strong>
+            <span th:text="${order.administrator.administratorName}"></span>
+        </p>
+    </div>
+
+    <h2>Order Items</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Item ID</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Book Name</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${order.orderItemList}">
+            <td th:text="${item.id}"></td>
+            <td th:text="${item.orderItemQuantity}"></td>
+            <td th:text="${item.orderItemPrice}"></td>
+            <td th:text="${item.bookName}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h2>Order Status</h2>
+    <div th:if="${#authentication.principal.username.trim().toLowerCase() == order.administrator.username.trim().toLowerCase()}">
+        <form th:action="@{/order/save}" method="post">
+            <input type="hidden" name="id" th:value="${order.id}" />
+            <label for="status">Status:</label>
+            <select id="status" name="status">
+                <option th:each="s : ${T(com.example.demo.constant.OrderStatus).values()}"
+                        th:value="${s}"
+                        th:text="${s}"
+                        th:selected="${s == order.status}"></option>
+            </select>
+            <button type="submit">Update</button>
+        </form>
+    </div>
+
+    <div th:unless="${#authentication.principal.username.trim().toLowerCase() == order.administrator.username.trim().toLowerCase()}">
+        <label for="statusReadOnly">Status:</label>
+        <select id="statusReadOnly" disabled>
+            <option th:each="s : ${T(com.example.demo.constant.OrderStatus).values()}"
+                    th:value="${s}"
+                    th:text="${s}"
+                    th:selected="${s == order.status}"></option>
+        </select>
+    </div>
+</div>
 </body>
+
 </html>

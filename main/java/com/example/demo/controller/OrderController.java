@@ -1,6 +1,8 @@
 package com.example.demo.controller;
 
 import com.example.demo.Service.OrderService;
+import com.example.demo.constant.OrderStatus;
+import com.example.demo.model.Administrator;
 import com.example.demo.model.OrderInformation;
 import com.example.demo.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
+import java.security.Principal;
 
 
 @Controller
@@ -37,10 +38,26 @@ public class OrderController {
         model.addAttribute("order", order);
         return "orderDetail";
     }
-    @PostMapping(value = "/save")
-    public String saveOrderStatus(@ModelAttribute OrderInformation orderInformation){
-        orderRepo.save(orderInformation);
-        Long id = orderInformation.getId();
-        return "redirect:/order/detail/{id}";
+    @PostMapping("/order/save")
+    public String saveOrderStatus(@ModelAttribute OrderInformation orderInformation, Principal principal, Model model) {
+        OrderInformation existingOrder = orderRepo.findById(orderInformation.getId()).orElse(null);
+        if (existingOrder == null) {
+            return "redirect:/order/list";
+        }
+
+        String loggedInAdminUsername = principal.getName();
+
+        if (!existingOrder.getAdministrator().getUsername().equals(loggedInAdminUsername)) {
+            model.addAttribute("errorMessage", "You are not authorized to modify this order.");
+            model.addAttribute("order", existingOrder);
+            return "orderDetail";
+        }
+        existingOrder.setStatus(orderInformation.getStatus());
+        orderRepo.save(existingOrder);
+        model.addAttribute("order", existingOrder);
+        return "redirect:/order/detail/" + existingOrder.getId();
     }
+
+
+
 }

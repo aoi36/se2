@@ -12,8 +12,9 @@ public class Provider {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String administratorName;
+    private String providerName;
     private String contactNumber;
+    private String address;
     @OneToMany(mappedBy = "provider")
     List<Book> books;
 }

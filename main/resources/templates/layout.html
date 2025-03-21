@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Website</title>
+  <style>
+    /* Reset styles */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+    }
+
+    body {
+        background-color: #f5f5f5;
+    }
+
+    /* Nav bar label */
+    .nav-label {
+        background-color: #8a8a8a;
+        color: white;
+        padding: 5px 10px;
+        font-size: 14px;
+    }
+
+    .nav-label span {
+        display: inline-block;
+        margin-left: 10px;
+    }
+
+    /* Main navbar container */
+    .navbar {
+        display: flex;
+        justify-content: space-around;
+        background-color: #fff9d6; /* Light cream/yellow background */
+        padding: 15px 0px;
+        width: 100%;
+
+    }
+
+    /* Book logo */
+    .book-logo {
+        margin-right: 20px;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .book-icon {
+        font-size: 30px;
+
+    }
+
+    /* Search bar */
+    .search-container {
+        display: flex;
+        align-items: center;
+        background-color: #f8f0ff;
+        border-radius: 20px;
+        padding: 5px 15px;
+        width: 25%;
+    }
+
+    .search-icon {
+        color: #666;
+        margin-right: 10px;
+        font-size: 16px;
+        padding: 8px 0;
+    }
+
+    .search-input {
+        border: none;
+        outline: none;
+        background-color: transparent;
+        width: 100%;
+        padding: 8px 0;
+        font-size: 14px;
+    }
+
+    /* Navigation links */
+    .nav-links {
+         display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+
+    }
+
+    .nav-link {
+        color: #333;
+        text-decoration: none;
+        font-size: 16px;
+        padding: 0 20px;
+    }
+
+    .nav-link:hover {
+        color: #555;
+    }
+
+
+
+    .profile-img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+  </style>
+
+</head>
+<body>
+<!-- Common header -->
+<header>
+  <!-- Include the navbar fragment -->
+  <div th:replace="~{navbar :: navbar}"></div>
+</header>
+
+<!-- Main content area: individual pages will insert content here -->
+<main layout:fragment="content">
+  <!-- Page-specific content goes here -->
+</main>
+
+<!-- Common footer -->
+<footer>
+  <p>&copy; 2025 My Website</p>
+</footer>
+</body>
+</html>

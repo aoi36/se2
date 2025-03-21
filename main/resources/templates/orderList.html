@@ -40,7 +40,7 @@
   <thead>
   <tr>
     <th>Order ID</th>
-    <th>Administrator ID</th>
+    <th>Administrator Name</th>
     <th>Order Date</th>
     <th>Status</th>
     <th>Total Price</th>
@@ -49,7 +49,7 @@
   <tbody>
   <tr th:each="orderInformation : ${orderPage.content}">
     <td th:text="${orderInformation.id}"></td>
-    <td th:text="${orderInformation.administrator.id}"></td>
+    <td th:text="${orderInformation.administrator?.administratorName}">Admin Name</td>
     <td th:text="${#temporals.format(orderInformation.orderDate, 'yyyy-MM-dd HH:mm')}"></td>
     <td th:text="${orderInformation.status}"></td>
     <td th:text="${orderInformation.totalPrice}"></td>
@@ -69,9 +69,7 @@
   </ul>
 </div>
 
-
-<form id="pageSizeForm" th:action="@{/orders/list}" method="get">
-
+<form id="pageSizeForm" th:action="@{/order/list}" method="get">
   <input type="hidden" name="page" th:value="${orderPage.number}" />
   <label for="pageSize">Items per page:</label>
   <select id="pageSize" name="size" onchange="changePageSize()">

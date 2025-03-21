@@ -38,7 +38,6 @@ public class JpaUserDetailsService implements UserDetailsService {
         }
     }
 
-    // If needed, a method to find the Administrator directly:
     public Administrator findAdminById(Long id) {
         return adminRepo.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Admin not found with id: " + id));

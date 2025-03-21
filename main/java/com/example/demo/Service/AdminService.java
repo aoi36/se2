@@ -40,5 +40,8 @@ public class AdminService {
         administrator.setResetPasswordToken(null);
         adminRepository.save(administrator);
     }
+    public Administrator findByUsername(String username) {
+        return adminRepository.findByUsername(username).orElse(null);
+    }
 
 }

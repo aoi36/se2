@@ -20,8 +20,6 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityCfg {
     @Autowired
     JpaUserDetailsService jpaUserDetailsService;
-
-
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
@@ -36,9 +34,6 @@ public class SecurityCfg {
                         .anyRequest().authenticated()
                 ).formLogin(formLogin-> formLogin
                 .loginPage("/sign-in")
-                // by default, redirects to previous URL
-                // (adding "?continue") if login successfully
-                // redirects to "/login?error" if failed
                 .loginProcessingUrl("/sign-in")
                 .defaultSuccessUrl("/member", true)
                 .failureUrl("/sign-in?error=true")
@@ -61,6 +56,4 @@ public class SecurityCfg {
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-
 }

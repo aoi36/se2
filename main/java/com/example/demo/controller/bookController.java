@@ -4,7 +4,9 @@ import com.example.demo.Service.AdminService;
 import com.example.demo.Service.BookService;
 import com.example.demo.model.Administrator;
 import com.example.demo.model.Book;
+import com.example.demo.model.Provider;
 import com.example.demo.repository.BookRepository;
+import com.example.demo.repository.ProviderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -24,6 +26,8 @@ public class bookController {
     BookRepository bookRepo;
     @Autowired
     BookService bookService;
+    @Autowired
+    ProviderRepository providerRepo;
 
     @GetMapping(value = "list")
     public String getAllBooks(
@@ -75,7 +79,9 @@ public class bookController {
     @GetMapping(value = "/add")
     public String addBook(Model model){
         Book book = new Book();
+        List<Provider> providers = providerRepo.findAll();
         model.addAttribute("book", book);
+        model.addAttribute("providers", providers);
         return "addBook";
     }
     @PostMapping(value = "/save")
@@ -87,10 +93,11 @@ public class bookController {
     @GetMapping(value = "/update/{id}")
     public String updateBook(@PathVariable(value = "id") Long id, Model model){
         Book book = bookRepo.getReferenceById(id);
+        List<Provider> providers = providerRepo.findAll();
         model.addAttribute("book", book);
+        model.addAttribute("providers", providers);
         return "updateBook";
     }
-
     @PostMapping(value = "delete")
     public String deleteBooks(@RequestParam(value = "selectedIds") List<Long> selectedIds){
         if (selectedIds != null && !selectedIds.isEmpty()) {
