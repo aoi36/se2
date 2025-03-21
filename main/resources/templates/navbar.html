@@ -1,0 +1,35 @@
+<!-- navbar.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="navbar">
+  <!-- Navbar content here -->
+  <nav class="navbar">
+    <!-- Logo section -->
+    <div class="navbar-logo">
+      <!-- Replace with your logo, here using a sample book icon -->
+      <span class="book-icon">📚</span>
+    </div>
+
+    <!-- Search bar -->
+    <div class="search-container">
+
+      <input type="text" class="search-input" placeholder="Book ID, Title, Author,..." th:attr="data-search-url=@{/books/search}">
+      <span class="search-icon">🔍</span>
+    </div>
+
+    <!-- Navigation links -->
+    <div class="nav-links">
+      <a th:href="@{/}" class="nav-link">Home</a>
+      <a th:href="@{/about}" class="nav-link">About</a>
+      <a th:href="@{/contact}" class="nav-link">Contact</a>
+    </div>
+
+    <!-- User profile -->
+    <div class="user-profile">
+      <img class="profile-img" th:src="@{/images/{img}(img=${avatar})}" alt="User Profile">
+    </div>
+  </nav>
+</div>
+</body>
+</html>

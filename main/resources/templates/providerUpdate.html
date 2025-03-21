@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Update Provider</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1 { color: #333; }
+    form { max-width: 400px; margin: 20px auto; }
+    label { display: block; margin-top: 10px; }
+    input, textarea { width: 100%; padding: 8px; margin-top: 5px; }
+    button { margin-top: 15px; padding: 10px; background: #28a745; color: white; border: none; cursor: pointer; }
+    button:hover { background: #218838; }
+  </style>
+</head>
+<body>
+<h1>Update Provider</h1>
+<form th:action="@{/provider/save}" method="post" th:object="${provider}">
+  <input type="hidden" th:field="*{id}" />
+
+  <label for="providerName">Provider Name:</label>
+  <input type="text" id="providerName" name="providerName" th:field="*{providerName}" required>
+
+  <label for="contactNumber">Contact Number:</label>
+  <input type="text" id="contactNumber" name="contactNumber" th:field="*{contactNumber}" required>
+
+  <label for="address">Address:</label>
+  <textarea id="address" name="address" th:field="*{address}" required></textarea>
+
+  <button type="submit">Save</button>
+</form>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Provider Details</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1, h2 { color: #333; }
+    .provider-info { margin-bottom: 20px; }
+    .provider-info p { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { padding: 8px; border: 1px solid #ccc; text-align: left; }
+    th { background-color: #eee; }
+    .update-form { margin-top: 20px; }
+  </style>
+</head>
+<body>
+<h1>Provider Details</h1>
+<div class="provider-info">
+  <p><strong>Provider ID:</strong> <span th:text="${provider.id}"></span></p>
+  <p><strong>Provider Name:</strong> <span th:text="${provider.providerName}"></span></p>
+  <p><strong>Provider Name:</strong> <span th:text="${provider.address}"></span></p>
+  <p><strong>Provider Name:</strong> <span th:text="${provider.contactNumber}"></span></p>
+</div>
+<h2>Books Provided</h2>
+<table>
+  <thead>
+  <tr>
+    <th>Book ID</th>
+    <th>Title</th>
+    <th>Price</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="book : ${books}">
+    <td th:text="${book.id}"></td>
+    <td th:text="${book.name}"></td>
+    <td th:text="${book.price}"></td>
+  </tr>
+  </tbody>
+</table>
+
+<h2>Update Provider</h2>
+<a th:href="@{/provider/update/{id}(id=${provider.id})}">
+  <button>Update</button>
+</a>
+</body>
+</html>
