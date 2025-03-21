@@ -1,36 +1,237 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
 <head>
-    <meta charset="UTF-8">
-    <title>Add Book</title>
+  <title>Add Book</title>
+  <style>
+    body {
+      background-color: #fefae0;
+            font-family: Arial, sans-serif;
+    }
+.book-form {
+    margin-top: 3%;
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 24px;
+    width: 100%;
+    max-width: 60%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+ margin-left: auto;
+  margin-right: auto;
+
+}
+.form-title {
+    font-size: 18px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    font-weight: 600;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+label {
+    width: 150px;
+    font-size: 14px;
+    padding-top: 8px;
+    color: #374151;
+}
+.required {
+    color: #ef4444;
+}
+.form-group {
+  display: flex;
+  align-items: center;
+    justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+/* Label: fixed width to keep alignment consistent */
+.form-group label {
+  width: 150px;       /* Adjust as needed */
+  text-align: left;   /* Ensures label text is left-aligned */
+  margin-right: 10px; /* Spacing between label and input */
+}
+
+/* Input: same width for all */
+.form-control {
+  width: 300px;       /* Adjust as needed */
+  padding: 6px 10px;
+  font-size: 14px;
+  background-color: #f7f7f7;
+  color: #6c757d;
+  border: 1px solid #dcdcdc;
+  border-radius: 4px;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+/* Optional hover/focus effects */
+.form-control:hover {
+  border-color: #c6c6c6;
+}
+
+.form-control:focus {
+  background-color: #fff;
+  border-color: #bfbfbf;
+  outline: none;
+}
+
+/* Placeholder styling */
+.form-control::placeholder {
+  color: #999;
+  font-style: italic;
+}
+
+.upload-area {
+    width: 100px;
+    height: 100px;
+    background-color: #f3f4f6;
+    border: 1px dashed #d1d5db;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-bottom: 8px;
+}
+.file-types {
+    font-size: 12px;
+    color: #9ca3af;
+}
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 24px;
+    gap: 12px;
+}
+.btn-discard {
+    padding: 8px 16px;
+    border: 1px solid #e5e7eb;
+    background-color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #374151;
+    transition: all 0.2s ease;
+}
+.btn-discard:hover {
+    background-color: #BDDCFC;
+    color: #3E97FF;
+    border-color: #BDDCFC;
+}
+.btn-submit {
+    padding: 8px 16px;
+    background-color: #3b82f6;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.btn-submit:hover {
+    background-color: #2563eb;
+}
+  </style>
 </head>
 <body>
-<h2>Add New Company</h2>
-<form th:action="@{/book/save}" th:object="${book}" method="post">
-  <label>Name: </label>
-  <input type="text" th:field="*{name}" required>
-  <label>Author </label>
-  <input type="text" th:field="*{author}" required>
-  <label>Description </label>
-  <input type="text" th:field="*{description}" required>
-  <label>Genre </label>
-  <input type="text" th:field="*{genre}" required>
-  <label>price</label>
-  <input type="text" th:field="*{price}" required>
-  <label>Publication Year </label>
-  <input type="text" th:field="*{publicationYear}" required>
-  <label>Quantity </label>
-  <input type="text" th:field="*{stockQuantity}" required>
-  <label>Provider: </label>
-  <select th:field="*{provider}" required>
+<div layout:fragment="content">
+<div class="main-content">
+  <div class="book-form">
+    <h2 class="form-title">Add Book</h2>
+    <form th:action="@{/book/save}" th:object="${book}" method="post" enctype="multipart/form-data">
 
-    <option value="" disabled selected>Select Provider</option>
+      <div class="form-group">
+        <label>Cover</label>
+        <div class="cover-upload">
+          <div class="upload-area" id="uploadArea" onclick="document.getElementById('coverImageInput').click();">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                 xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 5V19M5 12H19" stroke="#6B7280" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <input type="file" id="coverImageInput" name="coverImage" accept=".png, .jpg, .jpeg" style="display:none;" onchange="previewImage(event)">
+          <div class="file-types">Allowed file types: .png, .jpg, .jpeg</div>
+        </div>
+      </div>
 
-    <option th:each="prov : ${providers}"
-            th:value="${prov}"
-            th:text="${prov.providerName}"></option>
-  </select>
-  <button type="submit">Save</button>
-</form>
+      <div class="form-group">
+        <label for="title">Title <span class="required">*</span></label>
+        <input type="text" id="title" th:field="*{name}" class="form-control"
+               placeholder="Enter book title" required>
+      </div>
+
+      <div class="form-group">
+        <label for="provider">Provider <span class="required">*</span></label>
+        <select id="provider" name="provider.id" class="form-control" required>
+          <option value="" disabled selected>Select Provider</option>
+          <option th:each="prov : ${providers}"
+                  th:value="${prov.id}"
+                  th:text="${prov.providerName}">
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="author">Author <span class="required">*</span></label>
+        <input type="text" id="author" th:field="*{author}" class="form-control"
+               placeholder="Enter author name" required>
+      </div>
+
+      <div class="form-group">
+        <label for="price">Price <span class="required">*</span></label>
+        <input type="number" id="price" th:field="*{price}" class="form-control"
+               placeholder="Enter price" required>
+      </div>
+
+      <div class="form-group">
+        <label for="stock">Stock Quantity <span class="required">*</span></label>
+        <input type="number" id="stock" th:field="*{stockQuantity}" class="form-control"
+               placeholder="Enter stock quantity" required>
+      </div>
+
+      <div class="form-group">
+        <label for="genre">Genre <span class="required">*</span></label>
+        <input type="text" id="genre" th:field="*{genre}" class="form-control"
+               placeholder="Enter genre" required>
+      </div>
+
+      <div class="form-group">
+        <label for="year">Publication Year <span class="required">*</span></label>
+        <input type="number" id="year" th:field="*{publicationYear}" class="form-control"
+               placeholder="Enter publication year" required>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description <span class="required">*</span></label>
+        <input type="text" id="description" th:field="*{description}" class="form-control"
+               placeholder="Enter description" required>
+      </div>
+
+      <div class="form-actions">
+        <a th:href="@{/book/list}" class="btn-discard">Cancel</a>
+        <button type="submit" class="btn-submit">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+
+<script>
+  function previewImage(event) {
+      var reader = new FileReader();
+      reader.onload = function(){
+          var output = document.createElement('img');
+          output.src = reader.result;
+          output.style.width = "100px";
+          output.style.height = "100px";
+          output.style.borderRadius = "4px";
+          output.style.objectFit = "cover";
+          document.getElementById('uploadArea').innerHTML = "";
+          document.getElementById('uploadArea').appendChild(output);
+      };
+      reader.readAsDataURL(event.target.files[0]);
+  }
+</script>
+
 </body>
 </html>

@@ -35,7 +35,7 @@ public class SecurityCfg {
                 ).formLogin(formLogin-> formLogin
                 .loginPage("/sign-in")
                 .loginProcessingUrl("/sign-in")
-                .defaultSuccessUrl("/member", true)
+                .defaultSuccessUrl("/book/list", true)
                 .failureUrl("/sign-in?error=true")
                 .permitAll()
                 )

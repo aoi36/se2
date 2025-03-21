@@ -38,7 +38,7 @@ public class OrderController {
         model.addAttribute("order", order);
         return "orderDetail";
     }
-    @PostMapping("/order/save")
+    @PostMapping("/save")
     public String saveOrderStatus(@ModelAttribute OrderInformation orderInformation, Principal principal, Model model) {
         OrderInformation existingOrder = orderRepo.findById(orderInformation.getId()).orElse(null);
         if (existingOrder == null) {

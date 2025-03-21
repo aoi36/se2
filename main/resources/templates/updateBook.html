@@ -1,35 +1,372 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
 <head>
-    <meta charset="UTF-8">
-    <title>Add Book</title>
+  <meta charset="UTF-8">
+  <title>Update Book</title>
+  <style>
+    /* RESET & GLOBAL STYLES */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+    body {
+      background-color: #f5f5f5;
+      margin: 0;
+    }
+
+    /* MAIN CONTAINER */
+    .container {
+      width: 100%;
+      min-height: 100vh;
+      padding: 80px 20px 20px;
+      background-color: #fffbe6;
+    }
+
+    /* MAIN CONTENT LAYOUT */
+    .main-content {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* BOOK CARD */
+    .book-card {
+      background-color: #fff;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-top: 40px;
+      width: 60%;
+      margin: auto;
+      flex: 1;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      gap: 20%;
+    }
+    .book-card h1 {
+      color: #071437;
+      font-size: 24px;
+      font-weight: 600;
+      margin-left: 170px; /* Adjust if needed */
+    }
+    .book-details {
+      display: flex;
+      gap: 20px;
+    }
+    .book-details img {
+      width: 150px;
+      height: 200px;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+    .book-info .col {
+      display: flex;
+      gap: 20px;
+      margin: 20px 0;
+    }
+    .book-info p {
+      font-size: 14px;
+      color: #99A1B7;
+      margin-bottom: 10px;
+    }
+    .book-info p strong {
+      font-weight: 600;
+    }
+
+    /* UPDATE/DELETE BUTTONS INSIDE THE CARD */
+    .buttons {
+      display: flex;
+      gap: 10px;
+    }
+    .update-btn,
+    .delete-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .update-btn {
+      background-color: #47BE7D; /* Green */
+      color: #fff;
+    }
+    .update-btn:hover {
+      background-color: #3da86b;
+    }
+    .delete-btn {
+      background-color: #F1416C; /* Red */
+      color: #fff;
+    }
+    .delete-btn:hover {
+      background-color: #d8345d;
+    }
+
+    /* BOOK FORM */
+    .book-form {
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 24px;
+      width: 100%;
+      max-width: 60%;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    .form-title {
+      font-size: 18px;
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      font-weight: 600;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .form-group {
+      margin-bottom: 16px;
+      display: flex;
+      align-items: flex-start;
+    }
+    label {
+      width: 150px;
+      font-size: 14px;
+      padding-top: 8px;
+      color: #374151;
+    }
+    .required {
+      color: #ef4444;
+    }
+    .form-control {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      font-size: 14px;
+      outline: none;
+    }
+    .cover-upload {
+      flex: 1;
+    }
+    .upload-area {
+      width: 100px;
+      height: 100px;
+      background-color: #f3f4f6;
+      border: 1px dashed #d1d5db;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+    .file-types {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .error-message {
+      color: #ef4444;
+      font-size: 14px;
+      margin-bottom: 16px;
+      min-height: 20px;
+    }
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 24px;
+      gap: 12px;
+    }
+    .btn-discard {
+      padding: 8px 16px;
+      border: 1px solid #e5e7eb;
+      background-color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #374151;
+      transition: all 0.2s ease;
+    }
+    .btn-discard:hover {
+      background-color: #BDDCFC;
+      color: #3E97FF;
+      border-color: #BDDCFC;
+    }
+    .btn-update {
+      padding: 8px 16px;
+      background-color: #3b82f6;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn-update:hover {
+      background-color: #2563eb;
+    }
+  </style>
+  <script>
+    function previewImage(event) {
+      const input = event.target;
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          // Update the upload area with the preview image
+          const uploadArea = document.getElementById('uploadArea');
+          uploadArea.innerHTML = `<img src="${e.target.result}" alt="Cover Preview" style="width:100%; height:100%; object-fit: cover; border-radius: 4px;">`;
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+  </script>
 </head>
 <body>
-<h2>Add New Company</h2>
-<form th:action="@{/book/save}" th:object="${book}" method="post">
-  <input type="hidden" th:field="*{id}"/>
-  <label>Name: </label>
-  <input type="text" th:field="*{name}" required>
-  <label>Author </label>
-  <input type="text" th:field="*{author}" required>
-  <label>Description </label>
-  <input type="text" th:field="*{description}" required>
-  <label>Genre </label>
-  <input type="text" th:field="*{genre}" required>
-  <label>price</label>
-  <input type="text" th:field="*{price}" required>
-  <label>Publication Year </label>
-  <input type="text" th:field="*{publicationYear}" required>
-  <label>Quantity </label>
-  <input type="text" th:field="*{stockQuantity}" required>
-  <select th:field="*{provider}" required>
-    <option value="" disabled selected>Select Provider</option>
-    <option th:each="prov : ${providers}"
-            th:value="${prov}"
-            th:text="${prov.providerName}"></option>
+<div layout:fragment="content">
+<div class="container">
+  <div class="book-card">
+    <div class="card-header">
+      <img th:src="@{/images/{img}(img=${book.bookCover})}" width="35%" height="35%" alt="Book Cover"/>
 
-  </select>
-  <button type="submit">Save</button>
-</form>
+      <div class="book-details">
+        <div class="book-info">
+          <h1 th:text="${book.name}">Book Title</h1>
+          <p><strong>BookID:</strong> <span th:text="${book.id}">ABC</span></p>
+          <div class="col">
+            <div class="col1">
+              <p><strong>Author:</strong> <span th:text="${book.author}">DEF</span></p>
+              <p><strong>Genre:</strong> <span th:text="${book.genre}">DEF</span></p>
+              <p><strong>Publication Year:</strong> <span th:text="${book.publicationYear}">123</span></p>
+            </div>
+            <div class="col2">
+              <p><strong>Provider:</strong> <span th:text="${book.provider.providerName}">GHF</span></p>
+              <p><strong>Stock Quantity:</strong> <span th:text="${book.stockQuantity}">456</span></p>
+              <p><strong>Price:</strong> $<span th:text="${book.price}">123</span></p>
+            </div>
+          </div>
+          <p><strong>Description:</strong> <span th:text="${book.description}">This is the description...</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="main-content">
+    <div class="book-form">
+      <h2 class="form-title">Update Book</h2>
+      <form th:action="@{/book/save}" th:object="${book}" method="post" enctype="multipart/form-data">
+        <input type="hidden" th:field="*{id}" value="${book.id}" />
+        <div class="form-group">
+          <label>Cover</label>
+          <div class="cover-upload">
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('coverImageInput').click();">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                   xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5V19M5 12H19" stroke="#6B7280" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <input type="file" id="coverImageInput" name="coverImage" accept=".png, .jpg, .jpeg" style="display:none;" onchange="previewImage(event)">
+            <div class="file-types">Allowed file types: .png, .jpg, .jpeg</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="title">Title <span class="required">*</span></label>
+          <input type="text" id="title" th:field="*{name}" class="form-control"
+                 placeholder="Enter book title" required>
+        </div>
+
+        <div class="form-group">
+          <label for="provider">Provider <span class="required">*</span></label>
+          <select id="provider" name="provider.id" class="form-control" required>
+            <option value="" disabled selected>Select Provider</option>
+            <option th:each="prov : ${providers}"
+                    th:value="${prov.id}"
+                    th:text="${prov.providerName}">
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="author">Author <span class="required">*</span></label>
+          <input type="text" id="author" th:field="*{author}" class="form-control"
+                 placeholder="Enter author name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="price">Price <span class="required">*</span></label>
+          <input type="number" id="price" th:field="*{price}" class="form-control"
+                 placeholder="Enter price" required>
+        </div>
+
+        <div class="form-group">
+          <label for="stock">Stock Quantity <span class="required">*</span></label>
+          <input type="number" id="stock" th:field="*{stockQuantity}" class="form-control"
+                 placeholder="Enter stock quantity" required>
+        </div>
+
+        <div class="form-group">
+          <label for="genre">Genre <span class="required">*</span></label>
+          <input type="text" id="genre" th:field="*{genre}" class="form-control"
+                 placeholder="Enter genre" required>
+        </div>
+
+        <div class="form-group">
+          <label for="year">Publication Year <span class="required">*</span></label>
+          <input type="number" id="year" th:field="*{publicationYear}" class="form-control"
+                 placeholder="Enter publication year" required>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description <span class="required">*</span></label>
+          <input type="text" id="description" th:field="*{description}" class="form-control"
+                 placeholder="Enter description" required>
+        </div>
+
+        <div class="error-message" id="validationError"></div>
+
+        <div class="form-actions">
+          <a th:href="@{/book/detail/{id}(id=${book.id})}" class="btn-discard">Discard</a>
+          <button type="submit" class="btn-update" id="updateButton">Update</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+</div>
+  </div>
+</div>
+</div>
+
+<script>
+  // Form validation example
+  document.getElementById('updateButton').addEventListener('click', function(e) {
+    const price = document.getElementById('price').value;
+    const stock = document.getElementById('stock').value;
+    const year = document.getElementById('year').value;
+    const errorElement = document.getElementById('validationError');
+
+    errorElement.textContent = '';
+
+    if (parseFloat(price) < 0) {
+      errorElement.textContent = 'Price cannot be negative.';
+      e.preventDefault();
+      return;
+    }
+    if (parseFloat(stock) < 0 || !Number.isInteger(parseFloat(stock))) {
+      errorElement.textContent = 'Stock Quantity must be a positive integer.';
+      e.preventDefault();
+      return;
+    }
+    if (parseFloat(year) < 0 || !Number.isInteger(parseFloat(year))) {
+      errorElement.textContent = 'Publication Year must be a positive integer.';
+      e.preventDefault();
+      return;
+    }
+  });
+</script>
 </body>
 </html>

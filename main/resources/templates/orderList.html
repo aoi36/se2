@@ -1,88 +1,253 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
 <head>
   <meta charset="UTF-8">
   <title>Orders</title>
   <style>
-    table {
-        border-collapse: collapse;
-        width: 100%;
+    /* Page background to match the screenshot */
+    body {
+      margin: 0;
+      background-color: #fefae0;
+      font-family: Arial, sans-serif;
     }
-    th, td {
-        padding: 8px;
-        border: 1px solid #ccc;
-        text-align: left;
+
+    /* Main container (card style) */
+    .container {
+      max-width: 1200px;
+      margin: 40px auto;
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     }
-    th {
-        background-color: #eee;
+
+    /* Header: Title + Add button on the right */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
     }
-    .pagination {
-        list-style: none;
-        padding: 0;
-        display: flex;
+    .header h2 {
+      font-size: 1.5rem;
+      margin: 0;
     }
-    .pagination li {
-        margin-right: 5px;
+    .add-order-btn {
+      background-color: #0d6efd;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 0.9rem;
     }
-    .pagination li a {
-        text-decoration: none;
-        padding: 4px 8px;
-        border: 1px solid #ccc;
-        color: #333;
+    .add-order-btn:hover {
+      background-color: #0b5ed7;
+    }
+
+    /* Table container with border */
+    .table-container {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    /* Table styling */
+    .order-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    .order-table thead tr {
+      border-bottom: 1px solid #eee;
+    }
+    .order-table th, .order-table td {
+      padding: 16px 12px;
+      text-align: left;
+      vertical-align: middle;
+      color: #333;
+    }
+    .order-table th {
+      font-weight: 500;
+      color: #666;
+      cursor: pointer; /* indicates clickable sort columns */
+    }
+    .order-table tbody tr {
+      border-bottom: 1px solid #eee;
+    }
+    .order-table tbody tr:last-child {
+      border-bottom: none;
+    }
+    .order-table tr:hover {
+      background-color: #f9f9f9;
+    }
+
+    .action-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 0.85rem;
+      display: inline-block;
+    }
+    .update-btn {
+      background-color: #4CAF50; /* green */
+    }
+    .update-btn:hover {
+      background-color: #45a049;
+    }
+    .delete-btn {
+      background-color: #ff4081; /* pink */
+      margin-left: 8px;
+    }
+    .delete-btn:hover {
+      background-color: #e6366f;
+    }
+
+    /* Page size dropdown */
+    #pageSizeForm {
+      margin-bottom: 20px;
+    }
+    #pageSize {
+      padding: 8px 12px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      background-color: white;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    /* Pagination */
+    .pagination-links {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
+    }
+    .pagination-links a {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 40px;
+      height: 40px;
+      margin: 0 5px;
+      color: #666;
+      text-decoration: none;
+      font-size: 1rem;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+    .pagination-links a.active {
+      background-color: #2196F3;
+      color: white;
+      font-weight: 500;
+    }
+    .pagination-links a:hover:not(.active) {
+      background-color: #f1f1f1;
+    }
+    .pagination-links a.prev,
+    .pagination-links a.next {
+      color: #999;
+      font-weight: bold;
+    }
+
+    /* Order title link styling */
+    .order-link {
+      font-weight: bold;
+      color: #007bff;
+      text-decoration: none;
+      transition: color 0.3s ease-in-out;
+    }
+    .order-link:hover {
+      color: #0056b3;
+      text-decoration: underline;
     }
   </style>
+  <script>
+    function changePageSize() {
+      console.log("changePageSize() triggered");
+      const newSize = document.getElementById('pageSize').value;
+      let params = new URLSearchParams(window.location.search);
+      params.set("size", newSize);
+      params.set("page", 0);
+      const newUrl = '/order/list?' + params.toString();
+      window.location.href = newUrl;
+    }
+
+    window.onload = function() {
+      // Any initialization code can go here
+    };
+  </script>
 </head>
-<body>
-<h1>Orders</h1>
+<div layout:fragment="content" class="container">
+  <!-- Page Title -->
+  <div class="header">
+    <h2>Orders</h2>
+    <!-- Add an "Add Order" button if needed -->
+    <!-- <a href="/order/add" class="add-order-btn">Add order</a> -->
+  </div>
 
-<!-- Orders Table -->
-<table>
-  <thead>
-  <tr>
-    <th>Order ID</th>
-    <th>Administrator Name</th>
-    <th>Order Date</th>
-    <th>Status</th>
-    <th>Total Price</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr th:each="orderInformation : ${orderPage.content}">
-    <td th:text="${orderInformation.id}"></td>
-    <td th:text="${orderInformation.administrator?.administratorName}">Admin Name</td>
-    <td th:text="${#temporals.format(orderInformation.orderDate, 'yyyy-MM-dd HH:mm')}"></td>
-    <td th:text="${orderInformation.status}"></td>
-    <td th:text="${orderInformation.totalPrice}"></td>
-  </tr>
-  </tbody>
-</table>
+  <!-- Table with border container -->
+  <div class="table-container">
+    <table class="order-table">
+      <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>Administrator Name</th>
+        <th>Order Date</th>
+        <th>Status</th>
+        <th>Total Price</th>
+        <th>Action</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="orderInformation : ${orderPage.content}">
+        <td th:text="${orderInformation.id}"></td>
+        <td th:text="${orderInformation.administrator?.administratorName}">Admin Name</td>
+        <td th:text="${#temporals.format(orderInformation.orderDate, 'yyyy-MM-dd HH:mm')}"></td>
+        <td th:text="${orderInformation.status}"></td>
+        <td th:text="${orderInformation.totalPrice}"></td>
+        <td>
+          <a th:href="@{/order/detail/{id}(id=${orderInformation.id})}" class="action-btn update-btn">Update</a>
 
-<!-- Pagination Navigation -->
-<div>
-  <ul class="pagination">
-    <li th:if="${orderPage.hasPrevious()}">
-      <a th:href="@{/order/list(page=${orderPage.number - 1}, size=${orderPage.size})}">Previous</a>
-    </li>
-    <li th:if="${orderPage.hasNext()}">
-      <a th:href="@{/order/list(page=${orderPage.number + 1}, size=${orderPage.size})}">Next</a>
-    </li>
-  </ul>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Page Size & Pagination -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+    <form id="pageSizeForm" th:action="@{/order/list}" method="get">
+      <input type="hidden" name="page" th:value="${orderPage.number}" />
+      <label for="pageSize">Items per page:</label>
+      <select id="pageSize" name="size" onchange="changePageSize()">
+        <option th:value="5" th:selected="${orderPage.size == 5}">5</option>
+        <option th:value="10" th:selected="${orderPage.size == 10}">10</option>
+        <option th:value="20" th:selected="${orderPage.size == 20}">20</option>
+      </select>
+    </form>
+
+    <!-- Updated pagination to match the image -->
+    <div class="pagination-links">
+      <a class="prev" th:if="${orderPage.hasPrevious()}"
+         th:href="@{/order/list(page=${orderPage.number - 1}, size=${orderPage.size})}">&lt;</a>
+
+      <span th:each="i : ${#numbers.sequence(0, orderPage.totalPages - 1)}">
+    <a th:href="@{/order/list(page=${i}, size=${orderPage.size})}"
+       th:text="${i + 1}"
+       th:classappend="${orderPage.number == i} ? ' active' : ''"></a>
+  </span>
+
+      <a class="next" th:if="${orderPage.hasNext()}"
+         th:href="@{/order/list(page=${orderPage.number + 1}, size=${orderPage.size})}">&gt;</a>
+    </div>
+  </div>
 </div>
-
-<form id="pageSizeForm" th:action="@{/order/list}" method="get">
-  <input type="hidden" name="page" th:value="${orderPage.number}" />
-  <label for="pageSize">Items per page:</label>
-  <select id="pageSize" name="size" onchange="changePageSize()">
-    <option th:value="5" th:selected="${orderPage.size == 5}">5</option>
-    <option th:value="10" th:selected="${orderPage.size == 10}">10</option>
-    <option th:value="20" th:selected="${orderPage.size == 20}">20</option>
-  </select>
-</form>
-
-<script>
-  function changePageSize() {
-    document.getElementById('pageSizeForm').submit();
-  }
-</script>
-</body>
 </html>

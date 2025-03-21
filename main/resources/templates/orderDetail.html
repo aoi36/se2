@@ -1,85 +1,296 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
 <head>
     <meta charset="UTF-8">
     <title>Order Details</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1, h2 { color: #333; }
-        .order-info { margin-bottom: 20px; }
-        .order-info p { line-height: 1.6; }
-        table { border-collapse: collapse; width: 100%; }
-        th, td { padding: 8px; border: 1px solid #ccc; text-align: left; }
-        th { background-color: #eee; }
-        .update-form { margin-top: 20px; }
-        .error-message { color: red; font-weight: bold; margin-bottom: 20px; }
+        /* Page background */
+        body {
+            margin: 0;
+            background-color: #fefae0;
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+
+        /* Main container (card style) */
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Order header section */
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .order-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0 0 15px 0;
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .update-btn {
+            background-color: #4CAF50; /* green */
+        }
+
+        .update-btn:hover {
+            background-color: #45a049;
+        }
+
+        .delete-btn {
+            background-color: #ff4081; /* pink */
+        }
+
+        .delete-btn:hover {
+            background-color: #e6366f;
+        }
+
+        /* Order info section */
+        .order-info {
+            display: grid;
+            grid-template-columns: repeat(2, 0.3fr);
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .order-info-item {
+            margin: 0;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .order-info-label {
+            font-weight: 600;
+            color: #333;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* Status select styling */
+        .status-select {
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 0.9rem;
+            background-color: white;
+            min-width: 150px;
+        }
+
+        /* Enhanced status text for non-admins */
+        .status-text {
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            min-width: 120px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background-color: #757575; /* Default gray */
+        }
+
+        /* Status colors based on value */
+        .status-pending {
+            background-color: #ff9800 !important; /* Orange */
+        }
+
+        .status-processing {
+            background-color: #2196F3 !important; /* Blue */
+        }
+
+
+
+        .status-completed {
+            background-color: #4CAF50 !important; /* Green */
+        }
+
+        .status-cancelled {
+            background-color: #f44336 !important; /* Red */
+        }
+
+        /* Order items table */
+        .order-items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .order-items-table th {
+            padding: 15px 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .order-items-table td {
+            padding: 15px 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .order-items-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Order summary section */
+        .order-summary {
+            margin-top: 20px;
+            margin-left: auto;
+            width: 300px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            padding-top: 15px;
+        }
+
+        .summary-label {
+            color: #666;
+        }
+
+        .summary-value {
+            text-align: right;
+        }
+
+        /* Error message */
+        .error-message {
+            color: #ff4081;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #ffebee;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
-<h1>Order Details</h1>
-
-<div th:if="${order == null}">
-    <p class="error-message">No order found.</p>
-</div>
-<div th:if="${order != null}">
-    <div class="order-info">
-        <p><strong>Order ID:</strong> <span th:text="${order.id}"></span></p>
-        <p>
-            <strong>Order Date:</strong>
-            <span th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}"></span>
-        </p>
-        <p><strong>Total Price:</strong> <span th:text="${order.totalPrice}"></span></p>
-        <p>
-            <strong>Administrator:</strong>
-            <span th:text="${order.administrator.administratorName}"></span>
-        </p>
+<div layout:fragment="content" class="container">
+    <div th:if="${order == null}">
+        <p class="error-message">No order found.</p>
     </div>
 
-    <h2>Order Items</h2>
-    <table>
-        <thead>
-        <tr>
-            <th>Item ID</th>
-            <th>Quantity</th>
-            <th>Price</th>
-            <th>Book Name</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="item : ${order.orderItemList}">
-            <td th:text="${item.id}"></td>
-            <td th:text="${item.orderItemQuantity}"></td>
-            <td th:text="${item.orderItemPrice}"></td>
-            <td th:text="${item.bookName}"></td>
-        </tr>
-        </tbody>
-    </table>
+    <div th:if="${order != null}">
+        <div class="order-header">
+            <h1 class="order-title" th:text="'OrderID: ' + ${order.id}">OrderID: 1001</h1>
+            <div class="order-actions">
+                <button class="action-btn update-btn"
+                        th:if="${#authentication.principal.username.trim().toLowerCase() == order.administrator.username.trim().toLowerCase()}"
+                        type="submit" form="status-form">Update</button>
+                <button class="action-btn delete-btn"
+                        th:if="${#authentication.principal.username.trim().toLowerCase() == order.administrator.username.trim().toLowerCase()}"
+                        onclick="if(confirm('Are you sure you want to delete this order?')) { window.location.href='/order/delete/' + [[${order.id}]]; }">Delete</button>
+            </div>
+        </div>
 
-    <h2>Order Status</h2>
-    <div th:if="${#authentication.principal.username.trim().toLowerCase() == order.administrator.username.trim().toLowerCase()}">
-        <form th:action="@{/order/save}" method="post">
-            <input type="hidden" name="id" th:value="${order.id}" />
-            <label for="status">Status:</label>
-            <select id="status" name="status">
-                <option th:each="s : ${T(com.example.demo.constant.OrderStatus).values()}"
-                        th:value="${s}"
-                        th:text="${s}"
-                        th:selected="${s == order.status}"></option>
-            </select>
-            <button type="submit">Update</button>
-        </form>
-    </div>
+        <div class="order-info">
+            <p class="order-info-item">
+                <span class="order-info-label">Created Date:</span>
+                <span th:text="${#temporals.format(order.orderDate, 'dd MMM yyyy')}">12 Apr 2021</span>
+            </p>
+            <p></p>
 
-    <div th:unless="${#authentication.principal.username.trim().toLowerCase() == order.administrator.username.trim().toLowerCase()}">
-        <label for="statusReadOnly">Status:</label>
-        <select id="statusReadOnly" disabled>
-            <option th:each="s : ${T(com.example.demo.constant.OrderStatus).values()}"
-                    th:value="${s}"
-                    th:text="${s}"
-                    th:selected="${s == order.status}"></option>
-        </select>
+            <p class="order-info-item">
+                <span class="order-info-label">Administrator:</span>
+                <span th:text="${order.administrator.administratorName}">Admin Name</span>
+            </p>
+
+            <!-- For administrators - editable dropdown -->
+            <div class="order-info-item" th:if="${#authentication.principal.username.trim().toLowerCase() == order.administrator.username.trim().toLowerCase()}">
+                <form id="status-form" th:action="@{/order/save}" method="post" style="display: inline;">
+                    <span class="order-info-label">Status:</span>
+                    <input type="hidden" name="id" th:value="${order.id}" />
+                    <select id="status" name="status" class="status-select">
+                        <option th:each="s : ${T(com.example.demo.constant.OrderStatus).values()}"
+                                th:value="${s}"
+                                th:text="${s}"
+                                th:selected="${s == order.status}"></option>
+                    </select>
+                </form>
+            </div>
+
+            <!-- For non-administrators - enhanced status badge -->
+            <div class="order-info-item" th:unless="${#authentication.principal.username.trim().toLowerCase() == order.administrator.username.trim().toLowerCase()}">
+                <span class="order-info-label">Status:</span>
+                <!-- Using separate classappend conditions for each status -->
+                <span class="status-text"
+                      th:classappend="
+                      ${#strings.toLowerCase(order.status) == 'delivering' ? ' status-delivering' : ''} +
+                      ${#strings.toLowerCase(order.status) == 'completed' ? ' status-completed' : ''} +
+                      ${#strings.toLowerCase(order.status) == 'cancelled' ? ' status-cancelled' : ''}"
+                      th:text="${order.status}">Delivering</span>
+            </div>
+        </div>
+
+        <table class="order-items-table">
+            <thead>
+            <tr>
+                <th>Book Title</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Amount</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${order.orderItemList}">
+                <td th:text="${item.bookName}">Book Name</td>
+                <td th:text="${item.orderItemQuantity}">10</td>
+                <td th:text="'$' + ${item.orderItemPrice}">$10</td>
+                <td th:text="'$' + ${item.orderItemPrice * item.orderItemQuantity}">$100</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="order-summary">
+            <div class="summary-row">
+                <span class="summary-label">Subtotal:</span>
+                <span class="summary-value" th:text="'$' + ${order.totalPrice}">$170</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">VAT 0%:</span>
+                <span class="summary-value">$0.00</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Subtotal + VAT:</span>
+                <span class="summary-value" th:text="'$' + ${order.totalPrice}">$170</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Total:</span>
+                <span class="summary-value" th:text="'$' + ${order.totalPrice}">$170</span>
+            </div>
+        </div>
     </div>
 </div>
 </body>
-
 </html>

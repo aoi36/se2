@@ -1,226 +1,197 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
 <head>
+    <meta charset="UTF-8">
     <title>Book Details</title>
     <style>
+        /* Overall page styling */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #fefae0; /* Light yellow background */
+        }
+
+        /* Main container (card style) */
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+            max-width: 900px;
+            margin: 40px auto; /* Center horizontally */
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
         }
 
-        .book-detail {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 30px;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .book-image {
-            width: 100%;
-            height: 400px;
-            background-color: #f5f5f5;
-            border-radius: 4px;
+        /* Header section with title and buttons */
+        .book-header {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            color: #666;
-        }
-
-        .book-info {
-            padding: 20px;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
         }
 
         .book-title {
-            font-size: 28px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
             color: #333;
-            margin-bottom: 10px;
         }
 
-        .book-author {
-            font-size: 18px;
-            color: #666;
-            margin-bottom: 20px;
-        }
-
-        .book-meta {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .meta-item {
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 4px;
-        }
-
-        .meta-label {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 5px;
-        }
-
-        .meta-value {
-            font-size: 16px;
-            color: #333;
-            font-weight: bold;
-        }
-
-        .book-description {
-            margin-top: 20px;
-            line-height: 1.6;
-            color: #444;
-        }
-
-        .price-tag {
-            font-size: 24px;
-            color: #2ecc71;
-            font-weight: bold;
-            margin: 20px 0;
-        }
-
-        .stock-status {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-
-        .in-stock {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        .low-stock {
-            background-color: #fff3e0;
-            color: #ef6c00;
-        }
-
-        .out-of-stock {
-            background-color: #ffebee;
-            color: #c62828;
+        .book-id {
+            font-size: 0.9rem;
+            color: #777;
+            margin: 5px 0 0 0;
         }
 
         .action-buttons {
-            margin-top: 30px;
             display: flex;
-            gap: 15px;
+            gap: 10px;
         }
 
         .btn {
-            padding: 12px 24px;
+            padding: 8px 16px;
             border: none;
             border-radius: 4px;
-            font-size: 16px;
+            color: #fff;
             cursor: pointer;
-            transition: background-color 0.3s;
+            text-decoration: none;
+            font-size: 0.9rem;
         }
 
-        .btn-primary {
-            background-color: #007bff;
-            color: white;
+        .update-btn {
+            background-color: #4CAF50; /* Green */
         }
 
-        .btn-primary:hover {
-            background-color: #0056b3;
+        .update-btn:hover {
+            background-color: #45a049;
         }
 
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
+        .delete-btn {
+            background-color: #ff4081; /* Pink */
         }
 
-        .btn-secondary:hover {
-            background-color: #545b62;
+        .delete-btn:hover {
+            background-color: #e6366f;
         }
 
-        .navigation {
+        /* Book content layout */
+        .book-content {
+            display: flex;
+            margin-top: 20px;
+        }
+
+        .book-image {
+            width: 180px;
+            height: 240px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 25px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .book-details {
+            flex: 1;
+        }
+
+        /* Book info grid */
+        .book-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px 30px;
             margin-bottom: 20px;
         }
 
-        .nav-link {
-            color: #007bff;
-            text-decoration: none;
+        .info-item {
+            margin: 0;
+            line-height: 1.6;
         }
 
-        .nav-link:hover {
-            text-decoration: underline;
+        .info-label {
+            color: #777;
+            font-size: 0.9rem;
+            display: block;
+        }
+
+        .info-value {
+            color: #333;
+            font-weight: 500;
+        }
+
+        /* Book description */
+        .book-description {
+            margin-top: 25px;
+        }
+
+        .description-label {
+            color: #777;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .description-text {
+            color: #555;
+            line-height: 1.6;
+            text-align: justify;
         }
     </style>
 </head>
 <body>
-<div th:if="${error != null}">
-    <p class="text-danger">[[${error}]]</p>
-</div>
-<div th:if="${book != null}" class="container">
-        <div class="navigation">
-            <a href="/book/list" class="nav-link">← Back to Book List</a>
+<div layout:fragment="content" class="container">
+    <div class="book-header">
+        <div>
+            <h1 class="book-title" th:text="${book.name}">Book Title</h1>
+            <p class="book-id" th:text="'BookID' + ${book.id}">BookID12</p>
         </div>
-
-        <div class="book-detail">
-            <div class="book-image">
-                Book Cover
-            </div>
-
-            <div class="book-info">
-                <h1 class="book-title" th:text="${book.name}">Book Title</h1>
-                <div class="book-author">by <span th:text="${book.author}">Author Name</span></div>
-
-                <div class="book-meta">
-                    <div class="meta-item">
-                        <div class="meta-label">Genre</div>
-                        <div class="meta-value" th:text="${book.genre}">Fiction</div>
-                    </div>
-                    <div class="meta-item">
-                        <div class="meta-label">Publication Year</div>
-                        <div class="meta-value" th:text="${book.publicationYear}">2023</div>
-                    </div>
-                    <div class="meta-item">
-                        <div class="meta-label">Provider</div>
-                        <div class="meta-value" th:text="${book.provider != null ? book.provider.providerName : 'N/A'}">Provider Name</div>
-                    </div>
-                    <div class="meta-item">
-                        <div class="meta-label">Stock Status</div>
-                        <div class="stock-status" 
-                             th:classappend="${book.stockQuantity > 10 ? 'in-stock' : (book.stockQuantity > 0 ? 'low-stock' : 'out-of-stock')}"
-                             th:text="${book.stockQuantity > 10 ? 'In Stock' : (book.stockQuantity > 0 ? 'Low Stock' : 'Out of Stock')}">
-                            In Stock
-                        </div>
-                    </div>
-                </div>
-
-                <div class="price-tag">
-                    $<span th:text="${#numbers.formatDecimal(book.price, 0, 'COMMA', 2, 'POINT')}">29.99</span>
-                </div>
-
-                <div class="book-description">
-                    <h3>Description</h3>
-                    <p th:text="${book.description}">Book description goes here...</p>
-                </div>
-
-                <div class="action-buttons">
-                    <button class="btn btn-primary" 
-                            th:disabled="${book.stockQuantity <= 0}"
-                            onclick="addToCart()">
-                        Add to Cart
-                    </button>
-                    <a href="/book/list" class="btn btn-secondary">Continue Shopping</a>
-                </div>
-            </div>
+        <div class="action-buttons">
+            <a th:href="@{/book/update/{id}(id=${book.id})}" class="btn update-btn">Update</a>
+            <a href="#" onclick="if(confirm('Are you sure you want to delete this book?')) { window.location.href='/book/delete/' + [[${book.id}]]; }" class="btn delete-btn">Delete</a>
         </div>
     </div>
 
-    <script>
-        function addToCart() {
-            // TODO: Implement add to cart functionality
-            alert('Add to cart functionality will be implemented soon!');
-        }
-    </script>
+    <div class="book-content">
+        <img class="book-image" th:src="@{/images/{img}(img=${book.bookCover})}" alt="Book Cover">
+
+
+
+        <div class="book-details">
+            <div class="book-info">
+                <div class="info-item">
+                    <span class="info-label">Author:</span>
+                    <span class="info-value" th:text="${book.author}">ABC</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Provider:</span>
+                    <span class="info-value" th:text="${book.provider != null ? book.provider.providerName : 'N/A'}">GHF</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Genre:</span>
+                    <span class="info-value" th:text="${book.genre}">DEF</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Stock Quantity:</span>
+                    <span class="info-value" th:text="${book.stockQuantity}">456</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Publication Year:</span>
+                    <span class="info-value" th:text="${book.publicationYear}">123</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Price:</span>
+                    <span class="info-value" th:text="'$' + ${book.price}">$123</span>
+                </div>
+            </div>
+
+            <div class="book-description">
+                <span class="description-label">Description:</span>
+                <p class="description-text" th:text="${book.description}">
+
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
-</html> 
+</html>

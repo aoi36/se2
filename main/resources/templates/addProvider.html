@@ -1,34 +1,168 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
 <head>
-  <meta charset="UTF-8">
   <title>Add Provider</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    h1 { color: #333; }
-    form { max-width: 400px; margin: auto; }
-    label { font-weight: bold; display: block; margin-top: 10px; }
-    input { width: 100%; padding: 8px; margin-top: 5px; }
-    button { margin-top: 15px; padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer; }
-    button:hover { background-color: #218838; }
+    body {
+      background-color: #fefae0;
+      font-family: Arial, sans-serif;
+    }
+    .provider-form {
+      margin-top: 3%;
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 24px;
+      width: 100%;
+      max-width: 60%;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .form-title {
+      font-size: 18px;
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      font-weight: 600;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .form-group {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    label {
+      width: 150px;
+      font-size: 14px;
+      padding-top: 8px;
+      color: #374151;
+    }
+    .required {
+      color: #ef4444;
+    }
+    .form-control {
+      width: 300px;
+      padding: 6px 10px;
+      font-size: 14px;
+      background-color: #f7f7f7;
+      color: #6c757d;
+      border: 1px solid #dcdcdc;
+      border-radius: 4px;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+    .form-control:hover {
+      border-color: #c6c6c6;
+    }
+    .form-control:focus {
+      background-color: #fff;
+      border-color: #bfbfbf;
+      outline: none;
+    }
+    .upload-area {
+      width: 100px;
+      height: 100px;
+      background-color: #f3f4f6;
+      border: 1px dashed #d1d5db;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+    .file-types {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 24px;
+      gap: 12px;
+    }
+    .btn-discard {
+      padding: 8px 16px;
+      border: 1px solid #e5e7eb;
+      background-color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #374151;
+      transition: all 0.2s ease;
+    }
+    .btn-discard:hover {
+      background-color: #BDDCFC;
+      color: #3E97FF;
+      border-color: #BDDCFC;
+    }
+    .btn-submit {
+      padding: 8px 16px;
+      background-color: #3b82f6;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn-submit:hover {
+      background-color: #2563eb;
+    }
   </style>
 </head>
 <body>
+<div layout:fragment="content">
+  <div class="main-content">
+    <div class="provider-form">
+      <h2 class="form-title">Add Provider</h2>
+      <form th:action="@{/provider/save}" th:object="${provider}" method="post" enctype="multipart/form-data">
 
-<h1>Add Provider</h1>
+        <div class="form-group">
+          <label>Cover</label>
+          <div class="cover-upload">
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('coverImageInput').click();">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5V19M5 12H19" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <input type="file" id="coverImageInput" name="coverImage" accept=".png, .jpg, .jpeg" style="display:none;" onchange="previewImage(event)">
+            <div class="file-types">Allowed file types: .png, .jpg, .jpeg</div>
+          </div>
+        </div>
 
-<form th:action="@{/provider/save}" method="post" th:object="${provider}">
-  <label for="providerName">Provider Name:</label>
-  <input type="text" id="providerName" th:field="*{providerName}" required>
 
-  <label for="contactNumber">Contact Number:</label>
-  <input type="text" id="contactNumber" th:field="*{contactNumber}" required>
-
-  <label for="address">Address:</label>
-  <input type="text" id="address" th:field="*{address}" required>
-
-  <button type="submit">Save Provider</button>
-</form>
-
+        <div class="form-group">
+          <label for="providerName">Provider Name <span class="required">*</span></label>
+          <input type="text" id="providerName" th:field="*{providerName}" class="form-control" placeholder="Enter provider name" required>
+        </div>
+        <div class="form-group">
+          <label for="providerPhone">Phone <span class="required">*</span></label>
+          <input type="text" id="providerPhone" th:field="*{contactNumber}" class="form-control" placeholder="Enter phone number" required>
+        </div>
+        <div class="form-actions">
+          <a th:href="@{/provider/list}" class="btn-discard">Cancel</a>
+          <button type="submit" class="btn-submit">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+  function previewImage(event) {
+    var reader = new FileReader();
+    reader.onload = function() {
+      var output = document.createElement('img');
+      output.src = reader.result;
+      output.style.width = "100px";
+      output.style.height = "100px";
+      output.style.borderRadius = "4px";
+      output.style.objectFit = "cover";
+      document.getElementById('uploadArea').innerHTML = "";
+      document.getElementById('uploadArea').appendChild(output);
+    };
+    reader.readAsDataURL(event.target.files[0]);
+  }
+</script>
 </body>
 </html>

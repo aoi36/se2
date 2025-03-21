@@ -10,7 +10,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -61,12 +68,31 @@ public class ProviderController {
         return "addProvider";
     }
 
-    @PostMapping(value = "/save")
-    public String saveProviderUpdate(@ModelAttribute Provider provider){
+    @PostMapping("/save")
+    public String saveProvider(@ModelAttribute Provider provider,
+                           @RequestParam("coverImage") MultipartFile coverImage) {
+        if (!coverImage.isEmpty()) {
+            try {
+
+                String uploadDir = "src/main/resources/static/images/";
+                String fileName = System.currentTimeMillis() + "_" + coverImage.getOriginalFilename();
+                Path uploadPath = Paths.get(uploadDir);
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath);
+                }
+                try (InputStream inputStream = coverImage.getInputStream()) {
+                    Path filePath = uploadPath.resolve(fileName);
+                    Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+                }
+                provider.setAvatar(fileName);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         providerRepo.save(provider);
-        Long id = provider.getId();
-        return "redirect:/provider/detail/"+ id;
+        return "redirect:/provider/list";
     }
+
     @PostMapping(value = "delete")
     public String deleteProviders(@RequestParam("selectedIds") List<Long> selectedIds) {
         if (selectedIds != null && !selectedIds.isEmpty()) {

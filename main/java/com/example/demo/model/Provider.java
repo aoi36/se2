@@ -15,6 +15,7 @@ public class Provider {
     private String providerName;
     private String contactNumber;
     private String address;
+    private String avatar;
     @OneToMany(mappedBy = "provider")
     List<Book> books;
 }
