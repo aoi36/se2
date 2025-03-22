@@ -81,40 +81,275 @@
     .delete-btn:hover {
       background-color: #e6366f;
     }
+    .delete-btn-large {
+      background-color: #dc3545;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      text-decoration: none;
+      min-height: 36px;
+    }
+    .delete-btn:hover {
+      background-color: #e6366f;
+    }
+
+    .delete-btn-large {
+      background-color: #dc3545;
+      color: #fff;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      text-decoration: none;
+    }
+    .delete-btn-large:hover {
+      background-color: #c82333;
+    }
+    /* Enhanced Modal styling */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.5); /* Black with opacity */
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 25px;
+      border: 1px solid #ddd;
+      width: 350px;
+      text-align: center;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      animation: modalFadeIn 0.3s ease;
+    }
+    @keyframes modalFadeIn {
+      from {opacity: 0; transform: translateY(-20px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 1.5rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .close:hover {
+      color: #333;
+    }
+    .modal-content p {
+      margin: 15px 0;
+      font-size: 1.1rem;
+      color: #444;
+    }
+    .modal-content button {
+      padding: 10px 20px;
+      margin: 10px 5px 0;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: background-color 0.2s;
+    }
+    #confirmDelete {
+      background-color: #dc3545;
+      color: white;
+    }
+    #confirmDelete:hover {
+      background-color: #c82333;
+    }
+    .modal-content button:last-child {
+      background-color: #f1f1f1;
+      color: #333;
+    }
+    .modal-content button:last-child:hover {
+      background-color: #ddd;
+    }
+    /* Checkbox styling */
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+    .action-cell {
+      padding: 8px 0px;
+      white-space: nowrap;
+      width: 1%;
+    }
+
+    /* Pagination styling */
+    .pagination-links {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .pagination-links a {
+      display: inline-block;
+      padding: 8px 12px;
+      margin: 0 4px;
+      border-radius: 4px;
+      background-color: #f5f5f5;
+      color: #333;
+      text-decoration: none;
+      transition: background-color 0.2s;
+    }
+
+    .pagination-links a:hover {
+      background-color: #e0e0e0;
+    }
+
+    .pagination-links a.active {
+      background-color: #0d6efd;
+      color: white;
+    }
+
+    .pagination-links .prev, .pagination-links .next {
+      font-weight: bold;
+    }
+    #pageSize {
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background-color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
   </style>
+  <script>
+    function showModal(form) {
+      const modal = document.getElementById('confirmModal');
+      modal.style.display = 'block';
+      document.body.style.overflow = 'hidden';
+
+      // Set the confirm button action to submit the form.
+      const confirmBtn = document.getElementById('confirmDelete');
+      confirmBtn.onclick = function() {
+        closeModal();
+        form.submit();
+      };
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('confirmModal');
+      modal.style.display = 'none';
+      document.body.style.overflow = ''; // Restore scrolling
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('confirmModal');
+      if (event.target === modal) {
+        closeModal();
+      }
+    };
+
+    window.onload = function() {
+      const selectAllCheckbox = document.getElementById('selectAll');
+      if (selectAllCheckbox) {
+        const checkboxes = document.querySelectorAll('input[name="selectedIds"]');
+
+        // When "Select All" is toggled, check or uncheck all checkboxes
+        selectAllCheckbox.addEventListener('change', function() {
+          checkboxes.forEach(function(cb) {
+            cb.checked = selectAllCheckbox.checked;
+          });
+        });
+      }
+
+      // Attach event listeners to each delete form.
+      const deleteForms = document.querySelectorAll('form.deleteForm');
+      deleteForms.forEach(function(form) {
+        form.addEventListener('submit', function(event) {
+          event.preventDefault(); // Prevent immediate submission
+          showModal(form);
+        });
+      });
+    };
+  </script>
 </head>
 <body>
 <div layout:fragment="content" class="container">
   <div class="header">
     <h2>Provider List</h2>
-    <a th:href="@{/provider/add}" class="add-btn">Add Provider</a>
   </div>
-  <div class="table-container">
-    <table class="provider-table">
-      <thead>
-      <tr>
-        <th>Select</th>
-        <th>Provider ID</th>
-        <th>Provider Name</th>
-        <th>Contact Number</th>
-        <th>Actions</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr th:each="provider : ${providerPage.content}">
-        <td><input type="checkbox" name="selectedIds" th:value="${provider.id}" /></td>
-        <td th:text="${provider.id}"></td>
-        <td th:text="${provider.providerName}"></td>
-        <td th:text="${provider.contactNumber}"></td>
-        <td>
-          <a th:href="@{/provider/update/{id}(id=${provider.id})}"
-             style="background-color: #4CAF50; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; display: inline-block;">
-            Update
-          </a>
-        </td>
-      </tr>
-      </tbody>
-    </table>
+
+  <form th:action="@{/provider/delete}" method="post" class="deleteForm" style="display: inline;">
+    <div class="table-container">
+      <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 10px; gap: 20px;">
+        <a href="/provider/add" class="add-btn">Add book</a>
+        <button type="submit" class="delete-btn-large">Delete Selected</button>
+      </div>
+      <table class="provider-table">
+        <thead>
+        <tr>
+          <th>
+            <input type="checkbox" id="selectAll" />
+          </th>
+          <th>Provider ID</th>
+          <th>Provider Name</th>
+          <th>Contact Number</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="provider : ${providerPage.content}">
+          <td><input type="checkbox" name="selectedIds" th:value="${provider.id}" /></td>
+          <td th:text="${provider.id}"></td>
+          <td th:text="${provider.providerName}"></td>
+          <td th:text="${provider.contactNumber}"></td>
+          <td class="action-cell">
+            <a th:href="@{/provider/update/{id}(id=${provider.id})}"
+               style="background-color: #4CAF50; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; display: inline-block;">
+              Update
+            </a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+    </div>
+  </form>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+    <form id="pageSizeForm" th:action="@{/book/list}" method="get">
+      <input type="hidden" name="page" th:value="${currentPage}"/>
+      <select id="pageSize" name="size" th:onchange="changePageSize()">
+        <option th:value="5" th:selected="${pageSize == 5}">5</option>
+        <option th:value="10" th:selected="${pageSize == 10}">10</option>
+        <option th:value="20" th:selected="${pageSize == 20}">20</option>
+      </select>
+    </form>
+    <div class="pagination-links">
+      <a class="prev" th:if="${providerPage.hasPrevious()}"
+         th:href="@{/provider/list(page=${providerPage.number - 1}, size=${providerPage.size})}">&lt;</a>
+
+      <span th:each="i : ${#numbers.sequence(0, providerPage.totalPages - 1)}">
+            <a th:href="@{/provider/list(page=${i}, size=${providerPage.size})}"
+               th:text="${i + 1}"
+               th:classappend="${providerPage.number == i} ? ' active' : ''"></a>
+          </span>
+
+      <a class="next" th:if="${providerPage.hasNext()}"
+         th:href="@{/provider/list(page=${providerPage.number + 1}, size=${providerPage.size})}">&gt;</a>
+    </div>
+  </div>
+  <!-- Enhanced Modal -->
+  <div id="confirmModal" class="modal">
+    <div class="modal-content">
+      <span id="closeModal" class="close" onclick="closeModal()">&times;</span>
+      <p>Are you sure you want to delete the selected provider(s)?</p>
+      <button id="confirmDelete">Yes, Delete</button>
+      <button onclick="closeModal()">Cancel</button>
+    </div>
   </div>
 </div>
 </body>

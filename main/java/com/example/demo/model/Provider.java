@@ -16,6 +16,6 @@ public class Provider {
     private String contactNumber;
     private String address;
     private String avatar;
-    @OneToMany(mappedBy = "provider")
-    List<Book> books;
+    @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Book> books;
 }

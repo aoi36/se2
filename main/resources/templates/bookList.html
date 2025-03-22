@@ -118,7 +118,7 @@
   color: #fff;
   cursor: pointer;
   text-decoration: none;
-  font-size: 0.85rem;
+
   display: inline-block;
   width: auto;           /* Ensure it only takes the width of its content */
   max-width: fit-content; /* Prevents unnecessary extra space */
@@ -406,7 +406,7 @@
                     </th>
                     <th onclick="toggleSort('id')">ID</th>
                     <th onclick="toggleSort('name')">Title</th>
-                    <th onclick="toggleSort('author')">Provider</th>
+                    <th onclick="toggleSort('author')">Author</th>
                     <th onclick="toggleSort('publicationYear')">Price</th>
                     <th onclick="toggleSort('quantity')">Stock</th>
                     <th>Actions</th>
@@ -429,14 +429,11 @@
                     <td class="action-cell">
                         <a th:href="@{/book/update/{id}(id=${book.id})}" class="action-btn update-btn">Update</a>
                     </td>
-
                 </tr>
                 </tbody>
             </table>
         </form>
     </div>
-
-    <!-- Page Size & Pagination -->
     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
         <form id="pageSizeForm" th:action="@{/book/list}" method="get">
             <input type="hidden" name="page" th:value="${currentPage}"/>
@@ -446,11 +443,9 @@
                 <option th:value="20" th:selected="${pageSize == 20}">20</option>
             </select>
         </form>
-
         <div class="pagination-links">
             <a class="prev" th:if="${bookPage.hasPrevious()}"
                th:href="@{/book/list(page=${bookPage.number - 1}, size=${bookPage.size})}">&lt;</a>
-
             <span th:each="i : ${#numbers.sequence(0, bookPage.totalPages - 1)}">
     <a th:href="@{/book/list(page=${i}, size=${bookPage.size})}"
        th:text="${i + 1}"
@@ -461,7 +456,6 @@
                th:href="@{/book/list(page=${bookPage.number + 1}, size=${bookPage.size})}">&gt;</a>
         </div>
 
-    <!-- Delete Confirmation Modal -->
     <div id="confirmModal" class="modal">
         <div class="modal-content">
             <span id="closeModal" class="close" onclick="closeModal()">&times;</span>

@@ -3,63 +3,182 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+  <meta charset="UTF-8">
+  <title>Search Results</title>
+  <style>
+    /* Page background */
+    body {
+        margin: 0;
+        background-color: #fefae0;
+        font-family: Arial, sans-serif;
+    }
+    /* Main container (card style) */
+    .container {
+        max-width: 1200px;
+        margin: 40px auto;
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+    /* Header styling */
+    .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+    .header h2 {
+        font-size: 1.5rem;
+        margin: 0;
+    }
+    /* Table container with subtle border */
+    .table-container {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    /* Table styling */
+    .book-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        text-align: left;
+    }
+    .book-table thead tr {
+        border-bottom: 1px solid #eee;
+    }
+    .book-table th, .book-table td {
+        padding: 16px 12px;
+        vertical-align: middle;
+        color: #333;
+    }
+    .book-table th {
+        font-weight: 500;
+        color: #666;
+        cursor: pointer;
+        background-color: transparent; /* No background color for header */
+    }
+    .book-table tbody tr {
+        border-bottom: 1px solid #eee;
+    }
+    .book-table tbody tr:last-child {
+        border-bottom: none;
+    }
+    .book-table tr:hover {
+        background-color: #f9f9f9;
+    }
+    /* Page size dropdown */
+    #pageSizeForm {
+        margin-bottom: 20px;
+    }
+    #pageSize {
+        padding: 8px 12px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        background-color: white;
+        font-size: 0.9rem;
+        cursor: pointer;
+    }
+    /* Pagination styling */
+    .pagination-links {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
+    }
+    .pagination-links a {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 40px;
+        height: 40px;
+        margin: 0 5px;
+        color: #666;
+        text-decoration: none;
+        font-size: 1rem;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+    .pagination-links a.active {
+        background-color: #2196F3;
+        color: white;
+        font-weight: 500;
+    }
+    .pagination-links a:hover:not(.active) {
+        background-color: #f1f1f1;
+    }
+    .pagination-links a.prev, .pagination-links a.next {
+        color: #999;
+        font-weight: bold;
+    }
+    .book-title {
+    font-weight: bold;
+    color: #808080;
+    text-decoration: none;
+    transition: color 0.3s ease-in-out;
+}
+  </style>
+  <script>
+    function changePageSize() {
+        const newSize = document.getElementById('pageSize').value;
+        let params = new URLSearchParams(window.location.search);
+        params.set("size", newSize);
+        params.set("page", 0);
+        const newUrl = '/book/search?' + params.toString();
+        window.location.href = newUrl;
+    }
+  </script>
 </head>
 <body>
-<div layout:fragment="content">
-
-<div th:if="${msg != null}">
-  <p>[[${msg}]]</p>
+<div layout:fragment="content" class="container">
+  <div class="header">
+    <h2>Search Results</h2>
+  </div>
+  <div class="table-container">
+    <table class="book-table">
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Description</th>
+        <th>Genre</th>
+        <th>Publication Year</th>
+        <th>Quantity</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="book : ${books.content}">
+        <td th:text="${book.id}"></td>
+        <td><a class="book-title" th:href="@{/book/detail/{id}(id=${book.id})}" th:text="${book.name}"></a></td>
+        <td th:text="${book.author}"></td>
+        <td th:text="${#strings.length(book.description) > 100 ? #strings.substring(book.description, 0, 100) + '...' : book.description}"></td>
+        <td th:text="${book.genre}"></td>
+        <td th:text="${book.publicationYear}"></td>
+        <td th:text="${book.stockQuantity}"></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+    <form id="pageSizeForm" th:action="@{/book/search}" method="get">
+      <input type="hidden" name="page" th:value="${currentPage}"/>
+      <select id="pageSize" name="size" onchange="changePageSize()">
+        <option th:value="5" th:selected="${pageSize == 5}">5</option>
+        <option th:value="10" th:selected="${pageSize == 10}">10</option>
+        <option th:value="20" th:selected="${pageSize == 20}">20</option>
+      </select>
+    </form>
+    <div class="pagination-links">
+      <a class="prev" th:if="${currentPage > 0}" th:href="@{/book/search(name=${name}, author=${author}, page=${currentPage - 1}, size=5)}">&lt;</a>
+      <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                <a th:href="@{/book/search(name=${name}, author=${author}, page=${i}, size=5)}" th:text="${i + 1}" th:classappend="${currentPage == i} ? ' active' : ''"></a>
+            </span>
+      <a class="next" th:if="${currentPage < totalPages - 1}" th:href="@{/book/search(name=${name}, author=${author}, page=${currentPage + 1}, size=5)}">&gt;</a>
+    </div>
+  </div>
 </div>
-
-<table class="book-table">
-  <thead>
-  <tr>
-    <th>ID</th>
-    <th>Title</th>
-    <th>Author</th>
-    <th>Description</th>
-    <th>Genre</th>
-    <th>Publication Year</th>
-    <th>Quantity</th>
-    <th>Update</th>
-    <th>Delete</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr th:each="book : ${books}">
-    <td th:text="${book.id}"></td>
-    <td>
-      <a th:href="@{/book/detail/{id}(id=${book.id})}" th:text="${book.name}"></a>
-    </td>
-    <td>
-      <img th:text="${book.author}" />
-    </td>
-    <td>
-      <img th:text="${book.description}" />
-    </td>
-    <td>
-      <img th:text="${book.genre}" />
-    </td>
-    <td>
-      <img th:text="${book.publicationYear}" />
-    </td>
-    <td>
-      <img th:text="${book.stockQuantity}" />
-    </td>
-    <td>
-      <a th:href = "@{/book/update/{id}(id=${book.id})}">UPDATE</a>
-    </td>
-    <td>
-      <form th:action="@{/book/delete/{id}(id=${book.id})}" method="post" style="display: inline;">
-        <button type="submit" class="action-btn delete-btn">DELETE</button>
-      </form>
-    </td>
-  </tr>
-  </tbody>
-</table>
-</div>
-
 </body>
 </html>

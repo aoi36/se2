@@ -1,4 +1,6 @@
 package com.example.demo.controller;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 import com.example.demo.Service.AdminService;
 import com.example.demo.Service.BookService;
@@ -97,8 +99,8 @@ public class bookController {
 
     @PostMapping("/save")
     public String saveBook(@ModelAttribute Book book,
-                           @RequestParam("coverImage") MultipartFile coverImage) {
-        if (!coverImage.isEmpty()) {
+                           @RequestParam(value="coverImage", required=false) MultipartFile coverImage) {
+        if (coverImage != null && !coverImage.isEmpty()) { // Ensure coverImage is not null before calling isEmpty()
             try {
 
                 String uploadDir = "src/main/resources/static/images/";
@@ -139,13 +141,37 @@ public class bookController {
         return "redirect:/book/list";
     }
 
-    @PostMapping(value = "/search")
-    public String searchBookByName(@RequestParam(value = "query", required = false, defaultValue = "") String query, Model model){
-        List<Book> books = bookRepo.findByNameContainingIgnoreCaseOrAuthorContainingIgnoreCase(query, query);
-        if (books.isEmpty()){
-            model.addAttribute("msg","No Book Found");
-        }
+//    @PostMapping(value = "/search")
+//    public String searchBookByName(@RequestParam(value = "query", required = false, defaultValue = "") String query, Model model){
+//        List<Book> books = bookRepo.findByNameContainingIgnoreCaseOrAuthorContainingIgnoreCase(query, query);
+//        if (books.isEmpty()){
+//            model.addAttribute("msg","No Book Found");
+//        }
+//        model.addAttribute("books", books);
+//        return "searchBookResult";
+//    }
+
+
+
+    @GetMapping("/search")
+    public String searchBooks(
+            @RequestParam(required = false) String query,
+
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            Model model) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Book> books = bookService.searchBooks(query != null ? query : "", pageable);
         model.addAttribute("books", books);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", books.getTotalPages());
         return "searchBookResult";
     }
+
+    @PostMapping(value = "delete/{id}")
+    public String deleteBooks(@PathVariable("id") Long id){
+            bookRepo.deleteById(id);
+        return "redirect:/book/list";
+    }
 }
+

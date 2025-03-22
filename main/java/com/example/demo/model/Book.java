@@ -23,6 +23,7 @@ public class Book {
     @Column(name = "book_cover", length = 255)
     private String bookCover;
     @ManyToOne
+    @JoinColumn(name = "provider_id", nullable = false)
     private Provider provider;
     @OneToMany(mappedBy = "book")
     private List<OrderItem> orderItems;

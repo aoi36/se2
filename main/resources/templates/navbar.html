@@ -14,20 +14,18 @@
           <path d="M9 16C12.866 16 16 12.866 16 9C16 5.13401 12.866 2 9 2C5.13401 2 2 5.13401 2 9C2 12.866 5.13401 16 9 16Z" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           <path d="M18 18L14 14" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <form th:action="@{/book/search}" method="post" id="searchForm" autocomplete="off">
+        <form th:action="@{/book/search}" method="get" id="searchForm" autocomplete="off">
           <input type="text" name="query" placeholder="Book ID, Title, Author..." required onkeydown="handleEnter(event)">
           <button type="submit"><span class="search-icon"></span></button>
         </form>
       </div>
     </div>
-    <!-- Navigation links -->
     <div class="nav-links">
       <a th:href="@{/book/list}" class="nav-link">Book</a>
       <a th:href="@{/order/list}" class="nav-link">Order</a>
       <a th:href="@{/provider/list}" class="nav-link">Provider</a>
     </div>
 
-    <!-- User profile -->
     <div class="user-profile">
       <img class="profile-img" th:src="@{/images/{img}(img=${avatar})}" alt="User Profile">
     </div>

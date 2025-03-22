@@ -17,7 +17,6 @@ public class OrderInformation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     private LocalDateTime orderDate;
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
@@ -27,5 +26,4 @@ public class OrderInformation {
     private List<OrderItem> orderItemList;
     @ManyToOne
     private Administrator administrator;
-
 }

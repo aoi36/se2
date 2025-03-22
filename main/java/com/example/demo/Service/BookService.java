@@ -19,4 +19,8 @@ public class BookService {
         Pageable pageable = PageRequest.of(page, size, sort);
         return bookRepository.findAll(pageable);
     }
+    public Page<Book> searchBooks(String query, Pageable pageable) {
+        return bookRepository.searchByNameOrAuthor(query, pageable);
+    }
+
 }
