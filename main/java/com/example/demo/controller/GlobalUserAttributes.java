@@ -22,7 +22,9 @@ public class GlobalUserAttributes {
             Administrator admin = adminService.findByUsername(principal.getName());
             if (admin != null) {
                 model.addAttribute("avatar", admin.getAvatar());
-                // model.addAttribute("user", user);
+                model.addAttribute("email", admin.getEmail());
+                model.addAttribute("name", admin.getAdministratorName());
+
             }
         }
     }

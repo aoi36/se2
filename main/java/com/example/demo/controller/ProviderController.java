@@ -117,7 +117,6 @@ public class ProviderController {
                 List<Book> books = providerRepo.findById(selectedId).get().getBooks();
                 bookRepo.deleteAll(books);
             }
-
             providerRepo.deleteAllByIdInBatch(selectedIds);
         }
         return "redirect:/provider/list";

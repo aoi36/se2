@@ -5,21 +5,58 @@
 <head>
     <meta charset="UTF-8">
     <title>Dashboard</title>
+    <style>
+        .welcome-message {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .username {
+            font-weight: bold;
+            color: #0d6efd;
+        }
+
+        .welcome-message img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        .logout-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+    </style>
 </head>
 <body>
 <div layout:fragment="content">
-    <a th:href="@{/book/list}">To Book List</a>
-    <h1>Dashboard</h1>
-    <div class="welcome-message">
-        Welcome, <span class="username" th:text="${username}">User</span>!
-
-        <img th:src="@{/images/{img}(img=${avatar})}" alt="User Avatar"/>
+    <div class="container" style="max-width: 800px; margin: 40px auto; padding: 20px;">
+        <a th:href="@{/book/list}" style="display: inline-block; margin-bottom: 20px; color: #0d6efd; text-decoration: none;">To Book List</a>
+        <h1>Dashboard</h1>
+        <div class="welcome-message">
+            Welcome, <span class="username" th:text="${username}">User</span>!
+            <img th:src="@{/images/{img}(img=${avatar})}" alt="User Avatar"/>
+        </div>
+        <p>This is your dashboard page where you can view your personalized information.</p>
+        <!-- Logout form -->
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-btn">Logout</button>
+        </form>
     </div>
-    <p>This is your dashboard page where you can view your personalized information.</p>
-    <!-- Logout form -->
-    <form th:action="@{/logout}" method="post">
-        <button type="submit" class="logout-btn">Logout</button>
-    </form>
 </div>
 </body>
 </html>

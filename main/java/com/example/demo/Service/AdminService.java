@@ -12,12 +12,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 @Service
 public class AdminService {
     @Autowired
     AdminRepository adminRepository;
     @Autowired
     PasswordEncoder passwordEncoder;
+    private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
 
     public void updateResetPasswordToken(String token, String email) throws UserNotFoundException {
         Administrator admin = adminRepository.findByEmail(email);
@@ -27,6 +33,13 @@ public class AdminService {
         } else {
             throw new UserNotFoundException("Could not find any user with the email " + email);
         }
+        scheduler.schedule(() -> {
+            Administrator adminToUpdate = adminRepository.findByEmail(email);
+            if (adminToUpdate != null && token.equals(adminToUpdate.getResetPasswordToken())) {
+                adminToUpdate.setResetPasswordToken(null);
+                adminRepository.save(adminToUpdate);
+            }
+        }, 5, TimeUnit.MINUTES);
     }
 
     public Administrator getByResetPasswordToken(String token) {

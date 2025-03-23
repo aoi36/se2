@@ -207,7 +207,9 @@
       </tr>
       </thead>
       <tbody>
-      <tr th:each="orderInformation : ${orderPage.content}">
+      <tr th:each="orderInformation : ${orderPage.content}"
+          th:onclick="|window.location.href='@{/order/detail/{id}(id=${orderInformation.id})}'|"
+          style="cursor: pointer;">
         <td th:text="${orderInformation.id}"></td>
         <td th:text="${orderInformation.administrator?.administratorName}">Admin Name</td>
         <td th:text="${#temporals.format(orderInformation.orderDate, 'yyyy-MM-dd HH:mm')}"></td>
@@ -215,7 +217,6 @@
         <td th:text="${orderInformation.totalPrice}"></td>
         <td>
           <a th:href="@{/order/detail/{id}(id=${orderInformation.id})}" class="action-btn update-btn">Update</a>
-
         </td>
       </tr>
       </tbody>

@@ -16,30 +16,54 @@
     .container {
         max-width: 1200px;
         margin: 40px auto;
+    }
+
+    /* Provider card styling */
+    .provider-card {
         background-color: #fff;
-        padding: 30px;
         border-radius: 12px;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        margin-bottom: 30px;
     }
 
     .provider-header {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 15px;
+        margin-bottom: 20px;
+    }
+
+    .provider-info-container {
+        display: flex;
+        align-items: center;
+    }
+
+    .provider-logo {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-right: 25px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .provider-info {
+        display: flex;
+        flex-direction: column;
     }
 
     .provider-title {
-        font-size: 1.5rem;
+        font-size: 1.8rem;
         font-weight: 600;
         color: #333;
-        margin: 0;
+        margin: 0 0 10px 0;
     }
 
-    .provider-id {
-        font-size: 0.9rem;
-        color: #777;
-        margin: 5px 0 0 0;
+    .provider-details p {
+        margin: 5px 0;
+        color: #666;
+        font-size: 0.95rem;
     }
 
     .action-buttons {
@@ -48,13 +72,14 @@
     }
 
     .btn {
-        padding: 8px 16px;
+        padding: 10px 20px;
         border: none;
         border-radius: 4px;
         color: #fff;
         cursor: pointer;
         text-decoration: none;
         font-size: 0.9rem;
+        transition: background-color 0.2s;
     }
 
     .update-btn {
@@ -73,77 +98,44 @@
         background-color: #e6366f;
     }
 
-    .provider-content {
-        display: flex;
-        margin-top: 20px;
-        padding-bottom: 30px;
-        border-bottom: 1px solid #eee;
-    }
-
-    .provider-logo {
-        width: 180px;
-        height: 180px;
-        object-fit: cover;
-        border-radius: 8px;
-        margin-right: 25px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .provider-details {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .provider-info {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 15px 30px;
-        margin-bottom: 20px;
-    }
-
-    .info-item {
-        margin: 0;
-        line-height: 1.6;
-    }
-
-    .info-label {
-        color: #777;
-        font-size: 0.9rem;
-        display: block;
-    }
-
-    .info-value {
-        color: #333;
-        font-weight: 500;
-    }
-
-    .book-list {
-        margin-top: 30px;
+    /* Books table card styling */
+    .books-card {
         background-color: #fff;
-        padding: 20px;
         border-radius: 12px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+    }
+
+    .books-card h2 {
+        margin-top: 0;
+        margin-bottom: 20px;
+        font-size: 1.5rem;
+        color: #333;
     }
 
     .book-table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 20px;
         margin-bottom: 20px;
     }
 
     .book-table th, .book-table td {
-        padding: 10px;
-        text-align: center;
-    }
-
-    .book-table td {
-        border-bottom: 1px solid #808080;
+        padding: 15px 10px;
+        text-align: left;
     }
 
     .book-table th {
-        background-color: transparent !important;
-        font-weight: bold;
-        border-bottom: 1px solid black;
+        color: #666;
+        font-weight: 500;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .book-table td {
+        border-bottom: 1px solid #eee;
+    }
+
+    .book-table tr:hover {
+        background-color: #f9f9f9;
     }
 
     .book-image {
@@ -152,6 +144,21 @@
         object-fit: cover;
         border-radius: 4px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .book-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .book-id {
+        color: #888;
+        font-size: 0.8rem;
+        margin-bottom: 4px;
+    }
+
+    .book-title {
+        font-weight: 500;
     }
 
     /* Enhanced Modal styling */
@@ -314,15 +321,7 @@
 </head>
 <body>
 <div layout:fragment="content" class="container">
-  <div class="provider-header">
-    <div>
-    </div>
-    <div class="action-buttons">
-      <a th:href="@{/provider/update/{id}(id=${provider.id})}" class="btn update-btn">Update</a>
-      <button type="button" class="btn delete-btn" th:onclick="'openDeleteModal(' + ${provider.id} + ')'">Delete</button>
-    </div>
-  </div>
-
+  <!-- Hidden form for delete action -->
   <form id="deleteForm" th:action="@{/provider/delete}" method="post" style="display: none;"></form>
 
   <!-- Enhanced Modal -->
@@ -335,24 +334,29 @@
     </div>
   </div>
 
-  <!-- Provider Information Section -->
-  <div class="provider-content">
-    <img class="provider-logo" th:src="@{/images/{img}(img=${provider.avatar})}" alt="Provider Logo">
-    <div class="provider-details">
-      <p>Provider:<h1 class="provider-title" th:text="${provider.providerName}">Provider Name</h1> </p>
-      <div class="info-item">
-        <span class="info-label">Phone:</span>
-        <span class="info-value" th:text="${provider.contactNumber}">+123456789</span>
+  <!-- Provider Information Card -->
+  <div class="provider-card">
+    <div class="provider-header">
+      <div class="provider-info-container">
+        <img class="provider-logo" th:src="@{/images/{img}(img=${provider.avatar})}" alt="Provider Logo">
+        <div class="provider-info">
+          <h1 class="provider-title" th:text="${provider.providerName}">Provider: ABC</h1>
+          <div class="provider-details">
+            <p th:text="'Address: ' + ${provider.address}">Address: Ha Dong, Hanoi</p>
+            <p th:text="'Contact Number: ' + ${provider.contactNumber}">Contact Number: 123456789</p>
+          </div>
+        </div>
       </div>
-      <div class="info-item">
-        <span class="info-label">Address:</span>
-        <span class="info-value" th:text="${provider.address}">123 Street, City</span>
+
+      <div class="action-buttons">
+        <a th:href="@{/provider/update/{id}(id=${provider.id})}" class="btn update-btn">Update</a>
+        <button type="button" class="btn delete-btn" th:onclick="'openDeleteModal(' + ${provider.id} + ')'">Delete</button>
       </div>
     </div>
   </div>
 
-  <!-- Books List Section with Pagination -->
-  <div class="book-list">
+  <!-- Books List Card -->
+  <div class="books-card">
     <h2>Books from this Provider</h2>
 
     <!-- Display books table if there are books -->
@@ -360,8 +364,7 @@
       <table class="book-table">
         <thead>
         <tr>
-          <th>Image</th>
-          <th>Book Name</th>
+          <th>Book</th>
           <th>Quantity</th>
           <th>Price</th>
           <th>Total Price</th>
@@ -369,11 +372,18 @@
         </thead>
         <tbody>
         <tr th:each="book : ${booksPage.content}">
-          <td><img class="book-image" th:src="@{/images/{img}(img=${book.bookCover})}" alt="Book Cover"></td>
-          <td th:text="${book.name}"></td>
-          <td th:text="${book.stockQuantity}"></td>
-          <td th:text="'$' + ${book.price}"></td>
-          <td th:text="'$' + (${book.price} * ${book.stockQuantity})"></td>
+          <td>
+            <div style="display: flex; align-items: center;">
+              <img class="book-image" th:src="@{/images/{img}(img=${book.bookCover})}" alt="Book Cover">
+              <div style="margin-left: 15px;">
+                <div class="book-id" th:text="'ID: ' + ${book.id}">ID: 1000</div>
+                <div class="book-title" th:text="'Title: ' + ${book.name}">Title: Book Name</div>
+              </div>
+            </div>
+          </td>
+          <td th:text="${book.stockQuantity}">100</td>
+          <td th:text="'$' + ${book.price}">$100</td>
+          <td th:text="'$' + (${book.price} * ${book.stockQuantity})">$10,000</td>
         </tr>
         </tbody>
       </table>
@@ -393,6 +403,8 @@
            th:href="@{/provider/detail/{id}(id=${provider.id}, page=${booksPage.number + 1})}">&gt;</a>
       </div>
     </div>
+
+    <!-- Display message if no books are found -->
     <div th:if="${booksPage == null || booksPage.empty}" class="no-books-message">
       <p>No books available from this provider.</p>
     </div>

@@ -26,14 +26,13 @@
       <a th:href="@{/provider/list}" class="nav-link">Provider</a>
     </div>
 
-    <div class="user-profile">
-      <img class="profile-img" th:src="@{/images/{img}(img=${avatar})}" alt="User Profile">
+    <div class="avatar-container">
+      <img th:src="@{/images/{img}(img=${avatar})}" alt="User Avatar" class="avatar" id="userAvatar" onclick="toggleUserDropdown()" style="cursor: pointer;">
     </div>
   </nav>
 </div>
 
 <script>
-  // Example handleEnter function if needed
   function handleEnter(event) {
     if (event.key === 'Enter') {
       event.preventDefault();

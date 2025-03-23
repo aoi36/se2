@@ -226,7 +226,6 @@
                 <span th:text="${order.administrator.administratorName}">Admin Name</span>
             </p>
 
-            <!-- For administrators - editable dropdown -->
             <div class="order-info-item" th:if="${#authentication.principal.username.trim().toLowerCase() == order.administrator.username.trim().toLowerCase()}">
                 <form id="status-form" th:action="@{/order/save}" method="post" style="display: inline;">
                     <span class="order-info-label">Status:</span>
@@ -240,10 +239,8 @@
                 </form>
             </div>
 
-            <!-- For non-administrators - enhanced status badge -->
             <div class="order-info-item" th:unless="${#authentication.principal.username.trim().toLowerCase() == order.administrator.username.trim().toLowerCase()}">
                 <span class="order-info-label">Status:</span>
-                <!-- Using separate classappend conditions for each status -->
                 <span class="status-text"
                       th:classappend="
                       ${#strings.toLowerCase(order.status) == 'delivering' ? ' status-delivering' : ''} +

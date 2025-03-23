@@ -302,7 +302,8 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="provider : ${providerPage.content}">
+        <tr th:each="provider : ${providerPage.content}"  th:onclick="|window.location.href='@{/provider/detail/{id}(id=${provider.id})}'|"
+            style="cursor: pointer;">
           <td><input type="checkbox" name="selectedIds" th:value="${provider.id}" /></td>
           <td th:text="${provider.id}"></td>
           <td th:text="${provider.providerName}"></td>

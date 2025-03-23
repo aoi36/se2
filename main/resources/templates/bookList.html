@@ -273,6 +273,18 @@
     color: #0056b3; /* Darker shade on hover */
     text-decoration: underline;
 }
+        /* Sort indicators */
+        .sort-indicator {
+            display: inline-block;
+            margin-left: 5px;
+            font-size: 0.8rem;
+        }
+        .sort-asc::after {
+            content: " ↑";
+        }
+        .sort-desc::after {
+            content: " ↓";
+        }
     </style>
     <script>
         // Global array to hold the current sort criteria.
@@ -360,17 +372,35 @@
             window.location.href = newUrl;
         }
 
+        function updateSortIndicators() {
+            // First, clear all indicators
+            document.querySelectorAll('.sort-indicator').forEach(el => {
+                el.classList.remove('sort-asc', 'sort-desc');
+            });
+
+            // Then set the appropriate indicators based on sortCriteria
+            sortCriteria.forEach(item => {
+                const indicator = document.getElementById('sort-' + item.field);
+                if (indicator) {
+                    indicator.classList.add(item.order === 'asc' ? 'sort-asc' : 'sort-desc');
+                }
+            });
+        }
+
         window.onload = function() {
             initializeSortCriteria();
-            const selectAllCheckbox = document.getElementById('selectAll');
-        const checkboxes = document.querySelectorAll('.bookCheckbox');
+            updateSortIndicators(); // Add this line to update indicators on page load
 
-        // When "Select All" is toggled, check or uncheck all book checkboxes
-        selectAllCheckbox.addEventListener('change', function() {
-            checkboxes.forEach(function(cb) {
-                cb.checked = selectAllCheckbox.checked;
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.bookCheckbox');
+
+            // When "Select All" is toggled, check or uncheck all book checkboxes
+            selectAllCheckbox.addEventListener('change', function() {
+                checkboxes.forEach(function(cb) {
+                    cb.checked = selectAllCheckbox.checked;
+                });
             });
-        });
+
             // Attach event listeners to each delete form.
             const deleteForms = document.querySelectorAll('form.deleteForm');
             deleteForms.forEach(function(form) {
@@ -400,29 +430,23 @@
             <table class="book-table">
                 <thead>
                 <tr>
-                    <!-- "Select All" checkbox in header -->
                     <th>
                         <input type="checkbox" id="selectAll" />
                     </th>
-                    <th onclick="toggleSort('id')">ID</th>
-                    <th onclick="toggleSort('name')">Title</th>
-                    <th onclick="toggleSort('author')">Author</th>
-                    <th onclick="toggleSort('publicationYear')">Price</th>
-                    <th onclick="toggleSort('quantity')">Stock</th>
+                    <th onclick="toggleSort('id')">ID <span id="sort-id" class="sort-indicator"></span></th>
+                    <th onclick="toggleSort('name')">Title <span id="sort-name" class="sort-indicator"></span></th>
+                    <th onclick="toggleSort('author')">Author <span id="sort-author" class="sort-indicator"></span></th>
+                    <th onclick="toggleSort('publicationYear')">Price <span id="sort-publicationYear" class="sort-indicator"></span></th>
+                    <th onclick="toggleSort('stockQuantity')">Stock <span id="sort-stockQuantity" class="sort-indicator"></span></th>
                     <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="book : ${bookPage.content}">
+                <tr th:each="book : ${bookPage.content}" th:onclick="|window.location.href='@{/book/detail/{id}(id=${book.id})}'|"
+                    style="cursor: pointer;">
                     <td><input type="checkbox" name="selectedIds" th:value="${book.id}" class="bookCheckbox" /></td>
                     <td th:text="${book.id}"></td>
-                    <td>
-                        <a th:href="@{/book/detail/{id}(id=${book.id})}"
-                           th:title="${book.name}"
-                           class="book-title"
-                           th:text="${#strings.length(book.name) > 20 ? #strings.substring(book.name, 0, 20) + '...' : book.name}">
-                        </a>
-                    </td>
+                    <td th:text="${#strings.length(book.name) > 20 ? #strings.substring(book.name, 0, 20) + '...' : book.name}"></td>
                     <td th:text="${book.author}"></td>
                     <td th:text="${book.publicationYear}"></td>
                     <td th:text="${book.stockQuantity}"></td>
@@ -456,17 +480,16 @@
                th:href="@{/book/list(page=${bookPage.number + 1}, size=${bookPage.size})}">&gt;</a>
         </div>
 
-    <div id="confirmModal" class="modal">
-        <div class="modal-content">
-            <span id="closeModal" class="close" onclick="closeModal()">&times;</span>
-            <p>Are you sure you want to delete this book?</p>
-            <button id="confirmDelete">Yes</button>
-            <button onclick="closeModal()">No</button>
+        <div id="confirmModal" class="modal">
+            <div class="modal-content">
+                <span id="closeModal" class="close" onclick="closeModal()">&times;</span>
+                <p>Are you sure you want to delete this book?</p>
+                <button id="confirmDelete">Yes</button>
+                <button onclick="closeModal()">No</button>
+            </div>
         </div>
+
     </div>
-
 </div>
-</div>
-
 </body>
 </html>
