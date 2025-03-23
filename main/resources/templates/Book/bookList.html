@@ -442,7 +442,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="book : ${bookPage.content}" th:onclick="|window.location.href='@{/book/detail/{id}(id=${book.id})}'|"
+                <tr th:each="book : ${bookPage.content}" th:onclick="|if(event.target.type !== 'checkbox') window.location.href='@{/book/detail/{id}(id=${book.id})}'|"
                     style="cursor: pointer;">
                     <td><input type="checkbox" name="selectedIds" th:value="${book.id}" class="bookCheckbox" /></td>
                     <td th:text="${book.id}"></td>
@@ -458,6 +458,7 @@
             </table>
         </form>
     </div>
+    <div th:if="${bookPage.content.size() > 0}">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
         <form id="pageSizeForm" th:action="@{/book/list}" method="get">
             <input type="hidden" name="page" th:value="${currentPage}"/>
@@ -467,6 +468,7 @@
                 <option th:value="20" th:selected="${pageSize == 20}">20</option>
             </select>
         </form>
+
         <div class="pagination-links">
             <a class="prev" th:if="${bookPage.hasPrevious()}"
                th:href="@{/book/list(page=${bookPage.number - 1}, size=${bookPage.size})}">&lt;</a>
@@ -475,7 +477,6 @@
        th:text="${i + 1}"
        th:classappend="${bookPage.number == i} ? ' active' : ''"></a>
   </span>
-
             <a class="next" th:if="${bookPage.hasNext()}"
                th:href="@{/book/list(page=${bookPage.number + 1}, size=${bookPage.size})}">&gt;</a>
         </div>
@@ -490,6 +491,7 @@
         </div>
 
     </div>
+</div>
 </div>
 </body>
 </html>

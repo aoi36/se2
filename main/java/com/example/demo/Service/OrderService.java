@@ -1,6 +1,6 @@
 package com.example.demo.Service;
 
-import com.example.demo.model.OrderInformation;
+import com.example.demo.model.Order;
 import com.example.demo.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -12,7 +12,7 @@ public class OrderService {
     @Autowired
     private OrderRepository orderRepository;
 
-    public Page<OrderInformation> getPaginatedOrders(Pageable pageable) {
+    public Page<Order> getPaginatedOrders(Pageable pageable) {
         return orderRepository.findAll(pageable);
     }
 }

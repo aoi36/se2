@@ -1,10 +1,14 @@
 package com.example.demo.controller;
 
-import com.example.demo.Service.AdminService;
+import com.example.demo.Service.UserService;
+import com.example.demo.model.User.Role;
+import com.example.demo.model.User.User;
+import com.example.demo.constant.RoleName;
 import com.example.demo.exception.UserNotFoundException;
-import com.example.demo.model.Administrator;
-import com.example.demo.repository.AdminRepository;
-import com.example.demo.User.UserTemplate;
+
+import com.example.demo.repository.RoleRepository;
+import com.example.demo.repository.UserRepository;
+import com.example.demo.model.User.UserTemplate;
 import com.example.demo.util.Utility;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -13,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,11 +26,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import net.bytebuddy.utility.RandomString;
+
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 
@@ -35,31 +39,45 @@ public class AuthController {
     @Autowired
     PasswordEncoder encoder;
     @Autowired
-    AdminService adminService;
+    UserService userService;
     @Autowired
-    AdminRepository adminRepo;
+    UserRepository userRepository;
     @Autowired
-    private JavaMailSender mailSender;
+    RoleRepository roleRepository;
+    @Autowired
+    JavaMailSender mailSender;
+
+
+    public void createSampleUser() {
+        if (roleRepository.findByName(RoleName.ROLE_ADMIN).isEmpty()) {
+            Role userRole = new Role();
+            userRole.setName(RoleName.ROLE_ADMIN);
+            roleRepository.save(userRole);
+        }
+        if (userRepository.findAll().isEmpty()) {
+            userService.createUser("Admin1", "Admin1", RoleName.ROLE_ADMIN);
+        }
+    }
 
     @GetMapping("/sign-in")
     public String loginPage() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
+        createSampleUser();
         if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
-            return "redirect:/member";
+            return "redirect:/book/list";
         }
-
-        return "sign-in";
+        return "Auth/sign-in";
     }
 
-
     @GetMapping("/member")
+    @PreAuthorize("hasRole('ADMIN')")
     public String loginSuccess(Model model, Authentication authentication, Principal principal) {
         if (authentication != null && authentication.isAuthenticated()) {
             String username = authentication.getName();
             model.addAttribute("username", username);
-
-
+            authentication.getAuthorities().forEach(authority ->
+                    System.out.println("User Role: " + authority.getAuthority())
+            );
         }
         return "member";
     }
@@ -69,13 +87,14 @@ public class AuthController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
-            return "redirect:/member";
+            return "redirect:/book/list";
         }
-        model.addAttribute("administrator", new UserTemplate());
-        return "register";
+        model.addAttribute("user", new UserTemplate());
+        return "Auth/register";
     }
+
     @PostMapping("/register")
-    public String registerHandle(@Valid @ModelAttribute("administrator") UserTemplate ut,
+    public String registerHandle(@Valid @ModelAttribute("user") UserTemplate ut,
                                  BindingResult result,
                                  Model model) {
         if (result.hasErrors()) {
@@ -83,34 +102,33 @@ public class AuthController {
                 System.out.println("Field: " + ((FieldError) error).getField());
                 System.out.println("Message: " + error.getDefaultMessage());
             });
-            model.addAttribute("administrator", ut);
-            return "register";
+            model.addAttribute("User", ut);
+            return "Auth/register";
         }
 
-        // Then check for business logic errors like duplicate username
-        if (adminRepo.findByUsername(ut.getUsername()).isPresent()) {
+        if (userRepository.findByUsername(ut.getUsername()).isPresent()) {
             result.rejectValue("username", "error.username", "Username already exists");
             // Optionally print this error immediately
             result.getAllErrors().forEach(error -> {
                 System.out.println("Field: " + ((FieldError) error).getField());
                 System.out.println("Message: " + error.getDefaultMessage());
             });
-            model.addAttribute("administrator", ut);
-            return "register";
-        }
-         else {
+            model.addAttribute("User", ut);
+            return "Auth/register";
+        } else {
             String name = ut.getUsername();
             String password = ut.getPassword();
 
-            adminRepo.save(new Administrator(name, encoder.encode(password)));
-            model.addAttribute("administrator", new UserTemplate());
+            userRepository.save(new User(name, encoder.encode(password)));
+            model.addAttribute("User", new UserTemplate());
             model.addAttribute("success", true);
-            return "register";
+            return "Auth/register";
         }
     }
+
     @GetMapping("/forgot-password")
     public String showForgotPasswordForm() {
-        return "forgotPasswordForm";
+        return "Auth/forgotPasswordForm";
     }
 
     @PostMapping("/forgot-password")
@@ -119,7 +137,7 @@ public class AuthController {
         String token = RandomString.make(30);
 
         try {
-            adminService.updateResetPasswordToken(token, email);
+            userService.updateResetPasswordToken(token, email);
             String resetPasswordLink = Utility.getSiteURL(request) + "/reset-password?token=" + token;
             sendEmail(email, resetPasswordLink);
             model.addAttribute("message", "We have sent a reset password link to your email. Please check.");
@@ -132,14 +150,15 @@ public class AuthController {
             throw new RuntimeException(e);
         }
 
-        return "forgotPasswordForm";
+        return "Auth/forgotPasswordForm";
     }
+
     public void sendEmail(String recipientEmail, String link)
             throws MessagingException, UnsupportedEncodingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
 
-        helper.setFrom("contact@gmail.com", "XEM HOLOLIVE IT THOI");
+        helper.setFrom("contact@gmail.com", "CHANGE PASSWORD");
         helper.setTo(recipientEmail);
 
         String subject = "Here's the link to reset your password";
@@ -158,35 +177,43 @@ public class AuthController {
 
         mailSender.send(message);
     }
+
     @GetMapping("/reset-password")
     public String showResetPasswordForm(@Param(value = "token") String token, Model model) {
-        Administrator admin= adminService.getByResetPasswordToken(token);
+        User user = userService.getByResetPasswordToken(token);
         model.addAttribute("token", token);
 
-        if (admin == null) {
+        if (user == null) {
             model.addAttribute("message", "Invalid Token");
-            return "resetPasswordForm";
+            return "Auth/resetPasswordForm";
         }
 
-        return "resetPasswordForm";
+        return "Auth/resetPasswordForm";
     }
-    @PostMapping("/reset-password")
-    public String processResetPassword(HttpServletRequest request, Model model) {
-        String token = request.getParameter("token");
-        String password = request.getParameter("password");
 
-        Administrator administrator = adminService.getByResetPasswordToken(token);
+    @PostMapping("/reset-password")
+    public String processResetPassword(@RequestParam("token") String token,
+                                       @RequestParam("password") String password,
+                                       @RequestParam("confirmPassword") String confirmPassword,
+                                       Model model) {
         model.addAttribute("title", "Reset your password");
 
-        if (administrator == null) {
-            model.addAttribute("message", "Invalid Token");
-            return "forgotPasswordForm";
-        } else {
-            adminService.updatePassword(administrator, password);
-
-            model.addAttribute("message", "You have successfully changed your password.");
+        // Password Validation
+        if (!password.equals(confirmPassword)) {
+            model.addAttribute("message", "Passwords do not match");
+            return "Auth/resetPasswordForm";
         }
-
+        if (!password.matches("^(?=.*\\d)(?=.*[A-Z]).{6,60}$")) {
+            model.addAttribute("message", "Password must be 6-60 characters and contain at least 1 digit and 1 uppercase letter");
+            return "Auth/resetPasswordForm";
+        }
+        User user = userService.getByResetPasswordToken(token);
+        if (user == null) {
+            model.addAttribute("message", "Invalid Token");
+            return "Auth/forgotPasswordForm";
+        }
+        userService.updatePassword(user, password);
+        model.addAttribute("message", "You have successfully changed your password.");
         return "message";
     }
 }

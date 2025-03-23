@@ -1,35 +1,36 @@
-package com.example.demo.User;
+package com.example.demo.model.User;
 
-import com.example.demo.model.Administrator;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.stream.Collectors;
 
 public class MyUserDetail implements UserDetails {
 
-    private Administrator admin;
+    private User user;
 
-    public MyUserDetail(Administrator admin) {
-        this.admin = admin;
+
+
+    public MyUserDetail(User user) {
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Return roles/authorities based on admin properties
-        return Collections.singleton(new SimpleGrantedAuthority("ROLE_ADMINISTRATOR"));
+        return user.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName().name()))
+                .collect(Collectors.toList());
     }
-
     @Override
     public String getPassword() {
-        return admin.getPassword();
+        return user.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return admin.getUsername();
+        return user.getUsername();
     }
 
     @Override

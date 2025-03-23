@@ -20,7 +20,7 @@
   <p>Registration successful! You can now <a th:href="@{/sign-in}">login</a>.</p>
 </div>
 
-<form th:action="@{/register}" th:object="${administrator}" method="post">
+<form th:action="@{/register}" th:object="${user}" method="post">
   <div>
     <label for="username">Username:</label>
     <input type="text" th:field="*{username}" id="username" placeholder="Enter username"/>

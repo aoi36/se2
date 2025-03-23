@@ -185,7 +185,7 @@
     </div>
 
     <div class="book-content">
-        <img class="book-image" th:src="@{/images/{img}(img=${book.bookCover})}" alt="Book Cover">
+        <img class="book-image" th:src="@{/uploads/{img}(img=${book.bookCover})}" alt="Book Cover">
 
 
 
@@ -195,14 +195,8 @@
                     <span class="info-label">Author:</span>
                     <span class="info-value" th:text="${book.author}">ABC</span>
                 </div>
-                <div class="info-item">
-                    <span class="info-label">Provider:</span>
-                    <span class="info-value" th:text="${book.provider != null ? book.provider.providerName : 'N/A'}">GHF</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Genre:</span>
-                    <span class="info-value" th:text="${book.genre}">DEF</span>
-                </div>
+
+
                 <div class="info-item">
                     <span class="info-label">Stock Quantity:</span>
                     <span class="info-value" th:text="${book.stockQuantity}">456</span>

@@ -155,7 +155,7 @@
         <td><a class="book-title" th:href="@{/book/detail/{id}(id=${book.id})}" th:text="${book.name}"></a></td>
         <td th:text="${book.author}"></td>
         <td th:text="${#strings.length(book.description) > 100 ? #strings.substring(book.description, 0, 100) + '...' : book.description}"></td>
-        <td th:text="${book.genre}"></td>
+   
         <td th:text="${book.publicationYear}"></td>
         <td th:text="${book.stockQuantity}"></td>
       </tr>

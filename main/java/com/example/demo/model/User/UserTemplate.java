@@ -1,4 +1,4 @@
-package com.example.demo.User;
+package com.example.demo.model.User;
 
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -14,9 +14,7 @@ public class UserTemplate {
             message = "Password must be 6-60 characters and contain at least 1 digit and 1 uppercase letter")
     private String password;
 
-//    private String address;
 
-    // Getters and Setters...
     public String getUsername() {
         return username;
     }

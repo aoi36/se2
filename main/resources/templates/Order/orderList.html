@@ -186,14 +186,11 @@
   </script>
 </head>
 <div layout:fragment="content" class="container">
-  <!-- Page Title -->
   <div class="header">
     <h2>Orders</h2>
-    <!-- Add an "Add Order" button if needed -->
-    <!-- <a href="/order/add" class="add-order-btn">Add order</a> -->
+
   </div>
 
-  <!-- Table with border container -->
   <div class="table-container">
     <table class="order-table">
       <thead>
@@ -207,23 +204,22 @@
       </tr>
       </thead>
       <tbody>
-      <tr th:each="orderInformation : ${orderPage.content}"
-          th:onclick="|window.location.href='@{/order/detail/{id}(id=${orderInformation.id})}'|"
+      <tr th:each="order : ${orderPage.content}"
+          th:onclick="|if(event.target.type !== 'checkbox') window.location.href='@{/order/detail/{id}(id=${order.id})}'|"
           style="cursor: pointer;">
-        <td th:text="${orderInformation.id}"></td>
-        <td th:text="${orderInformation.administrator?.administratorName}">Admin Name</td>
-        <td th:text="${#temporals.format(orderInformation.orderDate, 'yyyy-MM-dd HH:mm')}"></td>
-        <td th:text="${orderInformation.status}"></td>
-        <td th:text="${orderInformation.totalPrice}"></td>
+        <td th:text="${order.id}"></td>
+        <td th:text="${order.administrator?.administratorName}">Admin Name</td>
+        <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}"></td>
+        <td th:text="${order.status}"></td>
+        <td th:text="${order.totalPrice}"></td>
         <td>
-          <a th:href="@{/order/detail/{id}(id=${orderInformation.id})}" class="action-btn update-btn">Update</a>
+          <a th:href="@{/order/detail/{id}(id=${order.id})}" class="action-btn update-btn">Update</a>
         </td>
       </tr>
       </tbody>
     </table>
   </div>
-
-  <!-- Page Size & Pagination -->
+  <div th:if="${orderPage.totalPages > 0}">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
     <form id="pageSizeForm" th:action="@{/order/list}" method="get">
       <input type="hidden" name="page" th:value="${orderPage.number}" />
@@ -234,8 +230,8 @@
         <option th:value="20" th:selected="${orderPage.size == 20}">20</option>
       </select>
     </form>
+  </div>
 
-    <!-- Updated pagination to match the image -->
     <div class="pagination-links">
       <a class="prev" th:if="${orderPage.hasPrevious()}"
          th:href="@{/order/list(page=${orderPage.number - 1}, size=${orderPage.size})}">&lt;</a>
@@ -250,5 +246,6 @@
          th:href="@{/order/list(page=${orderPage.number + 1}, size=${orderPage.size})}">&gt;</a>
     </div>
   </div>
+</div>
 </div>
 </html>

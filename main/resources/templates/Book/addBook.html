@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <title>Add / Edit Book</title>
+  <!-- Define the previewImage function in the head so it's available before the HTML is parsed -->
+  <script>
+    function previewImage(event) {
+      var file = event.target.files[0];
+      if (file) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var img = document.createElement('img');
+          img.src = e.target.result;
+          img.style.width = "100px";
+          img.style.height = "100px";
+          img.style.borderRadius = "4px";
+          img.style.objectFit = "cover";
+
+          var uploadArea = document.getElementById('uploadArea');
+          uploadArea.innerHTML = "";
+          uploadArea.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #fefae0;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      margin-top: 3%;
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 24px;
+      width: 100%;
+      max-width: 60%;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      margin-left: auto;
+      margin-right: auto;
+    }
+    h1 {
+      font-size: 18px;
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      font-weight: 600;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .form-group {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    label {
+      width: 150px;
+      font-size: 14px;
+      padding-top: 8px;
+      color: #374151;
+    }
+    .required {
+      color: #ef4444;
+    }
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 300px;
+      padding: 6px 10px;
+      font-size: 14px;
+      background-color: #f7f7f7;
+      color: #6c757d;
+      border: 1px solid #dcdcdc;
+      border-radius: 4px;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+    textarea {
+      height: 100px;
+      resize: vertical;
+    }
+    input[type="text"]:hover,
+    input[type="number"]:hover,
+    textarea:hover,
+    select:hover {
+      border-color: #c6c6c6;
+    }
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    textarea:focus,
+    select:focus {
+      background-color: #fff;
+      border-color: #bfbfbf;
+      outline: none;
+    }
+    input::placeholder,
+    textarea::placeholder {
+      color: #999;
+      font-style: italic;
+    }
+    .upload-area {
+      width: 100px;
+      height: 100px;
+      background-color: #f3f4f6;
+      border: 1px dashed #d1d5db;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+    .error {
+      color: #ef4444;
+      font-size: 12px;
+      margin-top: -12px;
+      margin-bottom: 12px;
+      margin-left: 150px; /* Align with input fields */
+    }
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 24px;
+      gap: 12px;
+    }
+    .form-actions button {
+      padding: 8px 16px;
+      background-color: #3b82f6;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .form-actions button:hover {
+      background-color: #2563eb;
+    }
+  </style>
+</head>
+<body>
+<div layout:fragment="content">
+  <div class="container">
+    <h1>Add / Edit Book</h1>
+    <form th:action="@{/book/save}" th:object="${book}" method="post" enctype="multipart/form-data">
+      <!-- Name -->
+      <div class="form-group">
+        <label for="name">Name <span class="required">*</span></label>
+        <input type="text" id="name" th:field="*{name}" placeholder="Enter book name" />
+      </div>
+      <div th:if="${#fields.hasErrors('name')}" class="error" th:errors="*{name}"></div>
+
+
+      <div class="form-group">
+        <label for="author">Author <span class="required">*</span></label>
+        <input type="text" id="author" th:field="*{author}" placeholder="Enter author name" />
+      </div>
+      <div th:if="${#fields.hasErrors('author')}" class="error" th:errors="*{author}"></div>
+
+      <div class="form-group">
+        <label for="price">Price <span class="required">*</span></label>
+        <input type="number" step="0.01" id="price" th:field="*{price}" placeholder="Enter price" />
+      </div>
+      <div th:if="${#fields.hasErrors('price')}" class="error" th:errors="*{price}"></div>
+
+
+      <div class="form-group">
+        <label for="stockQuantity">Stock Qty <span class="required">*</span></label>
+        <input type="number" id="stockQuantity" th:field="*{stockQuantity}" placeholder="Enter stock quantity" />
+      </div>
+      <div th:if="${#fields.hasErrors('stockQuantity')}" class="error" th:errors="*{stockQuantity}"></div>
+
+
+      <div class="form-group">
+        <label for="publicationYear">Publication Year <span class="required">*</span></label>
+        <input type="number" id="publicationYear" th:field="*{publicationYear}" placeholder="Enter publication year" />
+      </div>
+      <div th:if="${#fields.hasErrors('publicationYear')}" class="error" th:errors="*{publicationYear}"></div>
+
+      <!-- Description -->
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea id="description" th:field="*{description}" placeholder="Enter description"></textarea>
+      </div>
+      <div th:if="${#fields.hasErrors('description')}" class="error" th:errors="*{description}"></div>
+
+      <!-- Status -->
+      <div class="form-group">
+        <label for="status">Status <span class="required">*</span></label>
+        <select id="status" th:field="*{status}">
+          <option value="">-- Select Status --</option>
+          <!-- Adjust the options based on your BookStatus enum -->
+          <option th:value="Removed" th:text="Removed"></option>
+          <option th:value="For_Sale" th:text="For_Sale"></option>
+          <option th:value="Sold_Out" th:text="Sold_Out"></option>
+        </select>
+      </div>
+      <div th:if="${#fields.hasErrors('status')}" class="error" th:errors="*{status}"></div>
+
+      <!-- Book Cover Upload -->
+      <div class="form-group">
+        <label for="coverImageInput">Book Cover</label>
+        <div class="cover-upload">
+          <div class="upload-area" id="uploadArea" onclick="document.getElementById('coverImageInput').click();">
+            <!-- Show existing image if available -->
+            <img th:if="${book.bookCover != null}" th:src="@{'data:image/jpeg;base64,' + ${book.bookCover}}"
+                 style="width: 100px; height: 100px; border-radius: 4px; object-fit: cover;" />
+            <!-- Show upload text if no image -->
+            <span th:if="${book.bookCover == null}">Upload</span>
+          </div>
+          <input type="file" id="coverImageInput" name="coverImage" accept=".png,.jpg,.jpeg" style="display:none;" onchange="previewImage(event)">
+          <!-- Hidden field for storing the book cover path if needed -->
+          <input type="hidden" th:field="*{bookCover}" />
+        </div>
+      </div>
+
+
+      <div class="form-actions">
+        <button type="submit">Save Book</button>
+      </div>
+    </form>
+  </div>
+</div>
+</body>
+</html>

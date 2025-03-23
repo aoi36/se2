@@ -182,16 +182,14 @@
 <header>
   <div th:replace="~{navbar :: navbar}"></div>
 
-  <!-- User dropdown moved outside of navbar fragment -->
   <div class="user-dropdown" id="userDropdown">
     <div class="user-info">
-      <img th:src="@{/images/{img}(img=${avatar})}" alt="User Avatar" class="user-avatar">
+      <img th:src="@{/uploads/{img}(img=${avatar})}" alt="com.example.demo.model.User.User Avatar" class="user-avatar">
       <div class="user-details">
         <h3 th:text="${name}">Admin Name</h3>
         <p th:text="${email}">admin@email.com</p>
       </div>
     </div>
-
     <form th:action="@{/logout}" method="post">
       <button type="submit" class="sign-out-btn">Sign out</button>
     </form>
@@ -200,41 +198,38 @@
 
 <main layout:fragment="content">
 </main>
-
-
-
 <script>
-  // Global function to toggle user dropdown
-  function toggleUserDropdown() {
+    // Global function to toggle user dropdown
+    function toggleUserDropdown() {
     const dropdown = document.getElementById('userDropdown');
     if (dropdown) {
-      dropdown.classList.toggle('show');
-      console.log('Toggled dropdown, now:', dropdown.classList.contains('show') ? 'visible' : 'hidden');
+    dropdown.classList.toggle('show');
+    console.log('Toggled dropdown, now:', dropdown.classList.contains('show') ? 'visible' : 'hidden');
     } else {
-      console.error('Dropdown element not found!');
+    console.error('Dropdown element not found!');
     }
-  }
+    }
 
-  // Close dropdown when clicking outside
-  document.addEventListener('click', function(e) {
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
     const dropdown = document.getElementById('userDropdown');
     const avatar = document.getElementById('userAvatar');
 
     if (dropdown && dropdown.classList.contains('show') &&
-        e.target !== dropdown &&
-        !dropdown.contains(e.target) &&
-        e.target !== avatar) {
-      dropdown.classList.remove('show');
+    e.target !== dropdown &&
+    !dropdown.contains(e.target) &&
+    e.target !== avatar) {
+    dropdown.classList.remove('show');
     }
-  });
+    });
 
-  // Debug info
-  document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded. User attributes:');
+    // Debug info
+    document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded. com.example.demo.model.User.User attributes:');
     console.log('Avatar:', document.querySelector('.user-avatar')?.src);
     console.log('Name:', document.querySelector('.user-details h3')?.textContent);
     console.log('Email:', document.querySelector('.user-details p')?.textContent);
-  });
+    });
 </script>
 </body>
 </html>

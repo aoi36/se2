@@ -109,6 +109,10 @@ label {
 
     <label for="password">Password</label>
     <input type="password" id="password" name="password" class="input-field"/>
+
+    <label>
+      <input type="checkbox" name="remember-me"> Remember Me
+    </label>
     <p th:if="${param.error}" class="error-message">Invalid credentials!</p>
     <div class="password-container">
       <a th:href="@{/forgot-password}" class="forgot-password">Forgot password?</a>

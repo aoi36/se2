@@ -216,7 +216,6 @@
       if (input.files && input.files[0]) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          // Update the upload area with the preview image
           const uploadArea = document.getElementById('uploadArea');
           uploadArea.innerHTML = `<img src="${e.target.result}" alt="Cover Preview" style="width:100%; height:100%; object-fit: cover; border-radius: 4px;">`;
         };
@@ -239,17 +238,16 @@
           <div class="col">
             <div class="col1">
               <p><strong>Author:</strong> <span th:text="${book.author}">DEF</span></p>
-              <p><strong>Genre:</strong> <span th:text="${book.genre}">DEF</span></p>
               <p><strong>Publication Year:</strong> <span th:text="${book.publicationYear}">123</span></p>
             </div>
             <div class="col2">
-              <p><strong>Provider:</strong> <span th:text="${book.provider.providerName}">GHF</span></p>
               <p><strong>Stock Quantity:</strong> <span th:text="${book.stockQuantity}">456</span></p>
               <p><strong>Price:</strong> $<span th:text="${book.price}">123</span></p>
             </div>
           </div>
           <p><strong>Description:</strong> <span th:text="${book.description}">This is the description...</span></p>
         </div>
+
       </div>
     </div>
   </div>
@@ -272,59 +270,65 @@
             <div class="file-types">Allowed file types: .png, .jpg, .jpeg</div>
           </div>
         </div>
-
         <div class="form-group">
           <label for="title">Title <span class="required">*</span></label>
           <input type="text" id="title" th:field="*{name}" class="form-control"
                  placeholder="Enter book title" required>
         </div>
-
-        <div class="form-group">
-          <label for="provider">Provider <span class="required">*</span></label>
-          <select id="provider" name="provider.id" class="form-control" required>
-            <option value="" disabled selected>Select Provider</option>
-            <option th:each="prov : ${providers}"
-                    th:value="${prov.id}"
-                    th:text="${prov.providerName}">
-            </option>
-          </select>
-        </div>
+        <div th:if="${#fields.hasErrors('name')}" class="error" th:errors="*{name}"></div>
+<!--        <div class="form-group">-->
+<!--          <label for="provider">Provider <span class="required">*</span></label>-->
+<!--          <select id="provider" name="provider.id" class="form-control" required>-->
+<!--            <option value="" disabled selected>Select Provider</option>-->
+<!--            <option th:each="prov : ${providers}"-->
+<!--                    th:value="${prov.id}"-->
+<!--                    th:text="${prov.providerName}">-->
+<!--            </option>-->
+<!--          </select>-->
+<!--        </div>-->
 
         <div class="form-group">
           <label for="author">Author <span class="required">*</span></label>
           <input type="text" id="author" th:field="*{author}" class="form-control"
                  placeholder="Enter author name" required>
         </div>
+        <div th:if="${#fields.hasErrors('author')}" class="error" th:errors="*{author}"></div>
 
         <div class="form-group">
           <label for="price">Price <span class="required">*</span></label>
           <input type="number" id="price" th:field="*{price}" class="form-control"
                  placeholder="Enter price" required>
         </div>
+        <div th:if="${#fields.hasErrors('price')}" class="error" th:errors="*{price}"></div>
 
         <div class="form-group">
           <label for="stock">Stock Quantity <span class="required">*</span></label>
           <input type="number" id="stock" th:field="*{stockQuantity}" class="form-control"
                  placeholder="Enter stock quantity" required>
         </div>
-
-        <div class="form-group">
-          <label for="genre">Genre <span class="required">*</span></label>
-          <input type="text" id="genre" th:field="*{genre}" class="form-control"
-                 placeholder="Enter genre" required>
-        </div>
-
+        <div th:if="${#fields.hasErrors('stockQuantity')}" class="error" th:errors="*{stockQuantity}"></div>
         <div class="form-group">
           <label for="year">Publication Year <span class="required">*</span></label>
           <input type="number" id="year" th:field="*{publicationYear}" class="form-control"
                  placeholder="Enter publication year" required>
         </div>
-
+        <div th:if="${#fields.hasErrors('publicationYear')}" class="error" th:errors="*{publicationYear}"></div>
         <div class="form-group">
-          <label for="description">Description <span class="required">*</span></label>
+          <label for="description">Description </label>
           <input type="text" id="description" th:field="*{description}" class="form-control"
                  placeholder="Enter description" required>
         </div>
+        <div th:if="${#fields.hasErrors('description')}" class="error" th:errors="*{description}"></div>
+        <div class="form-group">
+          <label for="status">Status <span class="required">*</span></label>
+          <select id="status" th:field="*{status}">
+            <option value="">-- Select Status --</option>
+            <option th:value="Removed" th:text="Removed"></option>
+            <option th:value="For_Sale" th:text="For_Sale"></option>
+            <option th:value="Sold_Out" th:text="Sold_Out"></option>
+          </select>
+        </div>
+        <div th:if="${#fields.hasErrors('status')}" class="error" th:errors="*{status}"></div>
 
         <div class="error-message" id="validationError"></div>
 
@@ -342,32 +346,6 @@
 </div>
 </div>
 
-<script>
-  // Form validation example
-  document.getElementById('updateButton').addEventListener('click', function(e) {
-    const price = document.getElementById('price').value;
-    const stock = document.getElementById('stock').value;
-    const year = document.getElementById('year').value;
-    const errorElement = document.getElementById('validationError');
 
-    errorElement.textContent = '';
-
-    if (parseFloat(price) < 0) {
-      errorElement.textContent = 'Price cannot be negative.';
-      e.preventDefault();
-      return;
-    }
-    if (parseFloat(stock) < 0 || !Number.isInteger(parseFloat(stock))) {
-      errorElement.textContent = 'Stock Quantity must be a positive integer.';
-      e.preventDefault();
-      return;
-    }
-    if (parseFloat(year) < 0 || !Number.isInteger(parseFloat(year))) {
-      errorElement.textContent = 'Publication Year must be a positive integer.';
-      e.preventDefault();
-      return;
-    }
-  });
-</script>
 </body>
 </html>

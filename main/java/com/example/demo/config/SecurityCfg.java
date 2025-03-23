@@ -3,44 +3,51 @@ package com.example.demo.config;
 import com.example.demo.Service.JpaUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityCfg {
     @Autowired
     JpaUserDetailsService jpaUserDetailsService;
+    @Autowired
+    CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
+
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
                 .userDetailsService(jpaUserDetailsService)
                 .authorizeHttpRequests(req -> req
-                        .requestMatchers("/", "/register", "/reset-password", "/forgot-password", "/login","/book/list").permitAll()
-                        .anyRequest().authenticated()
-                ).formLogin(formLogin-> formLogin
-                .loginPage("/sign-in")
-                .loginProcessingUrl("/sign-in")
-                .defaultSuccessUrl("/book/list", true)
-                .failureUrl("/sign-in?error=true")
-                .permitAll()
+                        .requestMatchers("/", "/register", "/reset-password", "/forgot-password", "/login", "/access-denied").permitAll()
+                        .anyRequest().hasAnyRole("ADMIN", "PROVIDER")
                 )
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                .formLogin(formLogin -> formLogin
+                        .loginPage("/sign-in")
+                        .loginProcessingUrl("/sign-in")
+                        .successHandler(customAuthenticationSuccessHandler)
+                        .failureUrl("/sign-in?error=true")
+                        .permitAll()
+                )
+                .rememberMe(rememberMe -> rememberMe
+                        .key("abcdefgh12345")
+                        .tokenValiditySeconds(7 * 24 * 60 * 60)
+                        .rememberMeParameter("remember-me")
+                        .userDetailsService(jpaUserDetailsService)
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
@@ -50,8 +57,12 @@ public class SecurityCfg {
                         .deleteCookies("JSESSIONID")
                         .permitAll()
                 )
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .accessDeniedPage("/access-denied")
+                )
                 .build();
     }
+
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

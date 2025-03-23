@@ -1,19 +1,17 @@
 package com.example.demo.controller;
+import com.example.demo.Service.FileStorageService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
-import com.example.demo.Service.AdminService;
 import com.example.demo.Service.BookService;
-import com.example.demo.model.Administrator;
 import com.example.demo.model.Book;
-import com.example.demo.model.Provider;
 import com.example.demo.repository.BookRepository;
-import com.example.demo.repository.ProviderRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +33,8 @@ public class bookController {
     @Autowired
     BookService bookService;
     @Autowired
-    ProviderRepository providerRepo;
+    private FileStorageService fileStorageService;
+
 
     @GetMapping(value = "list")
     public String getAllBooks(
@@ -69,46 +68,45 @@ public class bookController {
         model.addAttribute("bookPage", bookPage);
         model.addAttribute("pageSize", size);
         model.addAttribute("currentPage", bookPage.getNumber());
-        return "bookList";
+        return "Book/bookList";
     }
-
     @GetMapping("/detail/{id}")
     public String getBookDetail(@PathVariable(value = "id") Long id, Model model) {
         Book book = bookRepo.findById(id).orElse(null);
-        Provider provider = book.getProvider();
+
 
         if (book == null){
             model.addAttribute("error", "book not found");
             return "bookDetail";
         }
         model.addAttribute("book", book);
-        model.addAttribute("provider", provider);
 
-        return "bookDetail";
+
+        return "Book/bookDetail";
     }
 
     @GetMapping(value = "/add")
     public String addBook(Model model){
         Book book = new Book();
-        List<Provider> providers = providerRepo.findAll();
+
         model.addAttribute("book", book);
-        model.addAttribute("providers", providers);
-        return "addBook";
+
+        return "Book/addBook";
     }
-
-
     @PostMapping("/save")
-    public String saveBook(@ModelAttribute Book book,
-                           @RequestParam(value="coverImage", required=false) MultipartFile coverImage) {
-        if (coverImage != null && !coverImage.isEmpty()) { // Ensure coverImage is not null before calling isEmpty()
-            try {
+    public String saveBook(@Valid @ModelAttribute("book") Book book, BindingResult result,
+                           @RequestParam(value = "coverImage", required = false) MultipartFile coverImage, Model model) {
 
-                String uploadDir = "src/main/resources/static/images/";
+        if (result.hasErrors()) {
+
+            model.addAttribute("book", book);
+            return "Book/addBook";
+        }
+        if (coverImage != null && !coverImage.isEmpty()) {
+            try {
+                Path uploadPath = fileStorageService.getFileStorageLocation();
                 String fileName = System.currentTimeMillis() + "_" + coverImage.getOriginalFilename();
-                Path uploadPath = Paths.get(uploadDir);
-                if (!Files.exists(uploadPath)) {
-                    Files.createDirectories(uploadPath);
-                }
+
                 try (InputStream inputStream = coverImage.getInputStream()) {
                     Path filePath = uploadPath.resolve(fileName);
                     Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
@@ -116,22 +114,47 @@ public class bookController {
                 book.setBookCover(fileName);
             } catch (IOException e) {
                 e.printStackTrace();
-                // Optionally handle the error (e.g. set an error message, rollback, etc.)
             }
         }
+
+        bookRepo.save(book);
+        return "redirect:/book/list";
+    }
+    @PostMapping("/update")
+    public String updateBook(@Valid @ModelAttribute("book") Book book, BindingResult result,
+                           @RequestParam(value = "coverImage", required = false) MultipartFile coverImage, Model model) {
+
+        if (result.hasErrors()) {
+
+            model.addAttribute("book", book);
+            return "Book/updateBook";
+        }
+        if (coverImage != null && !coverImage.isEmpty()) {
+            try {
+                Path uploadPath = fileStorageService.getFileStorageLocation();
+                String fileName = System.currentTimeMillis() + "_" + coverImage.getOriginalFilename();
+
+                try (InputStream inputStream = coverImage.getInputStream()) {
+                    Path filePath = uploadPath.resolve(fileName);
+                    Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+                }
+                book.setBookCover(fileName);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         bookRepo.save(book);
         return "redirect:/book/list";
     }
 
-
-
     @GetMapping(value = "/update/{id}")
     public String updateBook(@PathVariable(value = "id") Long id, Model model){
         Book book = bookRepo.getReferenceById(id);
-        List<Provider> providers = providerRepo.findAll();
+
         model.addAttribute("book", book);
-        model.addAttribute("providers", providers);
-        return "updateBook";
+
+        return "Book/updateBook";
     }
     @PostMapping(value = "delete")
     public String deleteBooks(@RequestParam(value = "selectedIds") List<Long> selectedIds){
@@ -156,7 +179,6 @@ public class bookController {
     @GetMapping("/search")
     public String searchBooks(
             @RequestParam(required = false) String query,
-
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
             Model model) {
@@ -165,7 +187,7 @@ public class bookController {
         model.addAttribute("books", books);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", books.getTotalPages());
-        return "searchBookResult";
+        return "Book/searchBookResult";
     }
 
     @PostMapping(value = "delete/{id}")
