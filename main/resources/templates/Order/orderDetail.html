@@ -61,8 +61,8 @@
         }
 
         .delete-btn {
-            background-color: #ff4081; /* pink */
-        }
+            background-color: #dc3545;
+            }
 
         .delete-btn:hover {
             background-color: #e6366f;
@@ -206,10 +206,10 @@
             <h1 class="order-title" th:text="'OrderID: ' + ${order.id}">OrderID: 1001</h1>
             <div class="order-actions">
                 <button class="action-btn update-btn"
-                        th:if="${#authentication.principal.username.trim().toLowerCase() == order.administrator.username.trim().toLowerCase()}"
+                        th:if="${#authentication.principal.username.trim().toLowerCase() == order.user.username.trim().toLowerCase()}"
                         type="submit" form="status-form">Update</button>
                 <button class="action-btn delete-btn"
-                        th:if="${#authentication.principal.username.trim().toLowerCase() == order.administrator.username.trim().toLowerCase()}"
+                        th:if="${#authentication.principal.username.trim().toLowerCase() == order.user.username.trim().toLowerCase()}"
                         onclick="if(confirm('Are you sure you want to delete this order?')) { window.location.href='/order/delete/' + [[${order.id}]]; }">Delete</button>
             </div>
         </div>
@@ -221,12 +221,9 @@
             </p>
             <p></p>
 
-            <p class="order-info-item">
-                <span class="order-info-label">Administrator:</span>
-                <span th:text="${order.administrator.administratorName}">Admin Name</span>
-            </p>
 
-            <div class="order-info-item" th:if="${#authentication.principal.username.trim().toLowerCase() == order.administrator.username.trim().toLowerCase()}">
+
+            <div class="order-info-item" th:if="${#authentication.principal.username.trim().toLowerCase() == order.user.username.trim().toLowerCase()}">
                 <form id="status-form" th:action="@{/order/save}" method="post" style="display: inline;">
                     <span class="order-info-label">Status:</span>
                     <input type="hidden" name="id" th:value="${order.id}" />
@@ -239,7 +236,7 @@
                 </form>
             </div>
 
-            <div class="order-info-item" th:unless="${#authentication.principal.username.trim().toLowerCase() == order.administrator.username.trim().toLowerCase()}">
+            <div class="order-info-item" th:unless="${#authentication.principal.username.trim().toLowerCase() == order.user.username.trim().toLowerCase()}">
                 <span class="order-info-label">Status:</span>
                 <span class="status-text"
                       th:classappend="
@@ -260,7 +257,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="item : ${order.orderItemList}">
+            <tr th:each="item : ${order.orderItems}">
                 <td th:text="${item.bookName}">Book Name</td>
                 <td th:text="${item.orderItemQuantity}">10</td>
                 <td th:text="'$' + ${item.orderItemPrice}">$10</td>

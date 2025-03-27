@@ -18,13 +18,18 @@ public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private LocalDateTime orderDate;
+
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
+
     @Column(name = "total_price", precision = 10, scale = 2)
     private BigDecimal totalPrice;
+
     @OneToMany(mappedBy = "order")
-    private List<OrderItem> orderItem;
+    private List<OrderItem> orderItems;
+
     @ManyToOne
     private User user;
 }

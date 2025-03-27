@@ -20,9 +20,11 @@ public class Role {
 
     @Enumerated(EnumType.STRING)
     private RoleName name;
+
     @Column
     private String description;
-    @ManyToMany(mappedBy = "roles")
+
+    @OneToMany(mappedBy = "role")
     private Set<User> users = new HashSet<>();
 }
 

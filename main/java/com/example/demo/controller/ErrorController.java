@@ -22,6 +22,6 @@ public class ErrorController {
                 return "redirect:/book/list";
             }
         }
-        return "Error/accessDenied";
+        return "Error/loginAccessDenied";
     }
 }

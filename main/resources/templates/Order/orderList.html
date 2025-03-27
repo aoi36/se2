@@ -196,7 +196,6 @@
       <thead>
       <tr>
         <th>Order ID</th>
-        <th>Administrator Name</th>
         <th>Order Date</th>
         <th>Status</th>
         <th>Total Price</th>
@@ -208,7 +207,6 @@
           th:onclick="|if(event.target.type !== 'checkbox') window.location.href='@{/order/detail/{id}(id=${order.id})}'|"
           style="cursor: pointer;">
         <td th:text="${order.id}"></td>
-        <td th:text="${order.administrator?.administratorName}">Admin Name</td>
         <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}"></td>
         <td th:text="${order.status}"></td>
         <td th:text="${order.totalPrice}"></td>
@@ -219,7 +217,7 @@
       </tbody>
     </table>
   </div>
-  <div th:if="${orderPage.totalPages > 0}">
+  <div th:if="${orderPage.totalElements > orderPage.size}">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
     <form id="pageSizeForm" th:action="@{/order/list}" method="get">
       <input type="hidden" name="page" th:value="${orderPage.number}" />
@@ -231,7 +229,6 @@
       </select>
     </form>
   </div>
-
     <div class="pagination-links">
       <a class="prev" th:if="${orderPage.hasPrevious()}"
          th:href="@{/order/list(page=${orderPage.number - 1}, size=${orderPage.size})}">&lt;</a>
@@ -241,7 +238,6 @@
        th:text="${i + 1}"
        th:classappend="${orderPage.number == i} ? ' active' : ''"></a>
   </span>
-
       <a class="next" th:if="${orderPage.hasNext()}"
          th:href="@{/order/list(page=${orderPage.number + 1}, size=${orderPage.size})}">&gt;</a>
     </div>

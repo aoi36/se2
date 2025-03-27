@@ -67,13 +67,10 @@ public class UserService {
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
 
-        // Find the role by name
         Role role = roleRepository.findByName(roleName)
                 .orElseThrow(() -> new RuntimeException("Role not found: " + roleName));
 
-        Set<Role> roles = new HashSet<>();
-        roles.add(role);
-        user.setRoles(roles);
+        user.setRole(role);
         userRepository.save(user);
     }
 }

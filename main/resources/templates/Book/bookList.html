@@ -458,7 +458,7 @@
             </table>
         </form>
     </div>
-    <div th:if="${bookPage.content.size() > 0}">
+    <div th:if="${bookPage.totalElements > bookPage.size}">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
         <form id="pageSizeForm" th:action="@{/book/list}" method="get">
             <input type="hidden" name="page" th:value="${currentPage}"/>

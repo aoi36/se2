@@ -198,7 +198,6 @@ public class AuthController {
                                        Model model) {
         model.addAttribute("title", "Reset your password");
 
-        // Password Validation
         if (!password.equals(confirmPassword)) {
             model.addAttribute("message", "Passwords do not match");
             return "Auth/resetPasswordForm";

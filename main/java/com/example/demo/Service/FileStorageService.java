@@ -15,7 +15,6 @@ public class FileStorageService {
     @PostConstruct
     public void init() {
         try {
-            // Create the directory if it doesn't exist
             Files.createDirectories(fileStorageLocation);
             System.out.println("Upload directory created/exists at: " + fileStorageLocation);
         } catch (Exception ex) {
