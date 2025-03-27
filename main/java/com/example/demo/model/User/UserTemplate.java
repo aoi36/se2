@@ -1,9 +1,15 @@
 package com.example.demo.model.User;
 
+import jakarta.persistence.Column;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 public class UserTemplate {
     @NotEmpty(message = "Username cannot be empty")
     @Size(min = 6, max = 60, message = "Username must be between 6 and 60 characters")
@@ -14,23 +20,12 @@ public class UserTemplate {
             message = "Password must be 6-60 characters and contain at least 1 digit and 1 uppercase letter")
     private String password;
 
-
-    public String getUsername() {
-        return username;
-    }
-    public void setUsername(String username) {
-        this.username = username;
-    }
-    public String getPassword() {
-        return password;
-    }
-    public void setPassword(String password) {
-        this.password = password;
-    }
-//    public String getAddress() {
-//        return address;
-//    }
-//    public void setAddress(String address) {
-//        this.address = address;
-//    }
+    @NotEmpty(message = "Email cannot be empty")
+    @Email(message = "Email should be valid")
+    @Pattern(
+            regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$",
+            message = "Email format is invalid"
+    )
+    @Column(unique = true)
+    private String email;
 }

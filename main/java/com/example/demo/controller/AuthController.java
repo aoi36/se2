@@ -49,12 +49,14 @@ public class AuthController {
 
 
     public void createSampleUser() {
+        // Create the ADMIN role if it does not exist
         if (roleRepository.findByName(RoleName.ROLE_ADMIN).isEmpty()) {
-            Role userRole = new Role();
-            userRole.setName(RoleName.ROLE_ADMIN);
-            roleRepository.save(userRole);
+            Role adminRole = new Role();
+            adminRole.setName(RoleName.ROLE_ADMIN);
+            roleRepository.save(adminRole);
         }
         if (userRepository.findAll().isEmpty()) {
+
             userService.createUser("Admin1", "Admin1", RoleName.ROLE_ADMIN);
         }
     }

@@ -3,6 +3,7 @@ package com.example.demo.model.User;
 import com.example.demo.model.Book;
 import com.example.demo.model.Order;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -31,15 +32,24 @@ public class User {
             message = "Password must be 6-60 characters and contain at least 1 digit and 1 uppercase letter")
     private String password;
     private String name;
+
+    @Email(message = "Email should be valid")
+    @Column(unique = true)
     private String email;
+
     @Column(length = 255)
     private String avatar;
+
     @Column(length = 255)
     private String resetPasswordToken;
+
     @Column(length = 15)
     private String tel;
+
     private Boolean status;
+
     private LocalDateTime createdAt;
+
     private LocalDateTime updatedAt;
     @ManyToOne
     @JoinColumn(name = "role_id")
