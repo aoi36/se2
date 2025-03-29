@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
+  <!-- Load Chart.js from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Styles for the chart container */
+    .chart-container {
+        width: 800px;
+        margin: 0 auto 40px;
+    }
+    /* Styles for the recent orders table */
+    .orders-table, .users-table {
+        width: 90%;
+        margin: 0 auto 40px;
+        border-collapse: collapse;
+    }
+    .orders-table th, .orders-table td,
+    .users-table th, .users-table td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: left;
+    }
+    .orders-table th, .users-table th {
+        background-color: #f0f0f0;
+    }
+    .section-title {
+        text-align: center;
+        margin-top: 40px;
+        font-size: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+<div layout:fragment="content">
+<h1 style="text-align: center;">Dashboard</h1>
+
+<!-- Revenue Chart -->
+<div class="chart-container">
+  <h2 class="section-title">Monthly Revenue</h2>
+  <canvas id="revenueChart"></canvas>
+</div>
+
+<!-- Recent Orders -->
+<div>
+  <h2 class="section-title">Recent Orders (Last Month)</h2>
+  <table class="orders-table">
+    <thead>
+    <tr>
+      <th>Order ID</th>
+      <th>Order Date</th>
+      <th>Total Price</th>
+      <th>Created By</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="order : ${recentOrders}">
+      <td th:text="${order.id}">1</td>
+      <td th:text="${#temporals.format(order.orderDate, 'dd MMM yyyy')}">12 Apr 2021</td>
+      <!-- Use Thymeleaf aggregation if you don't precompute the total -->
+      <td th:text="${#aggregates.sum(order.orderItems.![orderItemPrice * orderItemQuantity])}">$0.00</td>
+      <td th:text="${order.user.username}">admin</td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Recent Registered Users -->
+<div>
+  <h2 class="section-title">Recent Registered Users</h2>
+  <table class="users-table">
+    <thead>
+    <tr>
+      <th>User ID</th>
+      <th>Username</th>
+      <th>Registered Date</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="user : ${recentUsers}">
+      <td th:text="${user.id}">1</td>
+      <td th:text="${user.username}">Username</td>
+      <td th:text="${#temporals.format(user.createdAt, 'dd MMM yyyy')}">01 Jan 2021</td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<script th:inline="javascript">
+  /*<![CDATA[*/
+      // Retrieve revenue data from model
+      var months = [[${months}]];  // e.g., [1,2,...,12]
+      var revenues = [[${revenues}]]; // e.g., [100.00, 200.00, ...]
+      revenues = revenues.map(function(r) { return parseFloat(r); });
+
+      // Create the revenue chart using Chart.js
+      var ctx = document.getElementById('revenueChart').getContext('2d');
+      var revenueChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+              labels: months.map(function(m) { return "Month " + m; }),
+              datasets: [{
+                  label: 'Revenue ($)',
+                  data: revenues,
+                  backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                  borderColor: 'rgba(54, 162, 235, 1)',
+                  borderWidth: 1
+              }]
+          },
+          options: {
+              scales: {
+                  y: {
+                      beginAtZero: true,
+                      ticks: {
+                          callback: function(value) { return '$' + value; }
+                      }
+                  }
+              }
+          }
+      });
+  /*]]>*/
+</script>
+</div>
+</body>
+</html>

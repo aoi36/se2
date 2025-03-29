@@ -399,14 +399,12 @@
               Select Categories
             </button>
             <div id="categoryDropdown" class="category-dropdown">
-              <!-- Use data attributes instead of th:onclick -->
               <div th:each="cat : ${categoriesList}" class="category-dropdown-item"
                    th:attr="data-cat-id=${cat.id}, data-cat-name=${cat.name}">
                 <span th:text="${cat.name}">Category Name</span>
               </div>
             </div>
             <div id="selectedCategories" class="selected-categories">
-              <!-- Pre-populate selected categories if editing -->
               <div th:each="cat : ${book.categories}" th:id="'category-item-' + ${cat.id}" class="category-item">
                 <span th:text="${cat.name}">Category Name</span>
                 <span class="remove-category"

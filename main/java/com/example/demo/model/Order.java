@@ -24,12 +24,13 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    @Column(name = "total_price", precision = 10, scale = 2)
-    private BigDecimal totalPrice;
+
 
     @OneToMany(mappedBy = "order")
     private List<OrderItem> orderItems;
 
     @ManyToOne
     private User user;
+
+
 }

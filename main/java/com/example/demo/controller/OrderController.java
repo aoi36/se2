@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.security.Principal;
 
 
@@ -36,6 +37,13 @@ public class OrderController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public String getOrderDetail(@PathVariable("id") Long id, Model model){
         Order order = orderRepo.findById(id).orElse(null);
+
+        if (order != null) {
+            BigDecimal totalPrice = order.getOrderItems().stream()
+                    .map(item -> BigDecimal.valueOf(item.getOrderItemPrice() * item.getOrderItemQuantity()))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            model.addAttribute("totalPrice", totalPrice);
+        }
         model.addAttribute("order", order);
         return "Order/orderDetail";
     }

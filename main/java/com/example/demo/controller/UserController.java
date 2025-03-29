@@ -51,7 +51,7 @@ public class UserController {
     @GetMapping(value = "list")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public String userPage(@RequestParam(defaultValue = "0") int page,
-                           @RequestParam(defaultValue = "10") int size,
+                           @RequestParam(defaultValue = "5") int size,
                            Model model) {
 
         Page<User> userPage = userService.getPaginatedUser(PageRequest.of(page, size));
@@ -177,7 +177,7 @@ public class UserController {
             model.addAttribute("user", user);
             return "User/userAdd";
         }
-
+        user.setCreatedAt(LocalDateTime.now());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(role);
         userRepository.save(user);

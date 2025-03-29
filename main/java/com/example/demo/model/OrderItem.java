@@ -16,8 +16,6 @@ public class OrderItem {
 
     private Double orderItemPrice;
 
-    private String bookName;
-
     @ManyToOne
     @JoinColumn(name = "order_id")
     private Order order;

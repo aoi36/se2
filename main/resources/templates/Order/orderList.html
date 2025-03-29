@@ -198,7 +198,6 @@
         <th>Order ID</th>
         <th>Order Date</th>
         <th>Status</th>
-        <th>Total Price</th>
         <th>Action</th>
       </tr>
       </thead>
@@ -209,7 +208,6 @@
         <td th:text="${order.id}"></td>
         <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}"></td>
         <td th:text="${order.status}"></td>
-        <td th:text="${order.totalPrice}"></td>
         <td>
           <a th:href="@{/order/detail/{id}(id=${order.id})}" class="action-btn update-btn">Update</a>
         </td>
@@ -217,7 +215,7 @@
       </tbody>
     </table>
   </div>
-  <div th:if="${orderPage.totalElements > orderPage.size}">
+  <div th:if="${orderPage.totalElements > 5}">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
     <form id="pageSizeForm" th:action="@{/order/list}" method="get">
       <input type="hidden" name="page" th:value="${orderPage.number}" />
@@ -228,7 +226,6 @@
         <option th:value="20" th:selected="${orderPage.size == 20}">20</option>
       </select>
     </form>
-  </div>
     <div class="pagination-links">
       <a class="prev" th:if="${orderPage.hasPrevious()}"
          th:href="@{/order/list(page=${orderPage.number - 1}, size=${orderPage.size})}">&lt;</a>
@@ -241,6 +238,8 @@
       <a class="next" th:if="${orderPage.hasNext()}"
          th:href="@{/order/list(page=${orderPage.number + 1}, size=${orderPage.size})}">&gt;</a>
     </div>
+  </div>
+
   </div>
 </div>
 </div>

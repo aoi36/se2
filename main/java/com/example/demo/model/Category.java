@@ -27,4 +27,8 @@ public class Category {
 
     @ManyToMany(mappedBy = "categories")
     private Set<Book> books = new HashSet<>();
+
+    public Category(String name) {
+        this.name = name;
+    }
 }

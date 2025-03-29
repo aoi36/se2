@@ -364,11 +364,6 @@
             initializeSortCriteria();
             updateSortIndicators(); // Add this line to update indicators on page load
 
-
-
-
-
-
         };
     </script>
 </head>
@@ -378,9 +373,10 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 20px;">
         <h2>Book</h2>
         <a href="/book/add" class="add-book-btn">Add book</a>
-    </div>
-    <div class="table-container">
 
+    </div>
+    <p th:if="${emptyMessage}" th:text="${emptyMessage}"></p>
+    <div class="table-container">
 
             <table class="book-table">
                 <thead>
@@ -413,7 +409,7 @@
                 </tbody>
             </table>
     </div>
-    <div th:if="${bookPage.totalElements > bookPage.size}">
+    <div th:if="${bookPage.totalElements > 5}">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
         <form id="pageSizeForm" th:action="@{/book/list}" method="get">
             <input type="hidden" name="page" th:value="${currentPage}"/>

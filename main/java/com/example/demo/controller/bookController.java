@@ -53,7 +53,7 @@ public class bookController {
             @RequestParam(value = "attribute", required = false) List<String> sortAttributeColumn,
             @RequestParam(value = "order", required = false) List<String> sortOrder,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "5") int size,
             Model model,
             Principal principal) {
 
@@ -88,8 +88,9 @@ public class bookController {
         }
         Sort sort = !ordersList.isEmpty() ? Sort.by(ordersList) : Sort.unsorted();
 
-        // This method should return all books for admin.
         Page<Book> bookPage = bookService.getBooks(page, size, sort);
+
+
         model.addAttribute("bookPage", bookPage);
         model.addAttribute("pageSize", size);
         model.addAttribute("currentPage", bookPage.getNumber());
@@ -101,7 +102,7 @@ public class bookController {
             @RequestParam(value = "attribute", required = false) List<String> sortAttributeColumn,
             @RequestParam(value = "order", required = false) List<String> sortOrder,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "5") int size,
             @PathVariable(value = "id") Long id,
             Principal principal,
             Model model) {
@@ -127,6 +128,10 @@ public class bookController {
         }
         Sort sort = !ordersList.isEmpty() ? Sort.by(ordersList) : Sort.unsorted();
         Page<Book> bookPage = bookService.getBooksByUser(user, page, size, sort);
+
+        if (bookPage.isEmpty()) {
+            model.addAttribute("emptyMessage", "No books found");
+        }
         model.addAttribute("bookPage", bookPage);
         model.addAttribute("pageSize", size);
         model.addAttribute("currentPage", bookPage.getNumber());
@@ -257,7 +262,6 @@ public class bookController {
         Optional<Book> bookOpt = bookRepo.findById(id);
         if (!bookOpt.isPresent()) {
             model.addAttribute("error", "Book not found");
-            // Return the update page; the view should check for an "error" attribute.
             return "Book/updateBook";
         }
         Book book = bookOpt.get();
@@ -269,7 +273,7 @@ public class bookController {
             model.addAttribute("error", "You are not authorized to update this book");
             return "Book/updateBook";
         }
-
+        model.addAttribute("categoriesList", categoryRepository.findAll());
         model.addAttribute("book", book);
         return "Book/updateBook";
     }

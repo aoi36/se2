@@ -160,7 +160,7 @@
       </tbody>
     </table>
   </div>
-  <div th:if="${books.totalElements > books.size}">
+  <div th:if="${books.totalElements > 5}">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
     <form id="pageSizeForm" th:action="@{/book/search}" method="get">
       <input type="hidden" name="page" th:value="${currentPage}"/>

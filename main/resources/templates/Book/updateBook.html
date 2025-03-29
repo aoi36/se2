@@ -48,16 +48,16 @@
       flex: 1;
     }
     .error-message {
-  background-color: #fff;
-  border-radius: 10px;
-  padding: 30px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 60%;
-  margin: 20px auto;
-  text-align: center;
-  color: #ef4444;
-  font-size: 16px;
-}
+      background-color: #fff;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      width: 60%;
+      margin: 20px auto;
+      text-align: center;
+      color: #ef4444;
+      font-size: 16px;
+    }
     .card-header {
       display: flex;
       justify-content: space-between;
@@ -222,6 +222,94 @@
     .btn-update:hover {
       background-color: #2563eb;
     }
+
+    /* Category selection styling */
+    .category-container {
+      flex: 1;
+      position: relative;
+    }
+
+    .category-select-btn {
+      width: 100%;
+      padding: 8px 12px;
+      background-color: #f7f7f7;
+      border: 1px solid #dcdcdc;
+      border-radius: 4px;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      color: #6c757d;
+    }
+
+    .category-select-btn:hover {
+      border-color: #c6c6c6;
+    }
+
+    .category-select-btn:after {
+      content: "▼";
+      font-size: 10px;
+      margin-left: 10px;
+    }
+
+    .category-dropdown {
+      display: none;
+      position: absolute;
+      background-color: #fff;
+      min-width: 100%;
+      max-height: 200px;
+      overflow-y: auto;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      z-index: 100;
+      border-radius: 4px;
+      margin-top: 2px;
+      border: 1px solid #e0e0e0;
+    }
+
+    .category-dropdown-item {
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 14px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .category-dropdown-item:last-child {
+      border-bottom: none;
+    }
+
+    .category-dropdown-item:hover {
+      background-color: #f1f1f1;
+    }
+
+    .selected-categories {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .category-item {
+      background-color: #e9f2fe;
+      color: #3b82f6;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+    }
+
+    .remove-category {
+      margin-left: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .remove-category:hover {
+      color: #ef4444;
+    }
   </style>
   <script>
     function previewImage(event) {
@@ -235,6 +323,102 @@
         reader.readAsDataURL(input.files[0]);
       }
     }
+
+    // Function to handle category selection
+    function toggleCategory(element) {
+      // If element is a DOM element (for remove button clicks)
+      if (element instanceof HTMLElement) {
+        const categoryId = element.getAttribute('data-cat-id');
+        const categoryName = element.getAttribute('data-cat-name');
+        handleCategoryToggle(categoryId, categoryName);
+      }
+      // If element is from dropdown click (numbers passed directly)
+      else {
+        const categoryId = arguments[0];
+        const categoryName = arguments[1];
+        handleCategoryToggle(categoryId, categoryName);
+      }
+    }
+
+    function handleCategoryToggle(categoryId, categoryName) {
+      const selectedCategoriesContainer = document.getElementById('selectedCategories');
+      const hiddenInput = document.getElementById('category-' + categoryId);
+
+      if (hiddenInput) {
+        // If category is already selected, remove it
+        document.getElementById('category-item-' + categoryId).remove();
+        hiddenInput.remove();
+      } else {
+        // Add the category
+        const categoryItem = document.createElement('div');
+        categoryItem.id = 'category-item-' + categoryId;
+        categoryItem.className = 'category-item';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = categoryName;
+        categoryItem.appendChild(nameSpan);
+
+        const removeBtn = document.createElement('span');
+        removeBtn.className = 'remove-category';
+        removeBtn.setAttribute('data-cat-id', categoryId);
+        removeBtn.setAttribute('data-cat-name', categoryName);
+        removeBtn.textContent = '×';
+        removeBtn.onclick = function(event) {
+          event.stopPropagation();
+          toggleCategory(this);
+        };
+        categoryItem.appendChild(removeBtn);
+
+        selectedCategoriesContainer.appendChild(categoryItem);
+
+        // Add hidden input for form submission
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.id = 'category-' + categoryId;
+        input.name = 'categories';
+        input.value = categoryId;
+        document.getElementById('updateForm').appendChild(input);
+      }
+    }
+
+    // Function to show/hide the category dropdown
+    function toggleCategoryDropdown() {
+      const dropdown = document.getElementById('categoryDropdown');
+      if (dropdown.style.display === 'block') {
+        dropdown.style.display = 'none';
+      } else {
+        dropdown.style.display = 'block';
+      }
+    }
+
+    // Initialize dropdown and click handlers when the document is ready
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set up click handlers for category items
+      const categoryItems = document.querySelectorAll('.category-dropdown-item');
+      categoryItems.forEach(function(item) {
+        item.addEventListener('click', function() {
+          const categoryId = this.getAttribute('data-cat-id');
+          const categoryName = this.getAttribute('data-cat-name');
+          toggleCategory(categoryId, categoryName);
+        });
+      });
+
+      // Close the dropdown if clicked outside
+      document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('categoryDropdown');
+        if (dropdown && !event.target.closest('.category-container')) {
+          dropdown.style.display = 'none';
+        }
+      });
+
+      // Stop propagation for clicks inside the dropdown
+      const dropdown = document.getElementById('categoryDropdown');
+      if (dropdown) {
+        dropdown.addEventListener('click', function(event) {
+          event.stopPropagation();
+        });
+      }
+    });
   </script>
 </head>
 <body>
@@ -243,106 +427,131 @@
   <div class="container">
     <div th:if="${error != null or book == null}" class="error-message" th:text="${error}">Error Message</div>
 
-  <div th:if="${book != null}">
-    <div class="book-card">
-      <div class="card-header">
-        <img th:src="@{/images/{img}(img=${book.bookCover})}" width="35%" height="35%" alt="Book Cover"/>
-        <div class="book-details">
-          <div class="book-info">
-            <h1 th:text="${book.name}">Book Title</h1>
-            <div class="col">
-              <div class="col1">
-                <p><strong>Author:</strong> <span th:text="${book.author}">DEF</span></p>
-                <p><strong>Publication Year:</strong> <span th:text="${book.publicationYear}">123</span></p>
+    <div th:if="${book != null}">
+      <div class="book-card">
+        <div class="card-header">
+          <img th:src="@{/images/{img}(img=${book.bookCover})}" width="35%" height="35%" alt="Book Cover"/>
+          <div class="book-details">
+            <div class="book-info">
+              <h1 th:text="${book.name}">Book Title</h1>
+              <div class="col">
+                <div class="col1">
+                  <p><strong>Author:</strong> <span th:text="${book.author}">DEF</span></p>
+                  <p><strong>Publication Year:</strong> <span th:text="${book.publicationYear}">123</span></p>
+                </div>
+                <div class="col2">
+                  <p><strong>Stock Quantity:</strong> <span th:text="${book.stockQuantity}">456</span></p>
+                  <p><strong>Price:</strong> $<span th:text="${book.price}">123</span></p>
+                </div>
               </div>
-              <div class="col2">
-                <p><strong>Stock Quantity:</strong> <span th:text="${book.stockQuantity}">456</span></p>
-                <p><strong>Price:</strong> $<span th:text="${book.price}">123</span></p>
-              </div>
+              <p><strong>Description:</strong> <span th:text="${book.description}">This is the description...</span></p>
             </div>
-            <p><strong>Description:</strong> <span th:text="${book.description}">This is the description...</span></p>
           </div>
         </div>
       </div>
-    </div>
-    <div class="main-content">
-      <div class="book-form">
-        <h2 class="form-title">Update Book</h2>
-        <div th:if="${error}" class="error-message" th:text="${error}"></div>
+      <div class="main-content">
+        <div class="book-form">
+          <h2 class="form-title">Update Book</h2>
+          <div th:if="${error}" class="error-message" th:text="${error}"></div>
 
-        <form th:action="@{/book/update}" th:object="${book}" method="post" enctype="multipart/form-data">
-          <input type="hidden" th:field="*{id}" />
-          <div class="form-group">
-            <label>Cover</label>
-            <div class="cover-upload">
-              <div class="upload-area" id="uploadArea" onclick="document.getElementById('coverImageInput').click();">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                     xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 5V19M5 12H19" stroke="#6B7280" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+          <form th:action="@{/book/update}" th:object="${book}" method="post" enctype="multipart/form-data" id="updateForm">
+            <input type="hidden" th:field="*{id}" />
+            <div class="form-group">
+              <label>Cover</label>
+              <div class="cover-upload">
+                <div class="upload-area" id="uploadArea" onclick="document.getElementById('coverImageInput').click();">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                       xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 5V19M5 12H19" stroke="#6B7280" stroke-width="2"
+                          stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <input type="file" id="coverImageInput" name="coverImage" accept=".png, .jpg, .jpeg" style="display:none;" onchange="previewImage(event)">
+                <div class="file-types">Allowed file types: .png, .jpg, .jpeg</div>
               </div>
-              <input type="file" id="coverImageInput" name="coverImage" accept=".png, .jpg, .jpeg" style="display:none;" onchange="previewImage(event)">
-              <div class="file-types">Allowed file types: .png, .jpg, .jpeg</div>
             </div>
-          </div>
-          <div class="form-group">
-            <label for="title">Title</label>
-            <input type="text" id="title" th:field="*{name}" class="form-control"
-                   placeholder="Enter book title">
-          </div>
-          <div th:if="${#fields.hasErrors('name')}" class="error" th:errors="*{name}"></div>
-          <div class="form-group">
-            <label for="author">Author</label>
-            <input type="text" id="author" th:field="*{author}" class="form-control"
-                   placeholder="Enter author name">
-          </div>
-          <div th:if="${#fields.hasErrors('author')}" class="error" th:errors="*{author}"></div>
-          <div class="form-group">
-            <label for="price">Price</label>
-            <input type="number" id="price" th:field="*{price}" class="form-control"
-                   placeholder="Enter price">
-          </div>
-          <div th:if="${#fields.hasErrors('price')}" class="error" th:errors="*{price}"></div>
-          <div class="form-group">
-            <label for="stock">Stock Quantity</label>
-            <input type="number" id="stock" th:field="*{stockQuantity}" class="form-control"
-                   placeholder="Enter stock quantity">
-          </div>
-          <div th:if="${#fields.hasErrors('stockQuantity')}" class="error" th:errors="*{stockQuantity}"></div>
-          <div class="form-group">
-            <label for="year">Publication Year</label>
-            <input type="number" id="year" th:field="*{publicationYear}" class="form-control"
-                   placeholder="Enter publication year">
-          </div>
-          <div th:if="${#fields.hasErrors('publicationYear')}" class="error" th:errors="*{publicationYear}"></div>
-          <div class="form-group">
-            <label for="description">Description</label>
-            <input type="text" id="description" th:field="*{description}" class="form-control"
-                   placeholder="Enter description">
-          </div>
-          <div th:if="${#fields.hasErrors('description')}" class="error" th:errors="*{description}"></div>
-          <div class="form-group">
-            <label for="status">Status</label>
-            <select id="status" th:field="*{status}">
-              <option value="">-- Select Status --</option>
-              <option th:value="Removed" th:text="Removed"></option>
-              <option th:value="For_Sale" th:text="For_Sale"></option>
-              <option th:value="Sold_Out" th:text="Sold_Out"></option>
-            </select>
-          </div>
-          <div th:if="${#fields.hasErrors('status')}" class="error" th:errors="*{status}"></div>
+            <div class="form-group">
+              <label for="title">Title</label>
+              <input type="text" id="title" th:field="*{name}" class="form-control"
+                     placeholder="Enter book title">
+            </div>
+            <div th:if="${#fields.hasErrors('name')}" class="error" th:errors="*{name}"></div>
+            <div class="form-group">
+              <label for="author">Author</label>
+              <input type="text" id="author" th:field="*{author}" class="form-control"
+                     placeholder="Enter author name">
+            </div>
+            <div th:if="${#fields.hasErrors('author')}" class="error" th:errors="*{author}"></div>
+            <div class="form-group">
+              <label for="price">Price</label>
+              <input type="number" id="price" th:field="*{price}" class="form-control"
+                     placeholder="Enter price">
+            </div>
+            <div th:if="${#fields.hasErrors('price')}" class="error" th:errors="*{price}"></div>
+            <div class="form-group">
+              <label for="stock">Stock Quantity</label>
+              <input type="number" id="stock" th:field="*{stockQuantity}" class="form-control"
+                     placeholder="Enter stock quantity">
+            </div>
+            <div th:if="${#fields.hasErrors('stockQuantity')}" class="error" th:errors="*{stockQuantity}"></div>
+            <div class="form-group">
+              <label for="year">Publication Year</label>
+              <input type="number" id="year" th:field="*{publicationYear}" class="form-control"
+                     placeholder="Enter publication year">
+            </div>
+            <div th:if="${#fields.hasErrors('publicationYear')}" class="error" th:errors="*{publicationYear}"></div>
+            <div class="form-group">
+              <label for="description">Description</label>
+              <input type="text" id="description" th:field="*{description}" class="form-control"
+                     placeholder="Enter description">
+            </div>
+            <div th:if="${#fields.hasErrors('description')}" class="error" th:errors="*{description}"></div>
 
+            <div class="form-group">
+              <label>Categories</label>
+              <div class="category-container">
+                <button type="button" class="category-select-btn" onclick="toggleCategoryDropdown()">
+                  Select Categories
+                </button>
+                <div id="categoryDropdown" class="category-dropdown">
+                  <div th:each="cat : ${categoriesList}" class="category-dropdown-item"
+                       th:attr="data-cat-id=${cat.id}, data-cat-name=${cat.name}">
+                    <span th:text="${cat.name}">Category Name</span>
+                  </div>
+                </div>
+                <div id="selectedCategories" class="selected-categories">
+                  <div th:each="cat : ${book.categories}" th:id="'category-item-' + ${cat.id}" class="category-item">
+                    <span th:text="${cat.name}">Category Name</span>
+                    <span class="remove-category"
+                          th:attr="data-cat-id=${cat.id}, data-cat-name=${cat.name}"
+                          onclick="toggleCategory(this)">×</span>
+                    <input type="hidden" th:id="'category-' + ${cat.id}" name="categories" th:value="${cat.id}" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div th:if="${#fields.hasErrors('categories')}" class="error" th:errors="*{categories}"></div>
 
-          <div class="form-actions">
-            <a th:href="@{/book/detail/{id}(id=${book.id})}" class="btn-discard">Discard</a>
-            <button type="submit" class="btn-update" id="updateButton">Update</button>
-          </div>
-        </form>
+            <div class="form-group">
+              <label for="status">Status</label>
+              <select id="status" th:field="*{status}" class="form-control">
+                <option value="">-- Select Status --</option>
+                <option th:value="Removed" th:text="Removed"></option>
+                <option th:value="For_Sale" th:text="For_Sale"></option>
+                <option th:value="Sold_Out" th:text="Sold_Out"></option>
+              </select>
+            </div>
+            <div th:if="${#fields.hasErrors('status')}" class="error" th:errors="*{status}"></div>
+
+            <div class="form-actions">
+              <a th:href="@{/book/detail/{id}(id=${book.id})}" class="btn-discard">Discard</a>
+              <button type="submit" class="btn-update" id="updateButton">Update</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>
-</div>
 </div>
 </body>
 </html>

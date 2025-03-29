@@ -223,7 +223,7 @@
     </table>
   </div>
 
-  <div class="pagination-container" th:if="${userPage.totalElements > userPage.size}">
+  <div class="pagination-container" th:if="${userPage.totalElements > 5}">
     <form id="pageSizeForm" th:action="@{/user/list}" method="get">
       <input type="hidden" name="page" th:value="${userPage.number}"/>
       <select id="pageSize" name="size" onchange="changePageSize()">

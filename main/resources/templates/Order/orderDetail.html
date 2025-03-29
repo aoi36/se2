@@ -239,7 +239,7 @@
             </thead>
             <tbody>
             <tr th:each="item : ${order.orderItems}">
-                <td th:text="${item.bookName}">Book Name</td>
+                <td th:text="${item.book.name}">Book Name</td>
                 <td th:text="${item.orderItemQuantity}">10</td>
                 <td th:text="'$' + ${item.orderItemPrice}">$10</td>
                 <td th:text="'$' + ${item.orderItemPrice * item.orderItemQuantity}">$100</td>
@@ -250,7 +250,7 @@
         <div class="order-summary">
             <div class="summary-row">
                 <span class="summary-label">Subtotal:</span>
-                <span class="summary-value" th:text="'$' + ${order.totalPrice}">$170</span>
+                <span class="summary-value" th:text="'$' + ${totalPrice}">$170</span>
             </div>
             <div class="summary-row">
                 <span class="summary-label">VAT 0%:</span>
@@ -258,11 +258,11 @@
             </div>
             <div class="summary-row">
                 <span class="summary-label">Subtotal + VAT:</span>
-                <span class="summary-value" th:text="'$' + ${order.totalPrice}">$170</span>
+                <span class="summary-value" th:text="'$' + ${totalPrice}">$170</span>
             </div>
             <div class="summary-row">
                 <span class="summary-label">Total:</span>
-                <span class="summary-value" th:text="'$' + ${order.totalPrice}">$170</span>
+                <span class="summary-value" th:text="'$' + ${totalPrice}">$170</span>
             </div>
         </div>
     </div>
