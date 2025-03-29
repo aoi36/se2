@@ -187,7 +187,6 @@
             font-weight: bold;
             margin-bottom: 20px;
             padding: 10px;
-            background-color: #ffebee;
             border-radius: 4px;
         }
     </style>
@@ -202,14 +201,10 @@
         <div class="order-header">
             <h1 class="order-title" th:text="'OrderID: ' + ${order.id}">OrderID: 1001</h1>
             <div class="order-actions">
-                <button class="action-btn update-btn"
-                        th:if="${#authentication.principal.username.trim().toLowerCase() == order.user.username.trim().toLowerCase()}"
-                        type="submit" form="status-form">Update</button>
-                <button class="action-btn delete-btn"
-                        th:if="${#authentication.principal.username.trim().toLowerCase() == order.user.username.trim().toLowerCase()}"
-                        onclick="if(confirm('Are you sure you want to delete this order?')) { window.location.href='/order/delete/' + [[${order.id}]]; }">Delete</button>
-            </div>
+                <button class="action-btn update-btn" type="submit" form="status-form">Update</button>
+
         </div>
+    </div>
 
         <div class="order-info">
             <p class="order-info-item">
@@ -218,9 +213,7 @@
             </p>
             <p></p>
 
-
-
-            <div class="order-info-item" th:if="${#authentication.principal.username.trim().toLowerCase() == order.user.username.trim().toLowerCase()}">
+            <div class="order-info-item">
                 <form id="status-form" th:action="@{/order/save}" method="post" style="display: inline;">
                     <span class="order-info-label">Status:</span>
                     <input type="hidden" name="id" th:value="${order.id}" />
@@ -228,22 +221,13 @@
                         <option th:each="s : ${T(com.example.demo.constant.OrderStatus).values()}"
                                 th:value="${s}"
                                 th:text="${s}"
-                                th:selected="${s == order.status}"></option>
+                                th:selected="${s == order.status}">
+                        </option>
                     </select>
                 </form>
             </div>
 
-            <div class="order-info-item" th:unless="${#authentication.principal.username.trim().toLowerCase() == order.user.username.trim().toLowerCase()}">
-                <span class="order-info-label">Status:</span>
-                <span class="status-text"
-                      th:classappend="
-                      ${#strings.toLowerCase(order.status) == 'delivering' ? ' status-delivering' : ''} +
-                      ${#strings.toLowerCase(order.status) == 'completed' ? ' status-completed' : ''} +
-                      ${#strings.toLowerCase(order.status) == 'cancelled' ? ' status-cancelled' : ''}"
-                      th:text="${order.status}">Delivering</span>
-            </div>
         </div>
-
         <table class="order-items-table">
             <thead>
             <tr>

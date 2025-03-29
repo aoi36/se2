@@ -3,8 +3,7 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/layout}">
 <head>
-  <title>Add / Edit Book</title>
-  <!-- Define the previewImage function in the head so it's available before the HTML is parsed -->
+  <title>Add Book</title>
   <script>
     function previewImage(event) {
       var file = event.target.files[0];
@@ -25,6 +24,102 @@
         reader.readAsDataURL(file);
       }
     }
+
+    // Function to handle category selection
+    function toggleCategory(element) {
+      // If element is a DOM element (for remove button clicks)
+      if (element instanceof HTMLElement) {
+        const categoryId = element.getAttribute('data-cat-id');
+        const categoryName = element.getAttribute('data-cat-name');
+        handleCategoryToggle(categoryId, categoryName);
+      }
+      // If element is from dropdown click (numbers passed directly)
+      else {
+        const categoryId = arguments[0];
+        const categoryName = arguments[1];
+        handleCategoryToggle(categoryId, categoryName);
+      }
+    }
+
+    function handleCategoryToggle(categoryId, categoryName) {
+      const selectedCategoriesContainer = document.getElementById('selectedCategories');
+      const hiddenInput = document.getElementById('category-' + categoryId);
+
+      if (hiddenInput) {
+        // If category is already selected, remove it
+        document.getElementById('category-item-' + categoryId).remove();
+        hiddenInput.remove();
+      } else {
+        // Add the category
+        const categoryItem = document.createElement('div');
+        categoryItem.id = 'category-item-' + categoryId;
+        categoryItem.className = 'category-item';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = categoryName;
+        categoryItem.appendChild(nameSpan);
+
+        const removeBtn = document.createElement('span');
+        removeBtn.className = 'remove-category';
+        removeBtn.setAttribute('data-cat-id', categoryId);
+        removeBtn.setAttribute('data-cat-name', categoryName);
+        removeBtn.textContent = '×';
+        removeBtn.onclick = function(event) {
+          event.stopPropagation();
+          toggleCategory(this);
+        };
+        categoryItem.appendChild(removeBtn);
+
+        selectedCategoriesContainer.appendChild(categoryItem);
+
+        // Add hidden input for form submission
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.id = 'category-' + categoryId;
+        input.name = 'categories';
+        input.value = categoryId;
+        document.getElementById('categoriesForm').appendChild(input);
+      }
+    }
+
+    // Function to show/hide the category dropdown
+    function toggleCategoryDropdown() {
+      const dropdown = document.getElementById('categoryDropdown');
+      if (dropdown.style.display === 'block') {
+        dropdown.style.display = 'none';
+      } else {
+        dropdown.style.display = 'block';
+      }
+    }
+
+    // Initialize dropdown and click handlers when the document is ready
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set up click handlers for category items
+      const categoryItems = document.querySelectorAll('.category-dropdown-item');
+      categoryItems.forEach(function(item) {
+        item.addEventListener('click', function() {
+          const categoryId = this.getAttribute('data-cat-id');
+          const categoryName = this.getAttribute('data-cat-name');
+          toggleCategory(categoryId, categoryName);
+        });
+      });
+
+      // Close the dropdown if clicked outside
+      document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('categoryDropdown');
+        if (!event.target.closest('.category-container')) {
+          dropdown.style.display = 'none';
+        }
+      });
+
+      // Stop propagation for clicks inside the dropdown
+      const dropdown = document.getElementById('categoryDropdown');
+      if (dropdown) {
+        dropdown.addEventListener('click', function(event) {
+          event.stopPropagation();
+        });
+      }
+    });
   </script>
   <style>
     body {
@@ -51,7 +146,7 @@
     }
     .form-group {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
       margin-bottom: 16px;
     }
@@ -64,8 +159,8 @@
     .required {
       color: #ef4444;
     }
-    input[type="text"],
-    input[type="number"],
+    .form-container input[type="text"],
+    .form-container input[type="number"],
     textarea,
     select {
       width: 300px;
@@ -81,21 +176,21 @@
       height: 100px;
       resize: vertical;
     }
-    input[type="text"]:hover,
-    input[type="number"]:hover,
+    .form-container input[type="text"]:hover,
+    .form-container input[type="number"]:hover,
     textarea:hover,
     select:hover {
       border-color: #c6c6c6;
     }
-    input[type="text"]:focus,
-    input[type="number"]:focus,
+    .form-container input[type="text"]:focus,
+    .form-container input[type="number"]:focus,
     textarea:focus,
     select:focus {
       background-color: #fff;
       border-color: #bfbfbf;
       outline: none;
     }
-    input::placeholder,
+    .form-container input::placeholder,
     textarea::placeholder {
       color: #999;
       font-style: italic;
@@ -137,89 +232,198 @@
     .form-actions button:hover {
       background-color: #2563eb;
     }
+
+    /* Category selection styling */
+    .category-container {
+      width: 300px;
+      position: relative;
+    }
+
+    .category-select-btn {
+      width: 100%;
+      padding: 8px 12px;
+      background-color: #f7f7f7;
+      border: 1px solid #dcdcdc;
+      border-radius: 4px;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      color: #6c757d;
+    }
+
+    .category-select-btn:hover {
+      border-color: #c6c6c6;
+    }
+
+    .category-select-btn:after {
+      content: "▼";
+      font-size: 10px;
+      margin-left: 10px;
+    }
+
+    .category-dropdown {
+      display: none;
+      position: absolute;
+      background-color: #fff;
+      min-width: 100%;
+      max-height: 200px;
+      overflow-y: auto;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      z-index: 100;
+      border-radius: 4px;
+      margin-top: 2px;
+      border: 1px solid #e0e0e0;
+    }
+
+    .category-dropdown-item {
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 14px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .category-dropdown-item:last-child {
+      border-bottom: none;
+    }
+
+    .category-dropdown-item:hover {
+      background-color: #f1f1f1;
+    }
+
+    .selected-categories {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .category-item {
+      background-color: #e9f2fe;
+      color: #3b82f6;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+    }
+
+    .remove-category {
+      margin-left: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .remove-category:hover {
+      color: #ef4444;
+    }
+
+    #categoriesForm {
+      display: contents;
+    }
   </style>
 </head>
 <body>
 <div layout:fragment="content">
   <div class="container">
-    <h1>Add / Edit Book</h1>
-    <form th:action="@{/book/save}" th:object="${book}" method="post" enctype="multipart/form-data">
-      <!-- Name -->
-      <div class="form-group">
-        <label for="name">Name <span class="required">*</span></label>
-        <input type="text" id="name" th:field="*{name}" placeholder="Enter book name" />
-      </div>
-      <div th:if="${#fields.hasErrors('name')}" class="error" th:errors="*{name}"></div>
-
-
-      <div class="form-group">
-        <label for="author">Author <span class="required">*</span></label>
-        <input type="text" id="author" th:field="*{author}" placeholder="Enter author name" />
-      </div>
-      <div th:if="${#fields.hasErrors('author')}" class="error" th:errors="*{author}"></div>
-
-      <div class="form-group">
-        <label for="price">Price <span class="required">*</span></label>
-        <input type="number" step="0.01" id="price" th:field="*{price}" placeholder="Enter price" />
-      </div>
-      <div th:if="${#fields.hasErrors('price')}" class="error" th:errors="*{price}"></div>
-
-
-      <div class="form-group">
-        <label for="stockQuantity">Stock Qty <span class="required">*</span></label>
-        <input type="number" id="stockQuantity" th:field="*{stockQuantity}" placeholder="Enter stock quantity" />
-      </div>
-      <div th:if="${#fields.hasErrors('stockQuantity')}" class="error" th:errors="*{stockQuantity}"></div>
-
-
-      <div class="form-group">
-        <label for="publicationYear">Publication Year <span class="required">*</span></label>
-        <input type="number" id="publicationYear" th:field="*{publicationYear}" placeholder="Enter publication year" />
-      </div>
-      <div th:if="${#fields.hasErrors('publicationYear')}" class="error" th:errors="*{publicationYear}"></div>
-
-      <!-- Description -->
-      <div class="form-group">
-        <label for="description">Description</label>
-        <textarea id="description" th:field="*{description}" placeholder="Enter description"></textarea>
-      </div>
-      <div th:if="${#fields.hasErrors('description')}" class="error" th:errors="*{description}"></div>
-
-      <!-- Status -->
-      <div class="form-group">
-        <label for="status">Status <span class="required">*</span></label>
-        <select id="status" th:field="*{status}">
-          <option value="">-- Select Status --</option>
-          <!-- Adjust the options based on your BookStatus enum -->
-          <option th:value="Removed" th:text="Removed"></option>
-          <option th:value="For_Sale" th:text="For_Sale"></option>
-          <option th:value="Sold_Out" th:text="Sold_Out"></option>
-        </select>
-      </div>
-      <div th:if="${#fields.hasErrors('status')}" class="error" th:errors="*{status}"></div>
-
-      <!-- Book Cover Upload -->
-      <div class="form-group">
-        <label for="coverImageInput">Book Cover</label>
-        <div class="cover-upload">
-          <div class="upload-area" id="uploadArea" onclick="document.getElementById('coverImageInput').click();">
-            <!-- Show existing image if available -->
-            <img th:if="${book.bookCover != null}" th:src="@{'data:image/jpeg;base64,' + ${book.bookCover}}"
-                 style="width: 100px; height: 100px; border-radius: 4px; object-fit: cover;" />
-            <!-- Show upload text if no image -->
-            <span th:if="${book.bookCover == null}">Upload</span>
-          </div>
-          <input type="file" id="coverImageInput" name="coverImage" accept=".png,.jpg,.jpeg" style="display:none;" onchange="previewImage(event)">
-          <!-- Hidden field for storing the book cover path if needed -->
-          <input type="hidden" th:field="*{bookCover}" />
+    <h1>Add Book</h1>
+    <div class="form-container">
+      <form th:action="@{/book/save}" th:object="${book}" method="post" enctype="multipart/form-data" id="categoriesForm">
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" th:field="*{name}" placeholder="Enter book name" />
         </div>
-      </div>
+        <div th:if="${#fields.hasErrors('name')}" class="error" th:errors="*{name}"></div>
 
+        <div class="form-group">
+          <label for="author">Author</label>
+          <input type="text" id="author" th:field="*{author}" placeholder="Enter author name" />
+        </div>
+        <div th:if="${#fields.hasErrors('author')}" class="error" th:errors="*{author}"></div>
 
-      <div class="form-actions">
-        <button type="submit">Save Book</button>
-      </div>
-    </form>
+        <div class="form-group">
+          <label for="price">Price</label>
+          <input type="number" step="0.01" id="price" th:field="*{price}" placeholder="Enter price" />
+        </div>
+        <div th:if="${#fields.hasErrors('price')}" class="error" th:errors="*{price}"></div>
+
+        <div class="form-group">
+          <label for="stockQuantity">Stock Qty</label>
+          <input type="number" id="stockQuantity" th:field="*{stockQuantity}" placeholder="Enter stock quantity" />
+        </div>
+        <div th:if="${#fields.hasErrors('stockQuantity')}" class="error" th:errors="*{stockQuantity}"></div>
+
+        <div class="form-group">
+          <label for="publicationYear">Publication Year</label>
+          <input type="number" id="publicationYear" th:field="*{publicationYear}" placeholder="Enter publication year" />
+        </div>
+        <div th:if="${#fields.hasErrors('publicationYear')}" class="error" th:errors="*{publicationYear}"></div>
+
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea id="description" th:field="*{description}" placeholder="Enter description"></textarea>
+        </div>
+        <div th:if="${#fields.hasErrors('description')}" class="error" th:errors="*{description}"></div>
+
+        <div class="form-group">
+          <label for="status">Status</label>
+          <select id="status" th:field="*{status}">
+            <option value="">-- Select Status --</option>
+            <option th:value="Removed" th:text="Removed"></option>
+            <option th:value="For_Sale" th:text="For_Sale"></option>
+            <option th:value="Sold_Out" th:text="Sold_Out"></option>
+          </select>
+        </div>
+        <div th:if="${#fields.hasErrors('status')}" class="error" th:errors="*{status}"></div>
+
+        <div class="form-group">
+          <label for="coverImageInput">Book Cover</label>
+          <div class="cover-upload">
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('coverImageInput').click();">
+              <img th:if="${book.bookCover != null}" th:src="@{'data:image/jpeg;base64,' + ${book.bookCover}}"
+                   style="width: 100px; height: 100px; border-radius: 4px; object-fit: cover;" />
+              <span th:if="${book.bookCover == null}">Upload</span>
+            </div>
+            <input type="file" id="coverImageInput" name="coverImage" accept=".png,.jpg,.jpeg" style="display:none;" onchange="previewImage(event)">
+            <input type="hidden" th:field="*{bookCover}" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Categories</label>
+          <div class="category-container">
+            <button type="button" class="category-select-btn" onclick="toggleCategoryDropdown()">
+              Select Categories
+            </button>
+            <div id="categoryDropdown" class="category-dropdown">
+              <!-- Use data attributes instead of th:onclick -->
+              <div th:each="cat : ${categoriesList}" class="category-dropdown-item"
+                   th:attr="data-cat-id=${cat.id}, data-cat-name=${cat.name}">
+                <span th:text="${cat.name}">Category Name</span>
+              </div>
+            </div>
+            <div id="selectedCategories" class="selected-categories">
+              <!-- Pre-populate selected categories if editing -->
+              <div th:each="cat : ${book.categories}" th:id="'category-item-' + ${cat.id}" class="category-item">
+                <span th:text="${cat.name}">Category Name</span>
+                <span class="remove-category"
+                      th:attr="data-cat-id=${cat.id}, data-cat-name=${cat.name}"
+                      onclick="toggleCategory(this)">×</span>
+                <input type="hidden" th:id="'category-' + ${cat.id}" name="categories" th:value="${cat.id}" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div th:if="${#fields.hasErrors('categories')}" class="error" th:errors="*{categories}"></div>
+
+        <div class="form-actions">
+          <button type="submit">Save Book</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 </body>

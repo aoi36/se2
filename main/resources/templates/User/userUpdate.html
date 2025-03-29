@@ -42,9 +42,9 @@
     .required {
       color: #ef4444;
     }
-    input[type="text"],
-    input[type="password"],
-    input[type="email"],
+    .form-container input[type="text"],
+    .form-container input[type="password"],
+    .form-container input[type="email"],
     textarea,
     select {
       width: 300px;
@@ -56,16 +56,16 @@
       border-radius: 4px;
       transition: border-color 0.2s ease, background-color 0.2s ease;
     }
-    input[type="text"]:hover,
-    input[type="password"]:hover,
-    input[type="email"]:hover,
+    .form-container input[type="text"]:hover,
+    .form-container input[type="password"]:hover,
+    .form-container input[type="email"]:hover,
     textarea:hover,
     select:hover {
       border-color: #c6c6c6;
     }
-    input[type="text"]:focus,
-    input[type="password"]:focus,
-    input[type="email"]:focus,
+    .form-container input[type="text"]:focus,
+    .form-container input[type="password"]:focus,
+    .form-container input[type="email"]:focus,
     textarea:focus,
     select:focus {
       background-color: #fff;
@@ -121,7 +121,8 @@
   <div class="container">
     <h1>Update User</h1>
     <div th:if="${success}" class="success">User updated successfully!</div>
-    <form th:action="@{/user/update/{id}(id=${user.id})}" th:object="${user}" method="post" enctype="multipart/form-data">
+    <form th:action="@{/user/update}" th:object="${user}" method="post" enctype="multipart/form-data">
+      <div class="form-container">
       <input type="hidden" th:field="*{id}" />
       <div class="form-group">
         <label for="username">Username <span class="required">*</span></label>
@@ -158,17 +159,16 @@
       <div th:if="${#fields.hasErrors('status')}" class="error" th:errors="*{status}"></div>
       <div class="form-group">
         <label for="role">Role <span class="required">*</span></label>
-        <select id="role" name="roleId">
+        <select id="role" name="roleId" >
           <option value="">-- Select Role --</option>
           <option th:each="role : ${roles}"
                   th:value="${role.id}"
                   th:text="${role.name}"
-                  th:selected="${role.id == user.role.id}">
+                  th:selected="${user.role != null and role.id == user.role.id}">
           </option>
         </select>
       </div>
       <div th:if="${#fields.hasErrors('role')}" class="error" th:errors="*{role}"></div>
-
 
       <div class="form-group">
         <label for="profileImageInput">Profile Image</label>
@@ -186,6 +186,7 @@
 
       <div class="form-actions">
         <button type="submit">Update User</button>
+      </div>
       </div>
     </form>
   </div>

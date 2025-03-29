@@ -109,10 +109,88 @@ public class UserController {
         model.addAttribute("roles", roleRepository.findAll());
         return "User/userUpdate";
     }
-    @PostMapping("/update/{id}")
+
+    @PostMapping("/save")
+    public String saveUser(@Valid @ModelAttribute("user") User user, BindingResult result,
+                           @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
+                           @RequestParam(value = "roleId", required = false) Long roleId,
+                           Model model) {
+
+        if (result.hasErrors()) {
+            result.getAllErrors().forEach(error -> {
+                System.out.println("Field: " + ((FieldError) error).getField());
+                System.out.println("Message: " + error.getDefaultMessage());
+            });
+            model.addAttribute("user", user);
+            model.addAttribute("roles", roleRepository.findAll());
+            return "User/userAdd";
+        }
+
+        if (roleId == null) {
+            result.rejectValue("role", "error.role", "Role is required");
+            model.addAttribute("user", user);
+            model.addAttribute("roles", roleRepository.findAll());
+            return "User/userAdd";
+        }
+
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            result.rejectValue("username", "error.username", "Username already exists");
+            result.getAllErrors().forEach(error -> {
+                System.out.println("Field: " + ((FieldError) error).getField());
+                System.out.println("Message: " + error.getDefaultMessage());
+            });
+            model.addAttribute("user", user);
+            model.addAttribute("roles", roleRepository.findAll());
+            return "User/userAdd";
+        }
+
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            result.rejectValue("email", "error.email", "Email already exists");
+            result.getAllErrors().forEach(error -> {
+                System.out.println("Field: " + ((FieldError) error).getField());
+                System.out.println("Message: " + error.getDefaultMessage());
+            });
+            model.addAttribute("user", user);
+            model.addAttribute("roles", roleRepository.findAll());
+            return "User/userAdd";
+        }
+
+        if (profileImage != null && !profileImage.isEmpty()) {
+            try {
+                Path uploadPath = fileStorageService.getFileStorageLocation();
+                String fileName = System.currentTimeMillis() + "_" + profileImage.getOriginalFilename();
+                try (InputStream inputStream = profileImage.getInputStream()) {
+                    Path filePath = uploadPath.resolve(fileName);
+                    Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+                }
+                user.setAvatar(fileName);
+                user.setCreatedAt(LocalDateTime.now());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        Role role = roleRepository.findById(roleId).orElse(null);
+        if (role == null) {
+            result.rejectValue("role", "error.role", "Invalid role selected");
+            model.addAttribute("roles", roleRepository.findAll());
+            model.addAttribute("user", user);
+            return "User/userAdd";
+        }
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole(role);
+        userRepository.save(user);
+
+        model.addAttribute("user", new User());
+        model.addAttribute("roles", roleRepository.findAll());
+        model.addAttribute("success", true);
+        return "User/userAdd";
+    }
+    @PostMapping("/update")
     public String updateUser(@Valid @ModelAttribute("user") User user, BindingResult result,
                              @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
-                             @RequestParam("roleId") Long roleId,
+                             @RequestParam(value = "roleId", required = false) Long roleId,
                              Model model) {
 
         if (result.hasErrors()) {
@@ -120,7 +198,13 @@ public class UserController {
                 System.out.println("Field: " + ((FieldError) error).getField());
                 System.out.println("Message: " + error.getDefaultMessage());
             });
+            model.addAttribute("roles", roleRepository.findAll());
+            model.addAttribute("user", user);
+            return "User/userUpdate";
+        }
 
+        if (user.getId() == null) {
+            result.reject("error.user", "User id is missing");
             model.addAttribute("roles", roleRepository.findAll());
             model.addAttribute("user", user);
             return "User/userUpdate";
@@ -165,6 +249,12 @@ public class UserController {
             }
         }
 
+        if (roleId == null) {
+            result.rejectValue("role", "error.role", "Role is required");
+            model.addAttribute("roles", roleRepository.findAll());
+            model.addAttribute("user", user);
+            return "User/userUpdate";
+        }
         Role role = roleRepository.findById(roleId).orElse(null);
         if (role == null) {
             result.rejectValue("role", "error.role", "Invalid role selected");
@@ -188,4 +278,5 @@ public class UserController {
         model.addAttribute("success", true);
         return "User/userUpdate";
     }
+
 }

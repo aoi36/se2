@@ -42,9 +42,9 @@
     .required {
       color: #ef4444;
     }
-    input[type="text"],
-    input[type="password"],
-    input[type="email"],
+    .form-container input[type="text"],
+    .form-container input[type="password"],
+    .form-container input[type="email"],
     textarea,
     select {
       width: 300px;
@@ -56,16 +56,16 @@
       border-radius: 4px;
       transition: border-color 0.2s ease, background-color 0.2s ease;
     }
-    input[type="text"]:hover,
-    input[type="password"]:hover,
-    input[type="email"]:hover,
+    .form-container input[type="text"]:hover,
+    .form-container input[type="password"]:hover,
+    .form-container input[type="email"]:hover,
     textarea:hover,
     select:hover {
       border-color: #c6c6c6;
     }
-    input[type="text"]:focus,
-    input[type="password"]:focus,
-    input[type="email"]:focus,
+    .form-container input[type="text"]:focus,
+   .form-container input[type="password"]:focus,
+   .form-container input[type="email"]:focus,
     textarea:focus,
     select:focus {
       background-color: #fff;
@@ -122,6 +122,7 @@
     <h1>Add User</h1>
     <div th:if="${success}" class="success">User added successfully!</div>
     <form th:action="@{/user/save}" th:object="${user}" method="post" enctype="multipart/form-data">
+      <div class="form-container">
       <div class="form-group">
         <label for="username">Username <span class="required">*</span></label>
         <input type="text" id="username" th:field="*{username}" placeholder="Enter username" />
@@ -169,9 +170,6 @@
       </div>
       <div th:if="${#fields.hasErrors('role')}" class="error" th:errors="*{role}"></div>
 
-
-
-
       <div class="form-group">
         <label for="profileImageInput">Profile Image</label>
         <div class="cover-upload">
@@ -189,8 +187,10 @@
       <div class="form-actions">
         <button type="submit">Save User</button>
       </div>
+      </div>
     </form>
   </div>
+
 </div>
 </body>
 </html>

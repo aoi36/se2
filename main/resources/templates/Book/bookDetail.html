@@ -68,13 +68,7 @@
             background-color: #45a049;
         }
 
-        .delete-btn {
-            background-color: #dc3545
-        }
 
-        .delete-btn:hover {
-            background-color: #e6366f;
-        }
 
         /* Book content layout */
         .book-content {
@@ -119,10 +113,7 @@
             font-weight: 500;
         }
 
-        /* Book description */
-        .book-description {
-            margin-top: 25px;
-        }
+
 
         .description-label {
             color: #777;
@@ -163,6 +154,9 @@
 </head>
 <body>
 <div layout:fragment="content" class="container">
+    <div th:if="${error != null or book == null}" class="error-message" th:text="${error}" style="color: #ef4444;">Error Message</div>
+
+    <div th:if="${book != null}">
     <div class="book-header">
         <div>
             <h1 class="book-title" th:text="${book.name}">Book Title</h1>
@@ -170,7 +164,6 @@
         </div>
         <div class="action-buttons">
             <a th:href="@{/book/update/{id}(id=${book.id})}" class="btn update-btn">Update</a>
-            <button type="button" class="btn delete-btn" th:attr="onclick='openDeleteModal(' + ${book.id} + ')'" >Delete</button>
         </div>
 
         <form id="deleteForm" th:action="@{/book/delete/{id}(id=${book.id})}" method="post" style="display: none;"></form>
@@ -209,16 +202,24 @@
                     <span class="info-label">Price:</span>
                     <span class="info-value" th:text="'$' + ${book.price}">$123</span>
                 </div>
+
+                <div class="book-description">
+                    <span class="description-label">Description:</span>
+                    <p class="description-text" th:text="${book.description}">
+
+                    </p>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Category:</span>
+                    <span class="info-value">
+    <span th:each="cat : ${book.categories}" th:text="${cat.name} + ' '"></span>
+  </span>
+                </div>
             </div>
 
-            <div class="book-description">
-                <span class="description-label">Description:</span>
-                <p class="description-text" th:text="${book.description}">
-
-                </p>
-            </div>
         </div>
     </div>
+</div>
 </div>
 </body>
 </html>

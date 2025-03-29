@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 import com.example.demo.Service.FileStorageService;
 import com.example.demo.model.User.User;
+import com.example.demo.repository.CategoryRepository;
 import com.example.demo.repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
@@ -44,6 +45,8 @@ public class bookController {
     private FileStorageService fileStorageService;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    CategoryRepository categoryRepository;
 
     @GetMapping(value = "list")
     public String getAllBooks(
@@ -131,13 +134,14 @@ public class bookController {
     }
 
     @GetMapping("/detail/{id}")
-    public String getBookDetail(@PathVariable(value = "id") Long id, Model model) {
+    public String getBookDetail(@PathVariable("id") Long id, Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         if (user == null) {
             model.addAttribute("error", "User not found");
-            return "error";
+            return "Book/bookDetail";
         }
+
         boolean isAdmin = auth.getAuthorities().stream()
                 .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
         boolean isProvider = auth.getAuthorities().stream()
@@ -146,15 +150,16 @@ public class bookController {
         Book book = bookRepo.findById(id).orElse(null);
         if (book == null) {
             model.addAttribute("error", "Book not found");
-            return "error";
+            return "Book/bookDetail";
         }
 
-        if(isProvider){
+        if (isProvider) {
             if (!book.getUser().equals(user)) {
-
-                return "Error/bookAccessDenied";
+                model.addAttribute("error", "You are not authorized to view this book");
+                return "Book/bookDetail";
             }
         }
+
         model.addAttribute("book", book);
         return "Book/bookDetail";
     }
@@ -162,6 +167,7 @@ public class bookController {
     @GetMapping(value = "/add")
     public String addBook(Model model){
         Book book = new Book();
+        model.addAttribute("categoriesList", categoryRepository.findAll());
 
         model.addAttribute("book", book);
 
@@ -170,12 +176,15 @@ public class bookController {
 
     @PostMapping("/save")
     public String saveBook(@Valid @ModelAttribute("book") Book book, BindingResult result,
-                           @RequestParam(value = "coverImage", required = false) MultipartFile coverImage, Model model) {
+                           @RequestParam(value = "coverImage", required = false) MultipartFile coverImage,
+                           Model model) {
 
         if (result.hasErrors()) {
+            model.addAttribute("errors", result.getAllErrors());
             model.addAttribute("book", book);
             return "Book/addBook";
         }
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         if (user == null) {
@@ -218,6 +227,12 @@ public class bookController {
             model.addAttribute("book", book);
             return "Book/updateBook";
         }
+
+        if (user == null) {
+            model.addAttribute("error", "User not found");
+            return "error";
+        }
+        book.setUser(user);
         if (coverImage != null && !coverImage.isEmpty()) {
             try {
                 Path uploadPath = fileStorageService.getFileStorageLocation();
@@ -232,19 +247,29 @@ public class bookController {
                 e.printStackTrace();
             }
         }
+        book.setCreatedAt(book.getUpdatedAt());
         book.setUpdatedAt(LocalDateTime.now());
         bookRepo.save(book);
         return "redirect:/book/list";
     }
     @GetMapping(value = "/update/{id}")
-    public String updateBook(@PathVariable(value = "id") Long id, Model model){
-        Book book = bookRepo.getReferenceById(id);
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        boolean isProvider = auth.getAuthorities().stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_PROVIDER"));
-        if (isProvider &&!book.getUser().getUsername().equals(auth.getName())){
-            model.addAttribute("error", "You are not authorized to update this book");
-            return "error";
+    public String updateBook(@PathVariable("id") Long id, Model model) {
+        Optional<Book> bookOpt = bookRepo.findById(id);
+        if (!bookOpt.isPresent()) {
+            model.addAttribute("error", "Book not found");
+            // Return the update page; the view should check for an "error" attribute.
+            return "Book/updateBook";
         }
+        Book book = bookOpt.get();
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isProvider = auth.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_PROVIDER"));
+        if (isProvider && !book.getUser().getUsername().equals(auth.getName())) {
+            model.addAttribute("error", "You are not authorized to update this book");
+            return "Book/updateBook";
+        }
+
         model.addAttribute("book", book);
         return "Book/updateBook";
     }

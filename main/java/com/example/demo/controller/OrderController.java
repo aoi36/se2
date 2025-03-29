@@ -46,13 +46,6 @@ public class OrderController {
         if (existingOrder == null) {
             return "redirect:/order/list";
         }
-        String loggedInAdminUsername = principal.getName();
-
-        if (!existingOrder.getUser().getUsername().equals(loggedInAdminUsername)) {
-            model.addAttribute("errorMessage", "You are not authorized to modify this order.");
-            model.addAttribute("order", existingOrder);
-            return "Order/orderDetail";
-        }
         existingOrder.setStatus(order.getStatus());
         orderRepo.save(existingOrder);
         model.addAttribute("order", existingOrder);

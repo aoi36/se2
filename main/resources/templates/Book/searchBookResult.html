@@ -144,7 +144,6 @@
         <th>Title</th>
         <th>Author</th>
         <th>Description</th>
-        <th>Genre</th>
         <th>Publication Year</th>
         <th>Quantity</th>
       </tr>
@@ -155,13 +154,13 @@
         <td><a class="book-title" th:href="@{/book/detail/{id}(id=${book.id})}" th:text="${book.name}"></a></td>
         <td th:text="${book.author}"></td>
         <td th:text="${#strings.length(book.description) > 100 ? #strings.substring(book.description, 0, 100) + '...' : book.description}"></td>
-   
         <td th:text="${book.publicationYear}"></td>
         <td th:text="${book.stockQuantity}"></td>
       </tr>
       </tbody>
     </table>
   </div>
+  <div th:if="${books.totalElements > books.size}">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
     <form id="pageSizeForm" th:action="@{/book/search}" method="get">
       <input type="hidden" name="page" th:value="${currentPage}"/>
@@ -179,6 +178,7 @@
       <a class="next" th:if="${currentPage < totalPages - 1}" th:href="@{/book/search(name=${name}, author=${author}, page=${currentPage + 1}, size=5)}">&gt;</a>
     </div>
   </div>
+</div>
 </div>
 </body>
 </html>

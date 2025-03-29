@@ -5,45 +5,248 @@
 <head>
   <meta charset="UTF-8">
   <title>User List</title>
+  <style>
+    /* Page background to match the book list */
+    body {
+      margin: 0;
+      background-color: #fefae0;
+      font-family: Arial, sans-serif;
+    }
+
+    /* Main container (card style) */
+    .container {
+      max-width: 1200px;
+      margin: 40px auto;
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Header: Title and Add User button */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .header h2 {
+      font-size: 1.5rem;
+      margin: 0;
+    }
+
+    /* Table container with border */
+    .table-container {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    /* Table styling */
+    .user-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .user-table thead tr {
+      border-bottom: 1px solid #eee;
+    }
+    .user-table th {
+      padding: 16px 12px;
+      vertical-align: middle;
+      color: #666;
+      font-weight: 500;
+    }
+    .user-table td {
+      padding: 16px 12px;
+      vertical-align: middle;
+      color: #333;
+    }
+    .user-table tbody tr {
+      border-bottom: 1px solid #eee;
+    }
+    .user-table tbody tr:last-child {
+      border-bottom: none;
+    }
+    .user-table tbody tr:hover {
+      background-color: #f9f9f9;
+    }
+
+    /* User avatar styling */
+    .user-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    /* Action buttons in table */
+    .action-btn {
+      padding: 8px 8px;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      width: auto;
+      max-width: fit-content;
+      margin-right: 5px;
+    }
+
+    .update-btn {
+      background-color: #4CAF50; /* green */
+    }
+    .update-btn:hover {
+      background-color: #45a049;
+    }
+    .action-cell {
+      padding: 8px 12px;
+      white-space: nowrap;
+    }
+
+    /* Add user button */
+    .add-user-btn {
+      background-color: #0d6efd;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .add-user-btn:hover {
+      background-color: #0b5ed7;
+    }
+
+    /* Pagination */
+    .pagination-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+    }
+    .pagination-info {
+      font-size: 0.9rem;
+      color: #666;
+    }
+    .pagination-links {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .pagination-links a {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 40px;
+      height: 40px;
+      margin: 0 5px;
+      color: #666;
+      text-decoration: none;
+      font-size: 1rem;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+    .pagination-links a.active {
+      background-color: #2196F3;
+      color: white;
+      font-weight: 500;
+    }
+    .pagination-links a:hover:not(.active) {
+      background-color: #f1f1f1;
+    }
+    .pagination-links a.prev,
+    .pagination-links a.next {
+      color: #999;
+      font-weight: bold;
+    }
+
+    /* Page size selector */
+    #pageSizeForm {
+      margin-bottom: 0;
+    }
+    #pageSize {
+      padding: 8px 12px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      background-color: white;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+  </style>
+  <script>
+    function changePageSize() {
+      const newSize = document.getElementById('pageSize').value;
+      let params = new URLSearchParams(window.location.search);
+      params.set("size", newSize);
+      params.set("page", 0);
+      const newUrl = '/user/list?' + params.toString();
+      window.location.href = newUrl;
+    }
+  </script>
 </head>
 <body>
-<div layout:fragment="content">
-<h1 th:text="${pageTitle}">User List</h1>
-<table>
-  <thead>
-  <tr>
-    <th>ID</th>
-    <th>Username</th>
-    <th>Email</th>
-    <th>Profile Image</th>
-    <th>Actions</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr th:each="user : ${userPage.content}">
-    <td th:text="${user.id}">1</td>
-    <td th:text="${user.username}">Username</td>
-    <td th:text="${user.email}">Email</td>
-    <td>
-      <img th:src="@{'/uploads/' + ${user.avatar}}" alt="Profile Image" width="50" height="50"/>
-    </td>
-    <td>
-      <a th:href="@{'/user/detail/' + ${user.id}}">View</a>
-      <a th:href="@{'/user/update/' + ${user.id}}">Edit</a>
-    </td>
-  </tr>
-  </tbody>
-</table>
-  <div th:if="${userPage.totalElements > userPage.size}">
-<div>
-  <span th:text="'Page ' + ${userPage.number + 1} + ' of ' + ${userPage.totalPages}">Page 1 of 1</span>
-</div>
-<div>
-  <a th:href="@{'/user/list?page=' + ${userPage.number - 1}}" th:if="${userPage.hasPrevious()}">Previous</a>
-  <a th:href="@{'/user/list?page=' + ${userPage.number + 1}}" th:if="${userPage.hasNext()}">Next</a>
+<div layout:fragment="content" class="container">
+  <div  style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 20px;">
+    <h2>User List</h2>
+    <a href="/user/add" class="add-user-btn">Add User</a>
+  </div>
 
-</div>
-</div>
+  <div class="table-container">
+    <table class="user-table">
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Profile Image</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="user : ${userPage.content}" th:onclick="| window.location.href='@{/user/detail/{id}(id=${user.id})}'|" style="cursor: pointer;">
+        <td th:text="${user.id}">1</td>
+        <td th:text="${user.username}">Username</td>
+        <td th:text="${user.email}">Email</td>
+        <td>
+          <img class="user-avatar" th:src="@{'/uploads/' + ${user.avatar}}" alt="Profile Image"/>
+        </td>
+        <td class="action-cell">
+          <a th:href="@{'/user/update/' + ${user.id}}" class="action-btn update-btn">Edit</a>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination-container" th:if="${userPage.totalElements > userPage.size}">
+    <form id="pageSizeForm" th:action="@{/user/list}" method="get">
+      <input type="hidden" name="page" th:value="${userPage.number}"/>
+      <select id="pageSize" name="size" onchange="changePageSize()">
+        <option value="5" th:selected="${userPage.size == 5}">5</option>
+        <option value="10" th:selected="${userPage.size == 10}">10</option>
+        <option value="20" th:selected="${userPage.size == 20}">20</option>
+      </select>
+    </form>
+
+    <div class="pagination-links">
+      <a class="prev" th:if="${userPage.hasPrevious()}"
+         th:href="@{'/user/list?page=' + ${userPage.number - 1}}">&lt;</a>
+
+      <span th:each="i : ${#numbers.sequence(0, userPage.totalPages - 1)}">
+        <a th:href="@{'/user/list?page=' + ${i}}"
+           th:text="${i + 1}"
+           th:classappend="${userPage.number == i} ? ' active' : ''"></a>
+      </span>
+
+      <a class="next" th:if="${userPage.hasNext()}"
+         th:href="@{'/user/list?page=' + ${userPage.number + 1}}">&gt;</a>
+    </div>
+  </div>
 </div>
 </body>
 </html>
