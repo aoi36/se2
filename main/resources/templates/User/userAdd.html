@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>Add User</title>
+  <script>
+    function previewImage(event) {
+      var file = event.target.files[0];
+      if (file) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var img = document.createElement('img');
+          img.src = e.target.result;
+          img.style.width = "100px";
+          img.style.height = "100px";
+          img.style.borderRadius = "4px";
+          img.style.objectFit = "cover";
+
+          var uploadArea = document.getElementById('uploadArea');
+          uploadArea.innerHTML = "";
+          uploadArea.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+  </script>
+  <style>
+    .form-group {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    label {
+      width: 150px;
+      font-size: 14px;
+      padding-top: 8px;
+      color: #374151;
+    }
+    .required {
+      color: #ef4444;
+    }
+    input[type="text"],
+    input[type="password"],
+    input[type="email"],
+    textarea,
+    select {
+      width: 300px;
+      padding: 6px 10px;
+      font-size: 14px;
+      background-color: #f7f7f7;
+      color: #6c757d;
+      border: 1px solid #dcdcdc;
+      border-radius: 4px;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+    input[type="text"]:hover,
+    input[type="password"]:hover,
+    input[type="email"]:hover,
+    textarea:hover,
+    select:hover {
+      border-color: #c6c6c6;
+    }
+    input[type="text"]:focus,
+    input[type="password"]:focus,
+    input[type="email"]:focus,
+    textarea:focus,
+    select:focus {
+      background-color: #fff;
+      border-color: #bfbfbf;
+      outline: none;
+    }
+    .error {
+      color: #ef4444;
+      font-size: 12px;
+      margin-top: -12px;
+      margin-bottom: 12px;
+      margin-left: 150px; /* Align with input fields */
+    }
+    .success {
+      color: #10b981;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 24px;
+      gap: 12px;
+    }
+    .form-actions button {
+      padding: 8px 16px;
+      background-color: #3b82f6;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .form-actions button:hover {
+      background-color: #2563eb;
+    }
+    .upload-area {
+      width: 100px;
+      height: 100px;
+      background-color: #f3f4f6;
+      border: 1px dashed #d1d5db;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+<div layout:fragment="content">
+  <div class="container">
+    <h1>Add User</h1>
+    <div th:if="${success}" class="success">User added successfully!</div>
+    <form th:action="@{/user/save}" th:object="${user}" method="post" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="username">Username <span class="required">*</span></label>
+        <input type="text" id="username" th:field="*{username}" placeholder="Enter username" />
+      </div>
+      <div th:if="${#fields.hasErrors('username')}" class="error" th:errors="*{username}"></div>
+
+      <div class="form-group">
+        <label for="name">Name <span class="required">*</span></label>
+        <input type="text" id="name" th:field="*{name}" placeholder="Enter name" />
+      </div>
+      <div th:if="${#fields.hasErrors('name')}" class="error" th:errors="*{name}"></div>
+
+      <div class="form-group">
+        <label for="password">Password <span class="required">*</span></label>
+        <input type="password" id="password" th:field="*{password}" placeholder="Enter password" />
+      </div>
+      <div th:if="${#fields.hasErrors('password')}" class="error" th:errors="*{password}"></div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" th:field="*{email}" placeholder="Enter email" />
+      </div>
+      <div th:if="${#fields.hasErrors('email')}" class="error" th:errors="*{email}"></div>
+
+
+      <div class="form-group">
+        <label for="status">Status <span class="required">*</span></label>
+        <select id="status" th:field="*{status}">
+          <option value="">-- Select Status --</option>
+          <option th:value="true">Active</option>
+          <option th:value="false">Inactive</option>
+        </select>
+      </div>
+      <div th:if="${#fields.hasErrors('status')}" class="error" th:errors="*{status}"></div>
+
+
+      <div class="form-group">
+        <label for="role">Role <span class="required">*</span></label>
+        <select id="role" name="roleId">
+          <option value="">-- Select Role --</option>
+          <option th:each="role : ${roles}"
+                  th:value="${role.id}"
+                  th:text="${role.name}"></option>
+        </select>
+      </div>
+      <div th:if="${#fields.hasErrors('role')}" class="error" th:errors="*{role}"></div>
+
+
+
+
+      <div class="form-group">
+        <label for="profileImageInput">Profile Image</label>
+        <div class="cover-upload">
+          <div class="upload-area" id="uploadArea" onclick="document.getElementById('profileImageInput').click();">
+            <img th:if="${user.avatar != null}"
+                 th:src="@{'/uploads/' + ${user.avatar}}"
+                 style="width: 100px; height: 100px; border-radius: 4px; object-fit: cover;" />
+            <span th:if="${user.avatar == null}">Upload</span>
+          </div>
+          <input type="file" id="profileImageInput" name="profileImage" accept=".png,.jpg,.jpeg"
+                 style="display:none;" onchange="previewImage(event)">
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit">Save User</button>
+      </div>
+    </form>
+  </div>
+</div>
+</body>
+</html>

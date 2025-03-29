@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>User List</title>
+</head>
+<body>
+<div layout:fragment="content">
+<h1 th:text="${pageTitle}">User List</h1>
+<table>
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>Username</th>
+    <th>Email</th>
+    <th>Profile Image</th>
+    <th>Actions</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="user : ${userPage.content}">
+    <td th:text="${user.id}">1</td>
+    <td th:text="${user.username}">Username</td>
+    <td th:text="${user.email}">Email</td>
+    <td>
+      <img th:src="@{'/uploads/' + ${user.avatar}}" alt="Profile Image" width="50" height="50"/>
+    </td>
+    <td>
+      <a th:href="@{'/user/detail/' + ${user.id}}">View</a>
+      <a th:href="@{'/user/update/' + ${user.id}}">Edit</a>
+    </td>
+  </tr>
+  </tbody>
+</table>
+  <div th:if="${userPage.totalElements > userPage.size}">
+<div>
+  <span th:text="'Page ' + ${userPage.number + 1} + ' of ' + ${userPage.totalPages}">Page 1 of 1</span>
+</div>
+<div>
+  <a th:href="@{'/user/list?page=' + ${userPage.number - 1}}" th:if="${userPage.hasPrevious()}">Previous</a>
+  <a th:href="@{'/user/list?page=' + ${userPage.number + 1}}" th:if="${userPage.hasNext()}">Next</a>
+
+</div>
+</div>
+</div>
+</body>
+</html>

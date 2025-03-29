@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>User Detail</title>
+  <style>
+    .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .user-detail {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .user-detail img {
+        border-radius: 50%;
+        width: 150px;
+        height: 150px;
+        margin-bottom: 20px;
+    }
+    .user-detail h2 {
+        margin-bottom: 10px;
+    }
+    .user-detail p {
+        margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+<div layout:fragment="content">
+  <div class="container">
+    <div class="user-detail">
+      <img th:src="@{'/uploads/' + ${user.avatar}}" alt="Profile Image"/>
+      <h2 th:text="${user.username}">Username</h2>
+      <p><strong>Email:</strong> <span th:text="${user.email}">Email</span></p>
+      <p><strong>Role:</strong> <span th:text="${user.role.name}">Role</span></p>
+    </div>
+  </div>
+</div>
+</body>
+</html>
