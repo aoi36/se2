@@ -217,17 +217,22 @@ public class bookController {
     }
 
     @PostMapping("/update")
-    public String updateBook(@Valid @ModelAttribute("book") Book book, BindingResult result,
+    public String updateBook(@Valid @ModelAttribute Book book, BindingResult result,
                            @RequestParam(value = "coverImage", required = false) MultipartFile coverImage, Model model) {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean isProvider = auth.getAuthorities().stream()
                 .anyMatch(authority -> authority.getAuthority().equals("ROLE_PROVIDER"));
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
-        if (isProvider && !book.getUser().getUsername().equals(auth.getName())){
+
+        if (isProvider) {
+            if (book.getUser() == null || !auth.getName().equals(book.getUser().getUsername())) {
+                System.out.println("User: " + auth.getName());
+                System.out.println("Book User: " + book.getUser());
                 model.addAttribute("error", "You are not authorized to update this book");
                 return "error";
             }
+        }
         if (result.hasErrors()) {
             model.addAttribute("book", book);
             return "Book/updateBook";
@@ -265,7 +270,6 @@ public class bookController {
             return "Book/updateBook";
         }
         Book book = bookOpt.get();
-
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean isProvider = auth.getAuthorities().stream()
                 .anyMatch(authority -> authority.getAuthority().equals("ROLE_PROVIDER"));

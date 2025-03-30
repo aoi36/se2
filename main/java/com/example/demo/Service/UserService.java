@@ -73,25 +73,20 @@ public class UserService {
         return userRepository.findByUsername(username).orElse(null);
     }
     public void createUser(String username, String rawPassword, RoleName roleName) {
-        // Check if the role exists
         Optional<Role> roleOpt = roleRepository.findByName(roleName);
         if (roleOpt.isEmpty()) {
             throw new RuntimeException("Role " + roleName + " not found.");
         }
 
-        // Create the user object
         User user = new User();
         user.setUsername(username);
-        // Encrypt the password
         user.setPassword(passwordEncoder.encode(rawPassword));
-        // Set a display name; here we simply use the username but you can adjust as needed
         user.setName(username);
-        // Optionally set email, tel, status, etc.
-        user.setStatus(true); // assuming true means active
+        user.setEmail("test123@gmail.com");
+        user.setStatus(true);
         user.setCreatedAt(LocalDateTime.now());
         user.setRole(roleOpt.get());
 
-        // Save the user
         userRepository.save(user);
     }
 
