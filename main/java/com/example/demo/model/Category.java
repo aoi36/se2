@@ -20,7 +20,7 @@ public class Category {
     private Long id;
 
     @NotEmpty(message = "Category name cannot be empty")
-    @Size(max = 100, message = "Category name can be at most 100 characters")
+    @Size(min = 5, max = 100, message = "Category name can be between 5 and 100 characters")
     @Column(unique = true, nullable = false)
     private String name;
     private String description;

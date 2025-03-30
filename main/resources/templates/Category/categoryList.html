@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Category List</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <style>
+        /* Basic styles for the table */
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin: 20px auto;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background: #f4f4f4;
+        }
+        a.button {
+            text-decoration: none;
+            padding: 5px 10px;
+            background: #007bff;
+            color: #fff;
+            border-radius: 3px;
+        }
+        a.button:hover {
+            background: #0056b3;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .add-category {
+            display: block;
+            text-align: right;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Category List</h1>
+    <a class="button add-category" th:href="@{/category/add}">Add New Category</a>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Category Name</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="category : ${categories}">
+            <td th:text="${category.id}">1</td>
+            <td th:text="${category.name}">Category Name</td>
+            <td>
+                <a class="button" th:href="@{/category/update/{id}(id=${category.id})}">Edit</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

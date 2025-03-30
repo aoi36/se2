@@ -151,78 +151,46 @@
             cursor: pointer;
         }
 
-        /* Pagination */
-        .pagination-info {
-            margin-bottom: 10px;
-            font-size: 0.9rem;
-            display: none; /* Hide text info */
-        }
+       .pagination-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+}
 
-        /* Updated pagination styling to match the image */
-        .pagination-links {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 20px;
-        }
-        .pagination-links a {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 40px;
-            height: 40px;
-            margin: 0 5px;
-            color: #666;
-            text-decoration: none;
-            font-size: 1rem;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-        }
-        .pagination-links a.active {
-            background-color: #2196F3;
-            color: white;
-            font-weight: 500;
-        }
-        .pagination-links a:hover:not(.active) {
-            background-color: #f1f1f1;
-        }
-        .pagination-links a.prev,
-        .pagination-links a.next {
-            color: #999;
-            font-weight: bold;
-        }
+.pagination-links a {
+    text-decoration: none;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    color: #333;
+    transition: background 0.3s;
+}
 
-        /* Modal styling */
-        .modal {
-            display: none; /* Hidden by default */
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.4); /* Black with opacity */
-        }
-        .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 300px;
-            text-align: center;
-            border-radius: 8px;
-        }
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 1.5rem;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .close:hover {
-            color: #000;
-        }
+.pagination-links a:hover {
+    background: #f0f0f0;
+}
+
+.pagination-links .active {
+    background: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
+
+.prev, .next {
+    font-weight: bold;
+}
+
+#pagination{
+    display: flex;
+    justify-content: center;
+    gap:8%;
+
+    }
+
+
+
           .add-book-btn {
   background-color: #0d6efd;
   color: #fff;
@@ -309,32 +277,7 @@
             window.location.href = url;
         }
 
-        function showModal(form) {
-            const modal = document.getElementById('confirmModal');
-            modal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
 
-            // Set the confirm button action to submit the form.
-            const confirmBtn = document.getElementById('confirmDelete');
-            confirmBtn.onclick = function() {
-                closeModal();
-                form.submit();
-            };
-        }
-
-        function closeModal() {
-            const modal = document.getElementById('confirmModal');
-            modal.style.display = 'none';
-            document.body.style.overflow = ''; // Restore scrolling
-        }
-
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('confirmModal');
-            if (event.target === modal) {
-                closeModal();
-            }
-        };
 
         function changePageSize() {
             console.log("changePageSize() triggered");
@@ -359,10 +302,64 @@
                 }
             });
         }
+            function filterByCategory() {
+            const category = document.getElementById("categoryFilter").value;
+            let params = new URLSearchParams(window.location.search);
+            params.set("category", category);
+            // Optionally reset to first page when filtering
+            params.set("page", 0);
+            window.location.href = '/book/list?' + params.toString();
+        }
+        function updatePaginationLinks() {
+    let params = new URLSearchParams(window.location.search);
+    let currentPage = parseInt(params.get("page")) || 0;
+    let totalPages = parseInt([[${bookPage.totalPages}]]) || 1;
+    let pageSize = parseInt([[${bookPage.size}]]);
+
+    const prevPageLink = document.getElementById("prevPage");
+    const nextPageLink = document.getElementById("nextPage");
+    const paginationContainer = document.getElementById("pagination");
+
+    paginationContainer.innerHTML = ""; // Clear previous pagination links
+
+    function createPageLink(page) {
+        let pageParams = new URLSearchParams(params.toString());
+        pageParams.set("page", page);
+        return "/book/list?" + pageParams.toString();
+    }
+
+    // Previous Page
+    if (currentPage > 0) {
+        prevPageLink.href = createPageLink(currentPage - 1);
+        prevPageLink.style.display = "inline-block";
+    } else {
+        prevPageLink.style.display = "none";
+    }
+
+    // Page Number Links
+    for (let i = 0; i < totalPages; i++) {
+        let pageLink = document.createElement("a");
+        pageLink.href = createPageLink(i);
+        pageLink.textContent = i + 1;
+        if (i === currentPage) {
+            pageLink.classList.add("active");
+        }
+        paginationContainer.appendChild(pageLink);
+    }
+
+    // Next Page
+    if (currentPage < totalPages - 1) {
+        nextPageLink.href = createPageLink(currentPage + 1);
+        nextPageLink.style.display = "inline-block";
+    } else {
+        nextPageLink.style.display = "none";
+    }
+}
 
         window.onload = function() {
             initializeSortCriteria();
-            updateSortIndicators(); // Add this line to update indicators on page load
+            updateSortIndicators();
+            updatePaginationLinks();
 
         };
     </script>
@@ -372,6 +369,15 @@
 
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 20px;">
         <h2>Book</h2>
+        <select id="categoryFilter" name="category" class="category-filter" onchange="filterByCategory()">
+            <option value="" th:selected="${selectedCategory == null or selectedCategory == ''}">All Categories</option>
+            <option th:each="cat : ${categories}"
+                    th:value="${cat.id}"
+                    th:text="${cat.name}"
+                    th:selected="${cat == selectedCategory}">
+            </option>
+        </select>
+
         <a href="/book/add" class="add-book-btn">Add book</a>
 
     </div>
@@ -421,15 +427,9 @@
 
         </form>
         <div class="pagination-links">
-            <a class="prev" th:if="${bookPage.hasPrevious()}"
-               th:href="@{/book/list(page=${bookPage.number - 1}, size=${bookPage.size})}">&lt;</a>
-            <span th:each="i : ${#numbers.sequence(0, bookPage.totalPages - 1)}">
-    <a th:href="@{/book/list(page=${i}, size=${bookPage.size})}"
-       th:text="${i + 1}"
-       th:classappend="${bookPage.number == i} ? ' active' : ''"></a>
-  </span>
-            <a class="next" th:if="${bookPage.hasNext()}"
-               th:href="@{/book/list(page=${bookPage.number + 1}, size=${bookPage.size})}">&gt;</a>
+            <a class="prev" id="prevPage">&lt;</a>
+            <span id="pagination"></span>
+            <a class="next" id="nextPage">&gt;</a>
         </div>
     </div>
 </div>

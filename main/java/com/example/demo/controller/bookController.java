@@ -52,6 +52,7 @@ public class bookController {
     public String getAllBooks(
             @RequestParam(value = "attribute", required = false) List<String> sortAttributeColumn,
             @RequestParam(value = "order", required = false) List<String> sortOrder,
+            @RequestParam(value = "category", required = false) Long category,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
             Model model,
@@ -88,9 +89,16 @@ public class bookController {
         }
         Sort sort = !ordersList.isEmpty() ? Sort.by(ordersList) : Sort.unsorted();
 
-        Page<Book> bookPage = bookService.getBooks(page, size, sort);
+        Page<Book> bookPage;
+        if (category != null && !category.equals(0L)) {
+            bookPage = bookService.getBooksByCategory(category, page, size, sort);
+            model.addAttribute("selectedCategory", category);
+        } else {
+            bookPage = bookService.getBooks(page, size, sort);
+        }
 
 
+        model.addAttribute("categories", categoryRepository.findAll());
         model.addAttribute("bookPage", bookPage);
         model.addAttribute("pageSize", size);
         model.addAttribute("currentPage", bookPage.getNumber());

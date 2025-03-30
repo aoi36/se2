@@ -1,8 +1,10 @@
 package com.example.demo.repository;
 
 import com.example.demo.model.Book;
+import com.example.demo.model.Category;
 import com.example.demo.model.User.User;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,4 +19,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "LOWER(b.name) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
             "LOWER(b.author) LIKE LOWER(CONCAT('%', :query, '%'))")
     Page<Book> searchByNameOrAuthor(@Param("query") String query, Pageable pageable);
+
+    Page<Book> findDistinctByCategories_Id(Long categoryId, Pageable pageable);
+
 }

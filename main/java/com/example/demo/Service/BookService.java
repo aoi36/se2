@@ -27,4 +27,9 @@ public class BookService {
         Pageable pageable = PageRequest.of(page, size, sort);
         return bookRepository.findByUser(user, pageable);
     }
+
+    public Page<Book> getBooksByCategory(Long categoryId, int page, int size, Sort sort) {
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return bookRepository.findDistinctByCategories_Id(categoryId, pageable);
+    }
 }
