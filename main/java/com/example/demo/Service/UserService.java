@@ -31,8 +31,7 @@ public class UserService {
     UserRepository userRepository;
     @Autowired
     PasswordEncoder passwordEncoder;
-    @Autowired
-    RoleRepository roleRepository;
+
 
     private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -72,23 +71,7 @@ public class UserService {
     public User findByUsername(String username) {
         return userRepository.findByUsername(username).orElse(null);
     }
-//    public void createUser(String username, String rawPassword, RoleName roleName) {
-//        Optional<Role> roleOpt = roleRepository.findByName(roleName);
-//        if (roleOpt.isEmpty()) {
-//            throw new RuntimeException("Role " + roleName + " not found.");
-//        }
-//
-//        User user = new User();
-//        user.setUsername(username);
-//        user.setPassword(passwordEncoder.encode(rawPassword));
-//        user.setName(username);
-//        user.setEmail("test123@gmail.com");
-//        user.setStatus(true);
-//        user.setCreatedAt(LocalDateTime.now());
-//        user.setRole(roleOpt.get());
-//
-//        userRepository.save(user);
-//    }
+
 
     public Page<User> getPaginatedUser(Pageable pageable) {
         return userRepository.findAll(pageable);

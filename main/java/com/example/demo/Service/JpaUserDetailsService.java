@@ -47,8 +47,4 @@ public class JpaUserDetailsService implements UserDetailsService {
         }
     }
 
-    public User findAdminById(Long id) {
-        return userRepo.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Admin not found with id: " + id));
-    }
 }

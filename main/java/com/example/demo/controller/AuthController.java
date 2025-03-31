@@ -45,23 +45,9 @@ public class AuthController {
     @Autowired
     JavaMailSender mailSender;
 
-
-//    public void createSampleUser() {
-//        if (roleRepository.findByName(RoleName.ROLE_ADMIN).isEmpty()) {
-//            Role adminRole = new Role();
-//            adminRole.setName(RoleName.ROLE_ADMIN);
-//            roleRepository.save(adminRole);
-//        }
-//        if (userRepository.findAll().isEmpty()) {
-//
-//            userService.createUser("Admin1", "Admin1", RoleName.ROLE_ADMIN);
-//        }
-//    }
-
     @GetMapping("/sign-in")
     public String loginPage() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//        createSampleUser();
         if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
             return "redirect:/book/list";
         }
