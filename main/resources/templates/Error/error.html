@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -39,10 +39,9 @@
 <body>
 <div class="container">
   <h1>Oops! The page you're looking for could not be found.</h1>
-  <p>It seems like the URL you entered is incorrect or the page no longer exists.</p>
+  <p th:text="${error}">It seems like the URL you entered is incorrect or the page no longer exists.</p>
   <div class="navigation">
     <a href="/home">Go to Homepage</a>
-
   </div>
 </div>
 </body>

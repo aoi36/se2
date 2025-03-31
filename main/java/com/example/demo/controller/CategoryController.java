@@ -62,7 +62,7 @@ public class CategoryController {
         Optional<Category> existingCategoryOpt = categoryRepository.findById(category.getId());
         if (!existingCategoryOpt.isPresent()) {
             model.addAttribute("error", "Category not found");
-            return "error";
+            return "Error/error";
         }
 
         Category existingCategory = existingCategoryOpt.get();

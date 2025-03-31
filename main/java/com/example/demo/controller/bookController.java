@@ -119,7 +119,7 @@ public class bookController {
 
         if (user == null || !Objects.equals(user.getUsername(), principal.getName())) {
             model.addAttribute("error", "Can't access book list");
-            return "error";
+            return "Error/error";
         }
         if (sortAttributeColumn == null) {
             sortAttributeColumn = new ArrayList<>();
@@ -201,7 +201,7 @@ public class bookController {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         if (user == null) {
             model.addAttribute("error", "User not found");
-            return "error";
+            return "Error/error";
         }
         book.setUser(user);
 
@@ -235,20 +235,20 @@ public class bookController {
 
         if (book.getId() == null) {
             model.addAttribute("error", "Book ID is missing");
-            return "error";
+            return "Error/error";
         }
 
         Optional<Book> existingBookOpt = bookRepo.findById(book.getId());
         if (!existingBookOpt.isPresent()) {
             model.addAttribute("error", "Book not found");
-            return "error";
+            return "Error/error";
         }
         Book existingBook = existingBookOpt.get();
 
         if (isProvider) {
             if (!auth.getName().equals(existingBook.getUser().getUsername())) {
                 model.addAttribute("error", "You are not authorized to update this book");
-                return "error";
+                return "Error/error";
             }
         }
 
@@ -260,7 +260,7 @@ public class bookController {
 
         if (user == null) {
             model.addAttribute("error", "User not found");
-            return "error";
+            return "Error/error";
         }
 
         book.setCreatedAt(existingBook.getCreatedAt());

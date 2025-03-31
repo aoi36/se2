@@ -67,49 +67,9 @@ public class AuthController {
         return "member";
     }
 
-    @GetMapping("/register")
-    public String register(Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
-            return "redirect:/book/list";
-        }
-        model.addAttribute("user", new UserTemplate());
-        return "Auth/register";
-    }
 
-    @PostMapping("/register")
-    public String registerHandle(@Valid @ModelAttribute("user") UserTemplate ut,
-                                 BindingResult result,
-                                 Model model) {
-        if (result.hasErrors()) {
-            result.getAllErrors().forEach(error -> {
-                System.out.println("Field: " + ((FieldError) error).getField());
-                System.out.println("Message: " + error.getDefaultMessage());
-            });
-            model.addAttribute("User", ut);
-            return "Auth/register";
-        }
 
-        if (userRepository.findByUsername(ut.getUsername()).isPresent()) {
-            result.rejectValue("username", "error.username", "Username already exists");
-            // Optionally print this error immediately
-            result.getAllErrors().forEach(error -> {
-                System.out.println("Field: " + ((FieldError) error).getField());
-                System.out.println("Message: " + error.getDefaultMessage());
-            });
-            model.addAttribute("User", ut);
-            return "Auth/register";
-        } else {
-            String name = ut.getUsername();
-            String password = ut.getPassword();
-
-            userRepository.save(new User(name, encoder.encode(password)));
-            model.addAttribute("User", new UserTemplate());
-            model.addAttribute("success", true);
-            return "Auth/register";
-        }
-    }
 
     @GetMapping("/forgot-password")
     public String showForgotPasswordForm() {
