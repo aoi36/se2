@@ -25,6 +25,8 @@
       <a th:href="@{/book/list}" class="nav-link">Book</a>
       <a th:if="${isAdmin}" th:href="@{/order/list}" class="nav-link">Order</a>
       <a th:if="${isAdmin}" th:href="@{/user/list}" class="nav-link">User</a>
+      <a th:if="${isAdmin}" th:href="@{/category/list}" class="nav-link">Category</a>
+
     </div>
 
     <div class="avatar-container">

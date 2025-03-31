@@ -263,7 +263,6 @@ public class UserController {
             return "User/userUpdate";
         }
         existingUser.setRole(role);
-
         existingUser.setUsername(user.getUsername());
         existingUser.setName(user.getName());
         existingUser.setPassword(passwordEncoder.encode(user.getPassword()));

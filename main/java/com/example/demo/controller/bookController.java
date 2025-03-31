@@ -137,9 +137,7 @@ public class bookController {
         Sort sort = !ordersList.isEmpty() ? Sort.by(ordersList) : Sort.unsorted();
         Page<Book> bookPage = bookService.getBooksByUser(user, page, size, sort);
 
-        if (bookPage.isEmpty()) {
-            model.addAttribute("emptyMessage", "No books found");
-        }
+
         model.addAttribute("bookPage", bookPage);
         model.addAttribute("pageSize", size);
         model.addAttribute("currentPage", bookPage.getNumber());
@@ -195,6 +193,7 @@ public class bookController {
         if (result.hasErrors()) {
             model.addAttribute("errors", result.getAllErrors());
             model.addAttribute("book", book);
+            model.addAttribute("categoriesList", categoryRepository.findAll());
             return "Book/addBook";
         }
 
@@ -226,23 +225,36 @@ public class bookController {
 
     @PostMapping("/update")
     public String updateBook(@Valid @ModelAttribute Book book, BindingResult result,
-                           @RequestParam(value = "coverImage", required = false) MultipartFile coverImage, Model model) {
+                             @RequestParam(value = "coverImage", required = false) MultipartFile coverImage,
+                             Model model) {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean isProvider = auth.getAuthorities().stream()
                 .anyMatch(authority -> authority.getAuthority().equals("ROLE_PROVIDER"));
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
 
+        if (book.getId() == null) {
+            model.addAttribute("error", "Book ID is missing");
+            return "error";
+        }
+
+        Optional<Book> existingBookOpt = bookRepo.findById(book.getId());
+        if (!existingBookOpt.isPresent()) {
+            model.addAttribute("error", "Book not found");
+            return "error";
+        }
+        Book existingBook = existingBookOpt.get();
+
         if (isProvider) {
-            if (book.getUser() == null || !auth.getName().equals(book.getUser().getUsername())) {
-                System.out.println("User: " + auth.getName());
-                System.out.println("Book User: " + book.getUser());
+            if (!auth.getName().equals(existingBook.getUser().getUsername())) {
                 model.addAttribute("error", "You are not authorized to update this book");
                 return "error";
             }
         }
+
         if (result.hasErrors()) {
             model.addAttribute("book", book);
+            model.addAttribute("categoriesList", categoryRepository.findAll());
             return "Book/updateBook";
         }
 
@@ -250,7 +262,11 @@ public class bookController {
             model.addAttribute("error", "User not found");
             return "error";
         }
+
+        book.setCreatedAt(existingBook.getCreatedAt());
+
         book.setUser(user);
+
         if (coverImage != null && !coverImage.isEmpty()) {
             try {
                 Path uploadPath = fileStorageService.getFileStorageLocation();
@@ -260,16 +276,31 @@ public class bookController {
                     Path filePath = uploadPath.resolve(fileName);
                     Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
                 }
-                book.setBookCover(fileName);
+                existingBook.setBookCover(fileName);
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        } else {
+            existingBook.setBookCover(existingBook.getBookCover());
         }
-        book.setCreatedAt(book.getUpdatedAt());
+
         book.setUpdatedAt(LocalDateTime.now());
-        bookRepo.save(book);
+
+        existingBook.setName(book.getName());
+        existingBook.setAuthor(book.getAuthor());
+        existingBook.setPrice(book.getPrice());
+        existingBook.setStockQuantity(book.getStockQuantity());
+        existingBook.setPublicationYear(book.getPublicationYear());
+        existingBook.setDescription(book.getDescription());
+        existingBook.setStatus(book.getStatus());
+        existingBook.setUser(book.getUser());
+        existingBook.setUpdatedAt(LocalDateTime.now());
+        existingBook.setCategories(book.getCategories());
+
+        bookRepo.save(existingBook);
         return "redirect:/book/list";
     }
+
     @GetMapping(value = "/update/{id}")
     public String updateBook(@PathVariable("id") Long id, Model model) {
         Optional<Book> bookOpt = bookRepo.findById(id);
@@ -289,22 +320,7 @@ public class bookController {
         model.addAttribute("book", book);
         return "Book/updateBook";
     }
-//    @PostMapping(value = "delete")
-//    public String deleteBooks(@RequestParam(value = "selectedIds") List<Long> selectedIds){
-//        if (selectedIds != null && !selectedIds.isEmpty()) {
-//            bookRepo.deleteAllByIdInBatch(selectedIds);
-//        }
-//        return "redirect:/book/list";
-//    }
-//    @PostMapping(value = "/search")
-//    public String searchBookByName(@RequestParam(value = "query", required = false, defaultValue = "") String query, Model model){
-//        List<Book> books = bookRepo.findByNameContainingIgnoreCaseOrAuthorContainingIgnoreCase(query, query);
-//        if (books.isEmpty()){
-//            model.addAttribute("msg","No Book Found");
-//        }
-//        model.addAttribute("books", books);
-//        return "searchBookResult";
-//    }
+
 
     @GetMapping("/search")
     public String searchBooks(
@@ -314,16 +330,14 @@ public class bookController {
             Model model) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Book> books = bookService.searchBooks(query != null ? query : "", pageable);
+
+        if (books.isEmpty()) {
+            model.addAttribute("emptyMessage", "No books found");
+        }
         model.addAttribute("books", books);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", books.getTotalPages());
         return "Book/searchBookResult";
     }
-
-//    @PostMapping(value = "delete/{id}")
-//    public String deleteBooks(@PathVariable("id") Long id){
-//            bookRepo.deleteById(id);
-//        return "redirect:/book/list";
-//    }
 }
 

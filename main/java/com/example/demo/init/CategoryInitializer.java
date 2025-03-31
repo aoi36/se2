@@ -6,6 +6,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDateTime;
+
 @Component
 public class CategoryInitializer implements CommandLineRunner {
 
@@ -15,11 +17,13 @@ public class CategoryInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         if (categoryRepository.count() == 0) {
-            categoryRepository.save(new Category("Fiction"));
-            categoryRepository.save(new Category("Non-Fiction"));
-            categoryRepository.save(new Category("Science"));
-            categoryRepository.save(new Category("History"));
-            categoryRepository.save(new Category("Biography"));
+            LocalDateTime now = LocalDateTime.now();
+
+            categoryRepository.save(new Category("Fiction", true, now));
+            categoryRepository.save(new Category("Non-Fiction", true, now));
+            categoryRepository.save(new Category("Science", true, now));
+            categoryRepository.save(new Category("History", true, now));
+            categoryRepository.save(new Category("Biography", true, now));
             System.out.println("Categories initialized.");
         }
     }

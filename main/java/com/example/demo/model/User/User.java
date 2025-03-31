@@ -3,10 +3,7 @@ package com.example.demo.model.User;
 import com.example.demo.model.Book;
 import com.example.demo.model.Order;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -46,6 +43,8 @@ public class User {
     @Column(length = 15)
     private String tel;
 
+    @NotNull(message = "Status cannot be null")
+    @Column(nullable = false)
     private Boolean status;
 
     private LocalDateTime createdAt;

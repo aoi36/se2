@@ -457,6 +457,7 @@
           <form th:action="@{/book/update}" th:object="${book}" method="post" enctype="multipart/form-data" id="updateForm">
             <input type="hidden" th:field="*{id}" />
             <input type="hidden" name="user.id" th:field="${book.user}">
+            <input type="hidden" name="createdAt" th:value="${formattedCreatedAt}" />
 
             <div class="form-group">
               <label>Cover</label>

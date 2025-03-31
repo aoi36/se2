@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import java.util.Collection;
 
 @Controller
-public class ErrorController {
+public class CustomErrorController implements ErrorController {
 
     @GetMapping("/access-denied")
     public String accessDenied() {
@@ -23,5 +24,10 @@ public class ErrorController {
             }
         }
         return "Error/loginAccessDenied";
+    }
+
+    @GetMapping("/error")
+    public String handleError() {
+        return "Error/error";
     }
 }

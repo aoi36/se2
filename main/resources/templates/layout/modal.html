@@ -1,18 +1,18 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<body>
-<div th:fragment="userModal" class="user-dropdown" id="userDropdown">
-  <div class="user-info">
-    <img th:src="@{/images/{img}(img=${avatar})}" alt="com.example.demo.model.User.User Avatar" class="user-avatar">
-    <div class="user-details">
-      <h3 th:text="${name}">Admin Name</h3>
-      <p th:text="${email}">admin@email.com</p>
-    </div>
-  </div>
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org">-->
+<!--<body>-->
+<!--<div th:fragment="userModal" class="user-dropdown" id="userDropdown">-->
+<!--  <div class="user-info">-->
+<!--    <img th:src="@{/images/{img}(img=${avatar})}" alt="com.example.demo.model.User.User Avatar" class="user-avatar">-->
+<!--    <div class="user-details">-->
+<!--      <h3 th:text="${name}">Admin Name</h3>-->
+<!--      <p th:text="${email}">admin@email.com</p>-->
+<!--    </div>-->
+<!--  </div>-->
 
-  <form th:action="@{/logout}" method="post">
-    <button type="submit" class="sign-out-btn">Sign out</button>
-  </form>
-</div>
-</body>
-</html>
+<!--  <form th:action="@{/logout}" method="post">-->
+<!--    <button type="submit" class="sign-out-btn">Sign out</button>-->
+<!--  </form>-->
+<!--</div>-->
+<!--</body>-->
+<!--</html>-->

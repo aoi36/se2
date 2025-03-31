@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.model.Book;
 import com.example.demo.model.Category;
 import com.example.demo.repository.CategoryRepository;
 import jakarta.validation.Valid;
@@ -9,7 +10,9 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/category")
@@ -55,8 +58,24 @@ public class CategoryController {
             model.addAttribute("category", category);
             return "Category/updateCategory";
         }
-        categoryRepository.save(category);
+
+        Optional<Category> existingCategoryOpt = categoryRepository.findById(category.getId());
+        if (!existingCategoryOpt.isPresent()) {
+            model.addAttribute("error", "Category not found");
+            return "error";
+        }
+
+        Category existingCategory = existingCategoryOpt.get();
+
+        existingCategory.setName(category.getName());
+
+        existingCategory.setDescription(category.getDescription());
+
+        existingCategory.setStatus(category.getStatus());
+
+        existingCategory.setUpdatedAt(LocalDateTime.now());
+
+        categoryRepository.save(existingCategory);
         return "redirect:/category/list";
     }
-
 }
