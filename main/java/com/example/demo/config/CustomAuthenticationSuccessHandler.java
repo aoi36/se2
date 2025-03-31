@@ -23,7 +23,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                 .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN") || auth.getAuthority().equals("ROLE_PROVIDER"));
 
         if (isAuthorized) {
-            response.sendRedirect("/book/list");
+            response.sendRedirect("/home");
         } else {
             response.sendRedirect("/access-denied");
         }

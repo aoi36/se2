@@ -58,6 +58,9 @@ public class SecurityCfg {
                         .permitAll()
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint((request, response, authException) ->
+                                response.sendRedirect("/sign-in")
+                        )
                         .accessDeniedPage("/access-denied")
                 )
                 .build();
