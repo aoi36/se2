@@ -292,5 +292,16 @@ public class UserController {
         model.addAttribute("success", true);
         return "User/userUpdate";
     }
-
+    @GetMapping("/search")
+    public String searchUsers(@RequestParam("userQuery") String query,
+                              @RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "5") int size,
+                              Model model) {
+        Page<User> userPage = userService.searchUsers(query, page, size);
+        model.addAttribute("userPage", userPage);
+        model.addAttribute("query", query);
+        return "User/userList";
+    }
 }
+
+

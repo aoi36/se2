@@ -411,7 +411,6 @@
         }
       });
 
-      // Stop propagation for clicks inside the dropdown
       const dropdown = document.getElementById('categoryDropdown');
       if (dropdown) {
         dropdown.addEventListener('click', function(event) {
@@ -419,6 +418,20 @@
         });
       }
     });
+    function filterCategories() {
+  let input = document.getElementById("categorySearch").value.toLowerCase();
+  let categoryItems = document.querySelectorAll(".category-dropdown-item");
+
+  categoryItems.forEach(item => {
+    let categoryName = item.getAttribute("data-cat-name").toLowerCase();
+    if (categoryName.includes(input)) {
+      item.style.display = "block";
+    } else {
+      item.style.display = "none";
+    }
+  });
+}
+
   </script>
 </head>
 <body>
@@ -516,12 +529,18 @@
                 <button type="button" class="category-select-btn" onclick="toggleCategoryDropdown()">
                   Select Categories
                 </button>
+
                 <div id="categoryDropdown" class="category-dropdown">
-                  <div th:each="cat : ${categoriesList}" class="category-dropdown-item"
-                       th:attr="data-cat-id=${cat.id}, data-cat-name=${cat.name}">
-                    <span th:text="${cat.name}">Category Name</span>
+                  <input type="text" id="categorySearch" onkeyup="filterCategories()" placeholder="Search categories..." class="category-search">
+
+                  <div id="categoryList">
+                    <div th:each="cat : ${categoriesList}" class="category-dropdown-item"
+                         th:attr="data-cat-id=${cat.id}, data-cat-name=${cat.name}">
+                      <span th:text="${cat.name}">Category Name</span>
+                    </div>
                   </div>
                 </div>
+
                 <div id="selectedCategories" class="selected-categories">
                   <div th:each="cat : ${book.categories}" th:id="'category-item-' + ${cat.id}" class="category-item">
                     <span th:text="${cat.name}">Category Name</span>
@@ -534,6 +553,8 @@
               </div>
             </div>
             <div th:if="${#fields.hasErrors('categories')}" class="error" th:errors="*{categories}"></div>
+
+
 
             <div class="form-group">
               <label for="status">Status</label>

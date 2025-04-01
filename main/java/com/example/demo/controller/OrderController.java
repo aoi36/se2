@@ -59,4 +59,18 @@ public class OrderController {
         model.addAttribute("order", existingOrder);
         return "redirect:/order/detail/" + existingOrder.getId();
     }
+
+    @GetMapping("/search")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public String searchOrders(@RequestParam(name = "orderQuery", required = false) String orderQuery,
+                               @RequestParam(defaultValue = "0") int page,
+                               @RequestParam(defaultValue = "5") int size,
+                               Model model) {
+
+
+        Page<Order> orderPage = orderService.searchOrders(orderQuery, page, size);
+        model.addAttribute("orderPage", orderPage);
+        model.addAttribute("orderQuery", orderQuery);
+        return "Order/orderList";
+    }
 }

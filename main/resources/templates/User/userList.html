@@ -187,13 +187,29 @@
       const newUrl = '/user/list?' + params.toString();
       window.location.href = newUrl;
     }
+     function handleEnterUser(event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      document.getElementById('searchFormUser').submit();
+    }
+  }
   </script>
 </head>
 <body>
 <div layout:fragment="content" class="container">
   <div  style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 20px;">
     <h2>User List</h2>
+
+    <form th:action="@{/user/search}" method="get" id="searchFormUser" autocomplete="off">
+      <input type="text" name="userQuery" placeholder="Search by Name..." required onkeydown="handleEnterUser(event)">
+      <button type="submit"><span class="search-icon"></span></button>
+    </form>
+
     <a href="/user/add" class="add-user-btn">Add User</a>
+  </div>
+
+  <div th:if="${userPage.content.isEmpty()}" style="text-align: center; padding: 20px; color: #666; font-size: 1.2rem;">
+    No user found.
   </div>
 
   <div class="table-container">

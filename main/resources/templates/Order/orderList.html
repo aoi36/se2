@@ -180,15 +180,27 @@
       window.location.href = newUrl;
     }
 
-    window.onload = function() {
-      // Any initialization code can go here
-    };
+    function handleEnterOrder(event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      document.getElementById('searchFormOrder').submit();
+    }
+
   </script>
 </head>
 <div layout:fragment="content" class="container">
   <div class="header">
     <h2>Orders</h2>
 
+    <form th:action="@{/order/search}" method="get" id="searchFormOrder" autocomplete="off">
+      <input type="text" name="orderQuery" th:value="${orderQuery}" placeholder="Search by Order ID or User ID" required onkeydown="handleEnterOrder(event)"
+             style="width: 100%; max-width: 300px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+      <button type="submit"><span class="search-icon"></span></button>
+    </form>
+
+  </div>
+  <div th:if="${orderPage.content.isEmpty()}" style="text-align: center; padding: 20px; color: #666; font-size: 1.2rem;">
+    No order found.
   </div>
 
   <div class="table-container">
