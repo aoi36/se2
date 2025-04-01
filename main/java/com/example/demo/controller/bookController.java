@@ -1,11 +1,12 @@
 package com.example.demo.controller;
 import com.example.demo.Service.FileStorageService;
+import com.example.demo.model.Category;
 import com.example.demo.model.User.User;
 import com.example.demo.repository.CategoryRepository;
 import com.example.demo.repository.UserRepository;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
@@ -15,8 +16,6 @@ import com.example.demo.model.Book;
 import com.example.demo.repository.BookRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -29,10 +28,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/book")
@@ -96,8 +93,6 @@ public class bookController {
         } else {
             bookPage = bookService.getBooks(page, size, sort);
         }
-
-
         model.addAttribute("categories", categoryRepository.findAll());
         model.addAttribute("bookPage", bookPage);
         model.addAttribute("pageSize", size);
@@ -116,6 +111,7 @@ public class bookController {
             Model model) {
 
         User user = userRepository.findById(id).orElse(null);
+
 
         if (user == null || !Objects.equals(user.getUsername(), principal.getName())) {
             model.addAttribute("error", "Can't access book list");
@@ -141,7 +137,8 @@ public class bookController {
         model.addAttribute("bookPage", bookPage);
         model.addAttribute("pageSize", size);
         model.addAttribute("currentPage", bookPage.getNumber());
-        return "Book/bookList";
+
+        return "Book/bookListProvider";
     }
 
     @GetMapping("/detail/{id}")
@@ -171,7 +168,12 @@ public class bookController {
             }
         }
 
+        Set<Category> activeCategories = book.getCategories().stream()
+                .filter(category -> Boolean.TRUE.equals(category.getStatus()))
+                .collect(Collectors.toSet());
+
         model.addAttribute("book", book);
+        model.addAttribute("activeCategories", activeCategories);
         return "Book/bookDetail";
     }
 
@@ -330,6 +332,16 @@ public class bookController {
             Model model) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Book> books = bookService.searchBooks(query != null ? query : "", pageable);
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isProvider = auth.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_PROVIDER"));
+        User user = userRepository.findByUsername(auth.getName()).orElse(null);
+
+        List<Book> filteredBooks = books.getContent().stream()
+                .filter(book -> book.getUser().equals(user))
+                .collect(Collectors.toList());
+        books = new PageImpl<>(filteredBooks, pageable, filteredBooks.size());
 
         if (books.isEmpty()) {
             model.addAttribute("emptyMessage", "No books found");

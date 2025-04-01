@@ -46,31 +46,14 @@ public class AuthController {
     JavaMailSender mailSender;
 
     @GetMapping("/sign-in")
-    public String loginPage() {
+    public String signInPage() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
             return "redirect:/book/list";
         }
+
         return "Auth/sign-in";
     }
-
-    @GetMapping("/member")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String loginSuccess(Model model, Authentication authentication, Principal principal) {
-        if (authentication != null && authentication.isAuthenticated()) {
-            String username = authentication.getName();
-            model.addAttribute("username", username);
-            authentication.getAuthorities().forEach(authority ->
-                    System.out.println("User Role: " + authority.getAuthority())
-            );
-        }
-        return "member";
-    }
-
-
-
-
-
     @GetMapping("/forgot-password")
     public String showForgotPasswordForm() {
         return "Auth/forgotPasswordForm";

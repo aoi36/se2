@@ -5,6 +5,7 @@ import com.example.demo.model.Category;
 import com.example.demo.repository.CategoryRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,6 +21,7 @@ public class CategoryController {
     @Autowired
     private CategoryRepository categoryRepository;
     @GetMapping(value = "list")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public String getCategoryList(Model model) {
         List<Category> categories = categoryRepository.findAll();
         model.addAttribute("categories", categories);
@@ -27,11 +29,13 @@ public class CategoryController {
     }
 
     @GetMapping(value = "add")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public String getAddCategoryForm(Model model) {
         model.addAttribute("category", new Category());
         return "Category/addCategory";
     }
     @GetMapping(value = "update/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public String getUpdateCategoryForm(@PathVariable("id") Long id, Model model) {
         Category category = categoryRepository.findById(id).orElse(null);
         if (category != null) {
@@ -42,6 +46,7 @@ public class CategoryController {
 
 
     @PostMapping(value = "save")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public String saveCategory(@Valid @ModelAttribute Category category, BindingResult result, Model model) {
         if (result.hasErrors()) {
             model.addAttribute("category", category);
@@ -53,6 +58,7 @@ public class CategoryController {
 
 
     @PostMapping(value = "update")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public String updateCategory(@Valid @ModelAttribute Category category, BindingResult result, Model model) {
         if (result.hasErrors()) {
             model.addAttribute("category", category);

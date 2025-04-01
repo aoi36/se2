@@ -103,6 +103,10 @@ label {
   <form method="post" th:action="@{/sign-in}">
 
     <p th:if="${param.logout}">You have been logged out!</p>
+    <div th:if="${param.error}">
+      <p style="color: red;" th:text="${param.error}"></p>
+    </div>
+
 
     <label for="username">Username</label>
     <input type="text" id="username" name="username" class="input-field"/>
@@ -113,7 +117,6 @@ label {
     <label>
       <input type="checkbox" name="remember-me"> Remember Me
     </label>
-    <p th:if="${param.error}" class="error-message">Invalid credentials!</p>
     <div class="password-container">
       <a th:href="@{/forgot-password}" class="forgot-password">Forgot password?</a>
     </div>

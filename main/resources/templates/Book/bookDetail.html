@@ -212,7 +212,9 @@
                 <div class="info-item">
                     <span class="info-label">Category:</span>
                     <span class="info-value">
-    <span th:each="cat : ${book.categories}" th:text="${cat.name} + ' '"></span>
+    <div th:each="category : ${activeCategories}">
+    <span th:text="${category.name}"></span>
+</div>
   </span>
                 </div>
             </div>

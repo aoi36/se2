@@ -7,6 +7,7 @@ import com.example.demo.model.User.User;
 import com.example.demo.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,6 +30,10 @@ public class JpaUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepo.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        if (Boolean.FALSE.equals(user.getStatus())) {
+            throw new DisabledException("Your account is inactive. Please contact support.");
+        }
 
         GrantedAuthority authority = new SimpleGrantedAuthority(user.getRole().getName().name());
 

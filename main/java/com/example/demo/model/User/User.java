@@ -16,6 +16,9 @@ import java.util.Set;
 @Setter
 @Entity
 public class User {
+    public interface CreateValidation {}
+    public interface UpdateValidation {}
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,7 +27,7 @@ public class User {
     @Size(min = 6, max = 60, message = "Username must be between 6 and 60 characters")
     private String username;
     @Column(length = 255)
-    @NotEmpty(message = "Password cannot be empty")
+    @NotBlank(message = "Password is required", groups = CreateValidation.class)
     @Pattern(regexp = "^(?=.*\\d)(?=.*[A-Z]).{6,60}$",
             message = "Password must be 6-60 characters and contain at least 1 digit and 1 uppercase letter")
     private String password;

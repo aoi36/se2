@@ -19,6 +19,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -111,7 +114,7 @@ public class UserController {
     }
 
     @PostMapping("/save")
-    public String saveUser(@Valid @ModelAttribute("user") User user, BindingResult result,
+    public String saveUser(@Validated(User.CreateValidation.class) @ModelAttribute("user") User user, BindingResult result,
                            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
                            @RequestParam(value = "roleId", required = false) Long roleId,
                            Model model) {
@@ -188,14 +191,24 @@ public class UserController {
         return "User/userAdd";
     }
     @PostMapping("/update")
-    public String updateUser(@Valid @ModelAttribute("user") User user, BindingResult result,
+    public String updateUser(@Validated(User.UpdateValidation.class) @ModelAttribute("user") User user, BindingResult result,
                              @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
                              @RequestParam(value = "roleId", required = false) Long roleId,
+                             @RequestParam(value = "changePassword", required = false) Boolean changePassword,
                              Model model) {
+
+        // Remove password validation errors if not changing password
+        if (changePassword == null || !changePassword) {
+            for (ObjectError error : new ArrayList<>(result.getAllErrors())) {
+                if (error instanceof FieldError && ((FieldError) error).getField().equals("password")) {
+                    result.getFieldErrors().remove(error);
+                }
+            }
+        }
 
         if (result.hasErrors()) {
             result.getAllErrors().forEach(error -> {
-                System.out.println("Field: " + ((FieldError) error).getField());
+                System.out.println("Field: " + (error instanceof FieldError ? ((FieldError) error).getField() : "Global"));
                 System.out.println("Message: " + error.getDefaultMessage());
             });
             model.addAttribute("roles", roleRepository.findAll());
@@ -265,11 +278,13 @@ public class UserController {
         existingUser.setRole(role);
         existingUser.setUsername(user.getUsername());
         existingUser.setName(user.getName());
-        existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
         existingUser.setEmail(user.getEmail());
         existingUser.setStatus(user.getStatus());
         existingUser.setUpdatedAt(LocalDateTime.now());
 
+        if (Boolean.TRUE.equals(changePassword) && user.getPassword() != null && !user.getPassword().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
         userRepository.save(existingUser);
 
         model.addAttribute("user", existingUser);

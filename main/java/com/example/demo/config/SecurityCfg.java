@@ -21,6 +21,8 @@ public class SecurityCfg {
     JpaUserDetailsService jpaUserDetailsService;
     @Autowired
     CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    @Autowired
+    CustomAuthenticationFailureHandler  failureHandler;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -33,14 +35,14 @@ public class SecurityCfg {
                 .csrf(csrf -> csrf.disable())
                 .userDetailsService(jpaUserDetailsService)
                 .authorizeHttpRequests(req -> req
-                        .requestMatchers("/", "/register", "/reset-password", "/forgot-password", "/login", "/access-denied").permitAll()
+                        .requestMatchers( "/sign-in", "/register", "/reset-password", "/forgot-password", "/login", "/access-denied").permitAll()
                         .anyRequest().hasAnyRole("ADMIN", "PROVIDER")
                 )
                 .formLogin(formLogin -> formLogin
                         .loginPage("/sign-in")
                         .loginProcessingUrl("/sign-in")
                         .successHandler(customAuthenticationSuccessHandler)
-                        .failureUrl("/sign-in?error=true")
+                        .failureHandler(failureHandler)
                         .permitAll()
                 )
                 .rememberMe(rememberMe -> rememberMe
@@ -57,10 +59,7 @@ public class SecurityCfg {
                         .deleteCookies("JSESSIONID")
                         .permitAll()
                 )
-                .exceptionHandling(exceptionHandling -> exceptionHandling
-                        .authenticationEntryPoint((request, response, authException) ->
-                                response.sendRedirect("/sign-in")
-                        )
+                .exceptionHandling(ex -> ex
                         .accessDeniedPage("/access-denied")
                 )
                 .build();

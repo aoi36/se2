@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>Books</title>
+  <style>
+    /* Page background to match the screenshot */
+    body {
+        margin: 0;
+        background-color: #fefae0;
+        font-family: Arial, sans-serif;
+    }
+
+    /* Main container (card style) */
+    .container {
+        max-width: 1200px;
+        margin: 40px auto;
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Header: Title only (Add book button removed) */
+    .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+    .header h2 {
+        font-size: 1.5rem;
+        margin: 0;
+    }
+
+    /* Table container with border */
+    .table-container {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    /* Table styling */
+    .book-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        text-align: left;
+    }
+    .book-table thead tr {
+        border-bottom: 1px solid #eee;
+    }
+    .book-table th,  {
+        padding: 16px 12px;
+
+        vertical-align: middle;
+        color: #333;
+    }
+td {
+padding: 16px 0px;
+vertical-align: middle;
+color: #333;
+text-align: left;
+}
+
+    .book-table th {
+        font-weight: 500;
+        color: #666;
+        cursor: pointer; /* indicates clickable sort columns */
+    }
+    .book-table tbody tr {
+        border-bottom: 1px solid #eee;
+    }
+    .book-table tbody tr:last-child {
+        border-bottom: none;
+    }
+    .book-table tr:hover {
+        background-color: #f9f9f9;
+    }
+
+    /* Checkbox styling */
+    .book-table input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-color: #f0f0f0;
+        cursor: pointer;
+        position: relative;
+    }
+    .book-table input[type="checkbox"]:checked {
+        background-color: #2196F3;
+        border-color: #2196F3;
+    }
+    .book-table input[type="checkbox"]:checked:after {
+        content: '';
+        position: absolute;
+        left: 7px;
+        top: 3px;
+        width: 5px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+
+    /* Action buttons in table */
+  .action-btn {
+padding: 8px 8px; /* Reduced horizontal padding */
+border: none;
+border-radius: 4px;
+color: #fff;
+cursor: pointer;
+text-decoration: none;
+
+display: inline-block;
+width: auto;           /* Ensure it only takes the width of its content */
+max-width: fit-content; /* Prevents unnecessary extra space */
+}
+.update-btn {
+background-color: #4CAF50; /* green */
+}
+.update-btn:hover {
+background-color: #45a049;
+}
+.action-cell {
+padding: 8px 0px;
+white-space: nowrap;
+width: 1%;
+}
+
+
+
+
+    /* Page size dropdown */
+    #pageSizeForm {
+        margin-bottom: 20px;
+    }
+    #pageSize {
+        padding: 8px 12px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        background-color: white;
+        font-size: 0.9rem;
+        cursor: pointer;
+    }
+
+   .pagination-links {
+display: flex;
+justify-content: center;
+align-items: center;
+gap: 10px;
+padding: 10px;
+}
+
+.pagination-links a {
+text-decoration: none;
+padding: 8px 12px;
+border: 1px solid #ccc;
+border-radius: 5px;
+color: #333;
+transition: background 0.3s;
+}
+
+.pagination-links a:hover {
+background: #f0f0f0;
+}
+
+.pagination-links .active {
+background: #007bff;
+color: #fff;
+border-color: #007bff;
+}
+
+.prev, .next {
+font-weight: bold;
+}
+
+#pagination{
+display: flex;
+justify-content: center;
+gap:8%;
+
+}
+
+
+
+      .add-book-btn {
+background-color: #0d6efd;
+color: #fff;
+padding: 10px 20px;
+border: none;
+border-radius: 6px;
+text-decoration: none;
+cursor: pointer;
+font-size: 0.9rem;
+}
+    .add-book-btn:hover {
+        background-color: #0b5ed7;
+    }
+    .book-title {
+font-weight: bold;
+color: #808080;
+text-decoration: none;
+transition: color 0.3s ease-in-out;
+}
+
+.book-title:hover {
+color: #0056b3; /* Darker shade on hover */
+text-decoration: underline;
+}
+    /* Sort indicators */
+    .sort-indicator {
+        display: inline-block;
+        margin-left: 5px;
+        font-size: 0.8rem;
+    }
+    .sort-asc::after {
+        content: " ↑";
+    }
+    .sort-desc::after {
+        content: " ↓";
+    }
+  </style>
+  <script>
+    function changePageSize() {
+    console.log("changePageSize() triggered");
+    const newSize = document.getElementById('pageSize').value;
+    let params = new URLSearchParams(window.location.search);
+    params.set("size", newSize);
+    params.set("page", 0);
+
+    // Extract ID from current URL
+    let currentUrl = window.location.pathname;
+    let pathSegments = currentUrl.split('/');
+    let bookId = pathSegments[pathSegments.length - 1]; // Assuming ID is the last segment
+
+    const newUrl = `/book/list/${bookId}?` + params.toString();
+    window.location.href = newUrl;
+}
+
+function updatePaginationLinks() {
+    let params = new URLSearchParams(window.location.search);
+    let currentPage = parseInt(params.get("page")) || 0;
+    let totalPages = parseInt([[${bookPage.totalPages}]]) || 1;
+
+    const prevPageLink = document.getElementById("prevPage");
+    const nextPageLink = document.getElementById("nextPage");
+    const paginationContainer = document.getElementById("pagination");
+
+    paginationContainer.innerHTML = ""; // Clear previous pagination links
+
+    // Extract ID from current URL
+    let currentUrl = window.location.pathname;
+    let pathSegments = currentUrl.split('/');
+    let bookId = pathSegments[pathSegments.length - 1]; // Assuming ID is the last segment
+
+    function createPageLink(page) {
+        let pageParams = new URLSearchParams(params.toString());
+        pageParams.set("page", page);
+        return `/book/list/${bookId}?` + pageParams.toString();
+    }
+
+    // Previous Page
+    if (currentPage > 0) {
+        prevPageLink.href = createPageLink(currentPage - 1);
+        prevPageLink.style.display = "inline-block";
+    } else {
+        prevPageLink.style.display = "none";
+    }
+
+    // Page Number Links
+    for (let i = 0; i < totalPages; i++) {
+        let pageLink = document.createElement("a");
+        pageLink.href = createPageLink(i);
+        pageLink.textContent = i + 1;
+        if (i === currentPage) {
+            pageLink.classList.add("active");
+        }
+        paginationContainer.appendChild(pageLink);
+    }
+
+    // Next Page
+    if (currentPage < totalPages - 1) {
+        nextPageLink.href = createPageLink(currentPage + 1);
+        nextPageLink.style.display = "inline-block";
+    } else {
+        nextPageLink.style.display = "none";
+    }
+}
+
+window.onload = function() {
+    updatePaginationLinks();
+};
+
+  </script>
+</head>
+<body>
+<div layout:fragment="content" class="container">
+
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 20px;">
+    <h2>Book</h2>
+
+
+    <a href="/book/add" class="add-book-btn">Add book</a>
+
+  </div>
+  <div class="table-container">
+
+    <table class="book-table">
+      <thead>
+      <tr>
+
+        <th>Image</th>
+        <th onclick="toggleSort('id')">ID <span id="sort-id" class="sort-indicator"></span></th>
+        <th onclick="toggleSort('name')">Title <span id="sort-name" class="sort-indicator"></span></th>
+        <th onclick="toggleSort('author')">Author <span id="sort-author" class="sort-indicator"></span></th>
+        <th onclick="toggleSort('publicationYear')">Price <span id="sort-publicationYear" class="sort-indicator"></span></th>
+        <th onclick="toggleSort('stockQuantity')">Stock <span id="sort-stockQuantity" class="sort-indicator"></span></th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="book : ${bookPage.content}" th:onclick="|if(event.target.type !== 'checkbox') window.location.href='@{/book/detail/{id}(id=${book.id})}'|"
+          style="cursor: pointer;">
+        <td>
+          <img th:src="@{'/uploads/' + ${book.bookCover}}" alt="Book Cover" style="max-width:150px; max-height:150px;">
+        </td>
+        <td th:text="${book.id}"></td>
+        <td th:text="${#strings.length(book.name) > 20 ? #strings.substring(book.name, 0, 20) + '...' : book.name}"></td>
+        <td th:text="${book.author}"></td>
+        <td th:text="${book.publicationYear}"></td>
+        <td th:text="${book.stockQuantity}"></td>
+        <td class="action-cell">
+          <a th:href="@{/book/update/{id}(id=${book.id})}" class="action-btn update-btn">Update</a>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div th:if="${bookPage.totalElements > 5}">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+      <form id="pageSizeForm" th:action="@{/book/list}" method="get">
+        <input type="hidden" name="page" th:value="${currentPage}"/>
+        <select id="pageSize" name="size" th:onchange="changePageSize()">
+          <option th:value="5" th:selected="${pageSize == 5}">5</option>
+          <option th:value="10" th:selected="${pageSize == 10}">10</option>
+          <option th:value="20" th:selected="${pageSize == 20}">20</option>
+        </select>
+
+      </form>
+      <div class="pagination-links">
+        <a class="prev" id="prevPage">&lt;</a>
+        <span id="pagination"></span>
+        <a class="next" id="nextPage">&gt;</a>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

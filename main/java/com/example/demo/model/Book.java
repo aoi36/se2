@@ -22,10 +22,12 @@ public class Book {
     private Long id;
     @NotEmpty(message = "Name cannot be empty")
     @Size(max = 255, message = "Name can be at most 255 characters")
+    @Pattern(regexp = "^[a-zA-Z0-9 ]+$", message = "Name can only contain letters and numbers")
     private String name;
 
     @NotEmpty(message = "Author cannot be empty")
     @Size(max = 255, message = "Author can be at most 255 characters")
+    @Pattern(regexp = "^[a-zA-Z0-9 ]+$", message = "Author can only contain letters and numbers")
     private String author;
 
     @NotNull(message = "Price is required")

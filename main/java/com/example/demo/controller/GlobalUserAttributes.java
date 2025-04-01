@@ -25,7 +25,7 @@ public class GlobalUserAttributes {
                 String name = user.getUsername();
                 RoleName roleName = user.getRole().getName();
                 boolean isAdmin = roleName == RoleName.ROLE_ADMIN;
-
+                model.addAttribute("userId", user.getId());
                 model.addAttribute("avatar", user.getAvatar());
                 model.addAttribute("email", user.getEmail());
                 model.addAttribute("name", name);
